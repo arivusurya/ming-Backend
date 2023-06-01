@@ -1,5 +1,6 @@
 const { DataTypes, Sequelize, TIME } = require("sequelize");
 const sequelize = require("../config/db.config");
+const Category = require("./Category.model");
 
 const Product = sequelize.define(
   "Product",
@@ -14,8 +15,19 @@ const Product = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    categoryid: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Category,
+        key: "categoryid",
+      },
+    },
   },
   { timestamps: true, freezeTableName: true }
 );
+
+Product.belongsTo(Category, { foreignKey: "categoryid" });
+Category.hasMany(Product, { foreignKey: "categoryid" });
 
 module.exports = Product;
