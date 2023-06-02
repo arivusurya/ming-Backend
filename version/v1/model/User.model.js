@@ -1,5 +1,6 @@
 const { DataTypes, Sequelize, TIME } = require("sequelize");
 const sequelize = require("../config/db.config");
+const Review = require("./Review.model");
 
 const User = sequelize.define(
   "User",
@@ -22,5 +23,5 @@ const User = sequelize.define(
   },
   { timestamps: true, freezeTableName: true }
 );
-
+Review.belongsTo(User, { foreignKey: "userid" });
 module.exports = User;

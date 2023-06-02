@@ -10,18 +10,14 @@ app.use(express.json());
 
 app.use("/api", require("./version/v1/routes/User.routes"));
 app.use("/api", require("./version/v1/routes/Product.routes"));
-
-// Routes
-app.get("/", (req, res) => {
-  res.send("Hello, world!");
-});
-
+app.use("/api/product", require("./version/v1/routes/Review.routes"));
 // Start the server
 app.listen(port, async () => {
   await sequelize.authenticate();
   await Model.user.sync();
   await Model.category.sync();
   await Model.product.sync();
+  await Model.review.sync();
 
   console.log(`Server is running on port ${port}`);
 });

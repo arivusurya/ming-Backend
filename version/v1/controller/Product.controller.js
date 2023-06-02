@@ -2,6 +2,7 @@ const Model = require("../model");
 
 const Productcontroller = {};
 
+// product by id
 Productcontroller.getProductbyId = async (req, res) => {
   const id = req.params.id;
   try {
@@ -9,11 +10,25 @@ Productcontroller.getProductbyId = async (req, res) => {
       where: { productId: id },
       include: Model.category,
     });
-    res.status(200).json({ product: Product });
+    const review = await Model.review.findAll({
+      where: { productId: id },
+      include: [
+        {
+          model: Model.user,
+          attributes: { exclude: ["password"] }, // Exclude the password field from the user model
+        },
+      ],
+    });
+
+    console.log(review);
+    res.status(200).json({ product: Product, review: review });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// create a new Product
 
 Productcontroller.createProduct = async (req, res) => {
   const { name, category } = req.body;
@@ -26,9 +41,12 @@ Productcontroller.createProduct = async (req, res) => {
       categoryid: cat[0].categoryid,
     });
     res.send(product);
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
+// product By Category
 Productcontroller.getbyCategory = async (req, res) => {
   const query = req.query;
   try {
@@ -44,6 +62,18 @@ Productcontroller.getbyCategory = async (req, res) => {
     });
     res.status(200).json({ product: product });
   } catch (error) {
+    res.status(500).json({ message: "Internel server error" });
+  }
+};
+
+// get all products
+
+Productcontroller.getAllproduct = async (req, res) => {
+  try {
+    const Products = await Model.product.findAll({ include: Model.category });
+    res.status(200).json({ product: Products });
+  } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Internel server error" });
   }
 };

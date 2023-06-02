@@ -1,6 +1,7 @@
 const { DataTypes, Sequelize, TIME } = require("sequelize");
 const sequelize = require("../config/db.config");
 const Category = require("./Category.model");
+const Review = require("./Review.model");
 
 const Product = sequelize.define(
   "Product",
