@@ -12,4 +12,13 @@ const sequelize = new Sequelize(
   }
 );
 
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("Connection created");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+
 module.exports = sequelize;
