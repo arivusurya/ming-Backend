@@ -24,6 +24,9 @@ const Product = sequelize.define(
         key: "categoryid",
       },
     },
+    image: {
+      type: DataTypes.STRING,
+    },
   },
   { timestamps: true, freezeTableName: true }
 );

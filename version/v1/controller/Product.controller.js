@@ -1,3 +1,4 @@
+const multer = require("multer");
 const Model = require("../model");
 
 const Productcontroller = {};
@@ -20,7 +21,6 @@ Productcontroller.getProductbyId = async (req, res) => {
       ],
     });
 
-    console.log(review);
     res.status(200).json({ product: Product, review: review });
   } catch (error) {
     console.log(error);
@@ -31,7 +31,13 @@ Productcontroller.getProductbyId = async (req, res) => {
 // create a new Product
 
 Productcontroller.createProduct = async (req, res) => {
-  const { name, category } = req.body;
+  const data = JSON.parse(req.body.data);
+  const name = data.name;
+  const category = data.category;
+
+  const filename = req.file.filename;
+  const basepath = `${req.protocol}://${req.get("host")}/public/uploads/`;
+
   try {
     const cat = await Model.category.findOrCreate({
       where: { name: category },
@@ -39,9 +45,11 @@ Productcontroller.createProduct = async (req, res) => {
     const product = await Model.product.create({
       name: name,
       categoryid: cat[0].categoryid,
+      image: `${basepath}${filename}`,
     });
     res.send(product);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -49,6 +57,7 @@ Productcontroller.createProduct = async (req, res) => {
 // product By Category
 Productcontroller.getbyCategory = async (req, res) => {
   const query = req.query;
+
   try {
     const category = await Model.category.findOne({
       where: { name: query.name },
