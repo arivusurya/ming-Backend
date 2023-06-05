@@ -1,5 +1,5 @@
 const Model = require("../model");
-
+const bcrypt = require("bcrypt");
 const { where } = require("sequelize");
 const jwthandler = require("../middleware/TokenHandler");
 const Usercontroller = {};
@@ -13,7 +13,12 @@ Usercontroller.login = async (req, res) => {
         .status(404)
         .json({ message: "No user Found", redirecturl: "/register" });
     } else {
-      if (user.dataValues.password === password) {
+      let isvalidpass = await bcrypt.compare(
+        password,
+        user.dataValues.password
+      );
+
+      if (isvalidpass) {
         const token = jwthandler.Singtoken({
           userid: user.dataValues.userid,
           email: user.dataValues.email,
@@ -22,7 +27,7 @@ Usercontroller.login = async (req, res) => {
           .setHeader("Authorization", "Barer " + token)
           .json({ message: "Home Url" });
       } else {
-        return res.status(402).json({ message: "not auth" });
+        return res.status(401).json({ message: "not auth" });
       }
     }
   } catch (error) {
@@ -36,7 +41,11 @@ Usercontroller.Register = async (req, res) => {
   try {
     let user = await Model.user.findOne({ where: { email: email } });
     if (!user) {
-      user = await Model.user.create({ email: email, password: password });
+      const hashedpassword = await bcrypt.hash(password, 10);
+      user = await Model.user.create({
+        email: email,
+        password: hashedpassword,
+      });
       res.status(201).json({ message: "user created successfully" });
     } else {
       res.status(403).json({ message: "user exits", redirecturl: "/login" });
