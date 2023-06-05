@@ -31,7 +31,7 @@ Productcontroller.getProductbyId = async (req, res) => {
 // create a new Product
 
 Productcontroller.createProduct = async (req, res) => {
-  const { name, category } = req.body;
+  const { name, category, description } = req.body;
   try {
     const cat = await Model.category.findOrCreate({
       where: { name: category },
@@ -40,7 +40,11 @@ Productcontroller.createProduct = async (req, res) => {
       name: name,
       categoryid: cat[0].categoryid,
     });
-    res.send(product);
+    const ProductDescription = await Model.productdescription.create({
+      productId: product.productId,
+      description: description,
+    });
+    res.send({product, ProductDescription});
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
