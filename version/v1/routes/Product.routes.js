@@ -2,7 +2,6 @@ const express = require("express");
 const Model = require("../model");
 const jwthandler = require("../middleware/TokenHandler");
 const Productcontroller = require("../controller/Product.controller");
-const uploads = require("../middleware/imageuploader");
 
 const router = express.Router();
 
@@ -14,7 +13,7 @@ router.get(
 
 router.post(
   "/product",
-  uploads.single("image"),
+
   Productcontroller.createProduct
 );
 

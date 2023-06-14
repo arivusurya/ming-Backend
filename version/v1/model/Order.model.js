@@ -4,45 +4,48 @@ const User = require("./User.model");
 const Product = require("./Product.model");
 
 const Order = sequelize.define(
-    "Order",
-    {
-      orderId: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        autoIncrement: true,
-      },
-      userid: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: User,
-          key: "userid",
-        },
-      },
-      productId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: Product,
-          key: "productId",
-        },
-      },
-      quantity: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 1,
-      },
-      hasCompleted: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+  "Orders",
+  {
+    orderId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    userid: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: User,
+        key: "userid",
       },
     },
-    { timestamps: true, freezeTableName: true }
-  );
-  
-  
+    productId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Product,
+        key: "productId",
+      },
+    },
+    reciptID: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    amount: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    paymentId: {
+      type: DataTypes.STRING,
+    },
+    hasPaid: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "Pending",
+    },
+  },
+
+  { timestamps: true, freezeTableName: true }
+);
 
 Order.belongsTo(User, { foreignKey: "userid" });
 User.hasMany(Order, { foreignKey: "userid" });

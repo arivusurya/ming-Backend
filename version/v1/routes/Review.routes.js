@@ -8,7 +8,7 @@ router.post("/addreview", Verifytoken, async (req, res) => {
   const { productid, rating, comment } = req.body;
   try {
     const review = await Model.review.create({
-      userid: req.userid,
+      userid: req.User.userid,
       productId: productid,
       rating: rating,
       comment: comment,

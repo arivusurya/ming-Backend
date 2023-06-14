@@ -5,7 +5,7 @@ const Cartcontroller = require("../controller/Cart.controller");
 
 const router = express.Router();
 
-router.post("/add/:userid", Cartcontroller.addToCart);
+router.post("/add-to-cart", jwthandler.Verifytoken, Cartcontroller.addToCart);
 
 router.post("/remove/:userid", Cartcontroller.removeFromCart);
 

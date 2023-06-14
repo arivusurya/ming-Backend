@@ -19,8 +19,8 @@ const Verifytoken = async (req, res, next) => {
     if (err) {
       return res.status(402).json({ message: "Invalid token" });
     } else {
-      req.userid = decoded.userid;
-      req.email = decoded.email;
+      req.User = decoded;
+
       next();
     }
   });

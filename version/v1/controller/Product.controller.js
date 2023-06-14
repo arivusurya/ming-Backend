@@ -36,13 +36,7 @@ Productcontroller.getProductbyId = async (req, res) => {
 
 // create a new Product
 Productcontroller.createProduct = async (req, res) => {
-  const data = JSON.parse(req.body.data);
-  console.log(data);
-  const { name, category, description } = data;
-  const filename = req.file.filename;
-  const basepath = `${req.protocol}://${req.get(
-    "host"
-  )}/version/v1/public/uploads/`;
+  const { name, category, description, price } = req.body;
 
   try {
     const cat = await Model.category.findOrCreate({
@@ -52,7 +46,7 @@ Productcontroller.createProduct = async (req, res) => {
     const product = await Model.product.create({
       name: name,
       categoryid: cat[0].categoryid,
-      image: `${basepath}${filename}`,
+      price: price,
     });
 
     const productDescription = await Model.productdescription.create({
