@@ -42,6 +42,11 @@ const Order = sequelize.define(
       allowNull: false,
       defaultValue: "Pending",
     },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "active",
+    },
   },
 
   { timestamps: true, freezeTableName: true }

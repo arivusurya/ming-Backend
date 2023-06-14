@@ -3,6 +3,7 @@ const Jwthandler = require("../middleware/TokenHandler");
 const Razorpay = require("razorpay");
 const { v4: uuid } = require("uuid");
 const Product = require("../model/Product.model");
+const crypto = require("crypto");
 
 const Model = require("../model");
 const Order = require("../model/Order.model");
@@ -44,6 +45,22 @@ router.post("/payment", Jwthandler.Verifytoken, async (req, res) => {
   });
 });
 
-router.post("/verify-payment", async (req, res) => {});
+router.post("/verify-payment", async (req, res) => {
+  const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
+    req.body;
+  generated_signature = crypto
+    .createHmac("sha256", process.env.razorpaysecret)
+    .update(razorpay_order_id + "|" + razorpay_payment_id)
+    .digest("hex");
+
+  if (generated_signature == razorpay_signature) {
+    const orderRow = await Order.findOne({
+      where: { orderId: razorpay_order_id },
+    });
+    (orderRow.paymentId = razorpay_payment_id), (orderRow.hasPaid = "paid");
+    orderRow.save();
+    res.status(200).json({ message: "Product orderded" });
+  }
+});
 
 module.exports = router;
