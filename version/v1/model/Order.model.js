@@ -45,7 +45,7 @@ const Order = sequelize.define(
     status: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: "active",
+      defaultValue: "inactive",
     },
   },
 

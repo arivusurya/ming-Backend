@@ -4,9 +4,9 @@ const Razorpay = require("razorpay");
 const { v4: uuid } = require("uuid");
 const Product = require("../model/Product.model");
 const crypto = require("crypto");
-
 const Model = require("../model");
 const Order = require("../model/Order.model");
+const SendEmail = require("../helper/Mailer");
 require("dotenv").config();
 
 const router = express.Router();
@@ -24,7 +24,7 @@ router.post("/payment", Jwthandler.Verifytoken, async (req, res) => {
   const TotalAmount = cartRow.quantity * cartRow.Product.price;
   const receipt = uuid();
   const order = await razorpay.orders.create({
-    amount: TotalAmount,
+    amount: TotalAmount * 100,
     currency: "INR",
     receipt: receipt,
   });
@@ -57,8 +57,11 @@ router.post("/verify-payment", async (req, res) => {
     const orderRow = await Order.findOne({
       where: { orderId: razorpay_order_id },
     });
-    (orderRow.paymentId = razorpay_payment_id), (orderRow.hasPaid = "paid");
+    (orderRow.paymentId = razorpay_payment_id),
+      (orderRow.hasPaid = "paid"),
+      (orderRow.status = "active");
     orderRow.save();
+    SendEmail(process.env.email);
     res.status(200).json({ message: "Product orderded" });
   }
 });
