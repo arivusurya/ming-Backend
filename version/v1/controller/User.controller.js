@@ -1,7 +1,9 @@
 const Model = require("../model");
 const bcrypt = require("bcrypt");
 const { where } = require("sequelize");
+const jwt = require("jsonwebtoken");
 const jwthandler = require("../middleware/TokenHandler");
+const UserVerifyEmail = require("../helper/UserVerification");
 const Usercontroller = {};
 
 Usercontroller.login = async (req, res) => {
@@ -42,7 +44,15 @@ Usercontroller.Register = async (req, res) => {
         email: email,
         password: hashedpassword,
       });
-      res.status(201).json({ message: "user created successfully" });
+      let expiresIn = "1d";
+      const token = jwt.sign({ email: email }, process.env.jwtsecert, {
+        expiresIn,
+      });
+      let url = `http:localhost:5000/api/confirmation/${token}`;
+      UserVerifyEmail(email, url);
+      res.json({
+        message: "We Send the Confirmation Link  on Your Email to Verify ",
+      });
     } else {
       res.status(403).json({ message: "user exits", redirecturl: "/login" });
     }
