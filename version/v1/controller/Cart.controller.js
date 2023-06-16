@@ -1,4 +1,5 @@
 const Model = require("../model");
+const logger = require("../logger/logger");
 
 const Cartcontroller = {};
 
@@ -32,6 +33,7 @@ Cartcontroller.addToCart = async (req, res) => {
       res.send(newCartRow);
     }
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -68,6 +70,7 @@ Cartcontroller.removeFromCart = async (req, res) => {
       res.status(404).json({ message: "Row not found" });
     }
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -88,7 +91,8 @@ Cartcontroller.getAllCartbyuserid = async (req, res) => {
 
     return cartProducts;
   } catch (error) {
-    throw new Error("Error retrieving cart products");
+    logger.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -117,6 +121,7 @@ Cartcontroller.getSingleCart = async (req, res) => {
       res.status(404).json({ message: "Product not found in cart" });
     }
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

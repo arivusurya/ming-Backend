@@ -62,28 +62,6 @@ Productcontroller.createProduct = async (req, res) => {
   }
 };
 
-// Productcontroller.createProduct = async (req, res) => {
-//   const { name, category, description } = req.body;
-
-//   try {
-//     const cat = await Model.category.findOrCreate({
-//       where: { name: category },
-//     });
-//     const product = await Model.product.create({
-//       name: name,
-//       categoryid: cat[0].categoryid,
-//     });
-//     const ProductDescription = await Model.productdescription.create({
-//       productId: product.productId,
-//       description: description,
-//     });
-//     res.send({ product, ProductDescription });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// };
-
 // product By Category
 Productcontroller.getbyCategory = async (req, res) => {
   const query = req.query;
@@ -112,6 +90,7 @@ Productcontroller.getAllproduct = async (req, res) => {
     const Products = await Model.product.findAll({ include: Model.category });
     res.status(200).json({ product: Products });
   } catch (error) {
+    console.log(error);
     logger.error(error);
     res.status(500).json({ message: "Internel server error" });
   }
