@@ -4,6 +4,7 @@ const Usercontroller = require("../controller/User.controller");
 const { route } = require("./Payment.routes");
 const Model = require("../model");
 const UserBodyValidator = require("../JoiValidation/UserValidation");
+const logger = require("../logger/logger");
 
 const router = express.Router();
 
@@ -25,6 +26,7 @@ router.get("/confirmation/:token", async (req, res) => {
     );
     res.redirect("http://localhost:5000/api/login");
   } catch (error) {
+    logger.error(error);
     console.log(error);
   }
 });

@@ -1,4 +1,5 @@
 const Model = require("../model");
+const logger = require("../logger/logger");
 
 const Productcontroller = {};
 
@@ -29,7 +30,7 @@ Productcontroller.getProductbyId = async (req, res) => {
 
     res.status(200).json({ product: Product, review: review });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -56,7 +57,7 @@ Productcontroller.createProduct = async (req, res) => {
 
     res.send({ product, productDescription });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -99,6 +100,7 @@ Productcontroller.getbyCategory = async (req, res) => {
     });
     res.status(200).json({ product: product });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ message: "Internel server error" });
   }
 };
@@ -110,7 +112,7 @@ Productcontroller.getAllproduct = async (req, res) => {
     const Products = await Model.product.findAll({ include: Model.category });
     res.status(200).json({ product: Products });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     res.status(500).json({ message: "Internel server error" });
   }
 };

@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const jwthandler = require("../middleware/TokenHandler");
 const UserVerifyEmail = require("../helper/UserVerification");
 const VerifiedToken = require("../helper/VerifiedToken");
+const logger = require("../logger/logger");
 const Usercontroller = {};
 
 Usercontroller.login = async (req, res) => {
@@ -39,7 +40,7 @@ Usercontroller.login = async (req, res) => {
       return res.status(402).json({ message: "not auth" });
     }
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -75,7 +76,7 @@ Usercontroller.Register = async (req, res) => {
 
     res.status(301).json({ message: "User found" });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     res.status(500).json({ message: "Internel server error" });
   }
 };
