@@ -3,12 +3,17 @@ const jwt = require("jsonwebtoken");
 const Usercontroller = require("../controller/User.controller");
 const { route } = require("./Payment.routes");
 const Model = require("../model");
+const UserBodyValidator = require("../JoiValidation/UserValidation");
 
 const router = express.Router();
 
-router.post("/login", Usercontroller.login);
+router.post("/login", UserBodyValidator.LoginValidator, Usercontroller.login);
 
-router.post("/register", Usercontroller.Register);
+router.post(
+  "/register",
+  UserBodyValidator.RegistrationValidator,
+  Usercontroller.Register
+);
 
 router.get("/confirmation/:token", async (req, res) => {
   const token = req.params.token;

@@ -4,6 +4,7 @@ const { where } = require("sequelize");
 const jwt = require("jsonwebtoken");
 const jwthandler = require("../middleware/TokenHandler");
 const UserVerifyEmail = require("../helper/UserVerification");
+const VerifiedToken = require("../helper/VerifiedToken");
 const Usercontroller = {};
 
 Usercontroller.login = async (req, res) => {
@@ -14,19 +15,28 @@ Usercontroller.login = async (req, res) => {
       return res
         .status(404)
         .json({ message: "No user Found", redirecturl: "/register" });
+    }
+
+    if (user && user.dataValues.verified === false) {
+      let url = VerifiedToken({ email: email });
+      UserVerifyEmail(email, url);
+      return res
+        .status(200)
+        .json({ message: "please Confirm the link send throug the email" });
+    }
+
+    let isvalid = await bcrypt.compare(password, user.dataValues.password);
+    if (isvalid) {
+      const token = jwthandler.Singtoken({
+        userid: user.dataValues.userid,
+        email: user.dataValues.email,
+        verified: user.dataValues.verified,
+      });
+      return res
+        .setHeader("Authorization", "Barer " + token)
+        .json({ message: "Home Url" });
     } else {
-      let isvalid = await bcrypt.compare(password, user.dataValues.password);
-      if (isvalid) {
-        const token = jwthandler.Singtoken({
-          userid: user.dataValues.userid,
-          email: user.dataValues.email,
-        });
-        return res
-          .setHeader("Authorization", "Barer " + token)
-          .json({ message: "Home Url" });
-      } else {
-        return res.status(402).json({ message: "not auth" });
-      }
+      return res.status(402).json({ message: "not auth" });
     }
   } catch (error) {
     console.log(error);
@@ -35,27 +45,35 @@ Usercontroller.login = async (req, res) => {
 };
 
 Usercontroller.Register = async (req, res) => {
-  const { email, password } = req.body;
+  const { firstname, email, password, phoneNum } = req.body;
+  console.log(req.body);
   try {
     let user = await Model.user.findOne({ where: { email: email } });
     if (!user) {
       const hashedpassword = await bcrypt.hash(password, 10);
       user = await Model.user.create({
+        firstname: firstname,
         email: email,
         password: hashedpassword,
+        phoneNum: phoneNum,
       });
-      let expiresIn = "1d";
-      const token = jwt.sign({ email: email }, process.env.jwtsecert, {
-        expiresIn,
-      });
-      let url = `http:localhost:5000/api/confirmation/${token}`;
-      UserVerifyEmail(email, url);
-      res.json({
+
+      let url = VerifiedToken({ email: email });
+      UserVerifyEmail(firstname, email, url);
+      return res.json({
         message: "We Send the Confirmation Link  on Your Email to Verify ",
       });
-    } else {
-      res.status(403).json({ message: "user exits", redirecturl: "/login" });
     }
+
+    if (user && user.dataValues.verified === false) {
+      let url = VerifiedToken({ email: email });
+      UserVerifyEmail(email, url);
+      return res
+        .status(200)
+        .json({ message: "please Confirm the link send throug the email" });
+    }
+
+    res.status(301).json({ message: "User found" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internel server error" });

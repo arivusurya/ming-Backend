@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const VerifiedToken = require("../helper/VerifiedToken");
 require("dotenv").config();
 
 const jwthandler = {};
@@ -18,11 +19,16 @@ const Verifytoken = async (req, res, next) => {
   jwt.verify(token.split(" ")[1], process.env.jwtsecert, (err, decoded) => {
     if (err) {
       return res.status(402).json({ message: "Invalid token" });
-    } else {
-      req.User = decoded;
-
-      next();
     }
+    if (decoded.verified === false) {
+      let url = VerifiedToken({ email: email });
+      UserVerifyEmail(email, url);
+      return res
+        .status(200)
+        .json({ message: "please Confirm the link send throug the email" });
+    }
+    req.User = decoded;
+    next();
   });
 };
 
