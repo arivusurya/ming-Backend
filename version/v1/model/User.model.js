@@ -13,7 +13,6 @@ const User = sequelize.define(
     },
     firstname: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     email: {
       type: DataTypes.STRING,
@@ -26,15 +25,9 @@ const User = sequelize.define(
     },
     phoneNum: {
       type: DataTypes.STRING,
-      allowNull: false,
-    },
-    verified: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
     },
   },
   { timestamps: true, freezeTableName: true }
 );
-Review.belongsTo(User, { foreignKey: "userid" });
+
 module.exports = User;

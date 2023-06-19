@@ -9,4 +9,13 @@ const logger = winston.createLogger({
   ],
 });
 
-module.exports = logger;
+const Emaillogger = winston.createLogger({
+  transports: [
+    new winston.transports.File({
+      filename: "email.log",
+      level: "info",
+    }),
+  ],
+});
+
+module.exports = { logger, Emaillogger };

@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const logger = require("../logger/logger");
+const { logger } = require("../logger/logger");
 
 const UserBodyValidator = {};
 // Registration Scheme
@@ -23,6 +23,7 @@ const RegistrationUserSchema = Joi.object({
 UserBodyValidator.RegistrationValidator = (req, res, next) => {
   const { error } = RegistrationUserSchema.validate(req.body);
   if (error) {
+    logger.error(error);
     return res.status(500).json({ message: error.message });
   }
   next();

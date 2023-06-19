@@ -1,5 +1,5 @@
 const Model = require("../model");
-const logger = require("../logger/logger");
+const { logger } = require("../logger/logger");
 
 const Cartcontroller = {};
 

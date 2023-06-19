@@ -11,30 +11,13 @@ const Review = sequelize.define("Review", {
     autoIncrement: true,
     allowNull: false,
   },
-  userid: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: User,
-      key: "userid",
-    },
-  },
   productId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Product,
-      key: "productId",
-    },
   },
   comment: {
     type: DataTypes.STRING,
   },
-  rating: {
-    type: DataTypes.INTEGER,
-  },
 });
-
 Review.belongsTo(Product, { foreignKey: "productId" });
-
+Product.hasMany(Review);
 module.exports = Review;
