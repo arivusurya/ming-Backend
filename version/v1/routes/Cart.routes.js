@@ -11,6 +11,10 @@ router.post("/remove/:userid", Cartcontroller.removeFromCart);
 
 router.get("/getcart/:userid", Cartcontroller.getSingleCart);
 
-router.get("/:userid", Cartcontroller.getAllCartbyuserid);
+router.get(
+  "/getcart",
+  jwthandler.Verifytoken,
+  Cartcontroller.getAllCartbyuserid
+);
 
 module.exports = router;

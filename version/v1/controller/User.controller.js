@@ -18,7 +18,7 @@ Usercontroller.login = async (req, res) => {
       let isvalid = await bcrypt.compare(password, user.dataValues.password);
       if (isvalid) {
         const token = jwt.sign(
-          { email: user.email, id: user.id },
+          { email: user.email, id: user.userid },
           process.env.jwtsecert
         );
         res.set({ Authorization: `Barer ${token}` });

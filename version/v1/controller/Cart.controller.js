@@ -78,7 +78,8 @@ Cartcontroller.removeFromCart = async (req, res) => {
 // get all cart details by userid
 
 Cartcontroller.getAllCartbyuserid = async (req, res) => {
-  const userid = req.params.userid;
+  const userid = req.User;
+  console.log(req.User);
   try {
     const cartProducts = await Model.cart.findAll({
       where: { userid: userid },
@@ -88,9 +89,14 @@ Cartcontroller.getAllCartbyuserid = async (req, res) => {
         },
       ],
     });
-
-    return cartProducts;
+    if (cartProducts.length === 0) {
+      return res.status(200).json({ message: "No Cart Item is Found" });
+    }
+    return res
+      .status(200)
+      .json({ message: "Cart Found", cartProducts: cartProducts });
   } catch (error) {
+    console.log(error);
     logger.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
