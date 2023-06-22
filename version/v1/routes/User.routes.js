@@ -1,34 +1,17 @@
 const express = require("express");
-const jwt = require("jsonwebtoken");
-const Usercontroller = require("../controller/User.controller");
-const { route } = require("./Payment.routes");
-const Model = require("../model");
-const UserBodyValidator = require("../JoiValidation/UserValidation");
-const logger = require("../logger/logger");
-
 const router = express.Router();
 
-router.post("/login", UserBodyValidator.LoginValidator, Usercontroller.login);
+const { validateBody } = require("../middleware/validation.middleware");
+const userValidation = require("../validations/user.validation");
+const { validateUser } = require("../utils/auth.utils");
 
-router.post(
-  "/register",
-  UserBodyValidator.RegistrationValidator,
-  Usercontroller.Register
-);
+const userController = require("../controllers/user.controller");
 
-router.get("/confirmation/:token", async (req, res) => {
-  const token = req.params.token;
-  try {
-    const decode = jwt.verify(token, process.env.jwtsecert);
-    const User = Model.user.update(
-      { verified: true },
-      { where: { email: decode.email } }
-    );
-    res.redirect("http://localhost:5000/api/login");
-  } catch (error) {
-    logger.error(error);
-    console.log(error);
-  }
-});
+router.post("/getAllUsers", userController.getAllUser);
+router.post("/registerUser", validateBody(userValidation.registerUser), userController.registerUser);
+router.post("/loginUser", validateUser, validateBody(userValidation.loginUser), userController.loginUser);
+
+router.post("/addUserAddress", validateUser, validateBody(userValidation.addUserAddress), userController.addUserAddress);
+router.post("/getAllAddress", validateUser, userController.getAllAddress);
 
 module.exports = router;

@@ -1,0 +1,19 @@
+{
+  "tabWidth": 2,
+  "overrides": [
+    {
+      "files": "*socket.js",
+      "options": {
+        "tabWidth": 2,
+        "printWidth": 1000
+      }
+    },
+    {
+      "files": "*routes.js",
+      "options": {
+        "tabWidth": 2,
+        "printWidth": 1000
+      }
+    }
+  ]
+}
