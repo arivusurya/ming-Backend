@@ -93,3 +93,24 @@ CREATE TABLE `mingbackend`.`categories` (
 	`status` varchar(255),
 	PRIMARY KEY (id)
 );
+
+-- 23 June 2023 12:41:07 AM 
+CREATE TABLE `mingbackend`.`products` (
+	`id` int AUTO_INCREMENT,
+	`productId` int,
+	`categoryId` int,
+	`name` varchar(255),
+	`description` varchar(255),
+	`weight` int,
+	`type` varchar(255),
+	`price` varchar(255),
+	`addedBy` int,
+	`dateTime` datetime,
+	`date` date,
+	`status` varchar(255),
+	PRIMARY KEY (id)
+);
+
+-- 23 June 2023 12:46:13 AM
+ALTER TABLE `mingbackend`.`products`
+ADD COLUMN `image` varchar(255) NULL AFTER `status`;

@@ -51,12 +51,14 @@ controller.addproduct = handler(async (req, res) => {
 
   const product = await Product.create({
     productId: productId,
-    categoryId: req?.body?.productId,
+    categoryId: req?.body?.categoryId,
     name: req?.body?.name,
     description: req?.body?.description,
+    image: req?.body?.image,
     weight: req?.body?.weight,
     type: req?.body?.type,
     price: req?.body?.price,
+    addedBy: req?.admin?.adminId,
   });
 
   if (!product) throw "400|Somthing_Went_Wrong!";

@@ -34,6 +34,11 @@ const Product = db.define(
       type: Sequelize.DataTypes.STRING,
       required: true,
     },
+    image: {
+      field: "image",
+      type: Sequelize.DataTypes.STRING,
+      required: true,
+    },
     weight: {
       field: "weight",
       type: Sequelize.DataTypes.STRING,

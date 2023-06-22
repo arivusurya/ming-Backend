@@ -19,6 +19,7 @@ validation.addProduct = Joi.object().keys({
   categoryId: Joi.number().required(),
   name: Joi.string().required(),
   description: Joi.string().required(),
+  image: Joi.string().required(),
   weight: Joi.number().required(),
   type: Joi.string().required(),
   price: Joi.number().required(),
