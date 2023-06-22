@@ -1,6 +1,8 @@
 const Sequelize = require("sequelize");
 const db = require("../models/index");
 
+const Address = require("../models/address.model");
+
 const constantUtils = require("../utils/constant.utils");
 
 const User = db.define(
@@ -88,5 +90,11 @@ const User = db.define(
     tableName: "users",
   }
 );
+
+User.belongsTo(Address, {
+  foreignKey: "userId",
+  targetKey: "userId",
+  constraints: false,
+});
 
 module.exports = User;

@@ -1,10 +1,10 @@
 const Sequelize = require("sequelize");
-const db = require("./index");
+const db = require("../models/index");
 
-const constantUtils = require("../utils/constant.utils");
+const Category = require("../models/category.model");
 
-const Address = db.define(
-  "addresss",
+const Product = db.define(
+  "products",
   {
     id: {
       field: "id",
@@ -13,43 +13,38 @@ const Address = db.define(
       primaryKey: true,
       allowNull: false,
     },
-    addressId: {
-      field: "addressId",
+    productId: {
+      field: "productId",
       type: Sequelize.DataTypes.INTEGER,
       required: true,
     },
-    userId: {
-      field: "userId",
+    categoryId: {
+      field: "categoryId",
       type: Sequelize.DataTypes.INTEGER,
-      required: true,
     },
-    address: {
-      field: "address",
+    name: {
+      field: "name",
       type: Sequelize.DataTypes.STRING,
       required: true,
     },
-    apartment: {
-      field: "apartment",
-      type: Sequelize.DataTypes.STRING,
-    },
-    city: {
-      field: "city",
+    description: {
+      field: "description",
       type: Sequelize.DataTypes.STRING,
       required: true,
     },
-    state: {
-      field: "state",
+    weight: {
+      field: "weight",
       type: Sequelize.DataTypes.STRING,
       required: true,
     },
-    country: {
-      field: "country",
+    type: {
+      field: "type",
       type: Sequelize.DataTypes.STRING,
       required: true,
     },
-    pinCode: {
-      field: "pinCode",
-      type: Sequelize.DataTypes.STRING,
+    price: {
+      field: "price",
+      type: Sequelize.DataTypes.INTEGER,
       required: true,
     },
     dateTime: {
@@ -59,14 +54,8 @@ const Address = db.define(
     },
     date: {
       field: "date",
-      type: Sequelize.DataTypes.DATE,
+      type: Sequelize.DataTypes.DATEONLY,
       defaultValue: Sequelize.NOW,
-    },
-    defaultStatus: {
-      field: "defaultStatus",
-      type: Sequelize.DataTypes.STRING,
-      enum: [constantUtils.ACTIVE, constantUtils.INACTIVE],
-      defaultValue: constantUtils.INACTIVE,
     },
     status: {
       field: "status",
@@ -77,8 +66,14 @@ const Address = db.define(
   },
   {
     timestamps: false,
-    tableName: "addresss",
+    tableName: "users",
   }
 );
 
-module.exports = Address;
+Product.belongsTo(Category, {
+  foreignKey: "categoryId",
+  targetKey: "categoryId",
+  constraints: false,
+});
+
+module.exports = Product;
