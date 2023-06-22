@@ -114,3 +114,7 @@ CREATE TABLE `mingbackend`.`products` (
 -- 23 June 2023 12:46:13 AM
 ALTER TABLE `mingbackend`.`products`
 ADD COLUMN `image` varchar(255) NULL AFTER `status`;
+
+-- 23 June 2023 1:32:21 AM
+ALTER TABLE `mingbackend`.`products`
+ADD COLUMN `images` varchar(1000) NULL AFTER `image`;
