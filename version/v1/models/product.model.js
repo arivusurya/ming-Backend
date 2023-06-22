@@ -3,6 +3,8 @@ const db = require("../models/index");
 
 const Category = require("../models/category.model");
 
+const constantUtils = require("../utils/constant.utils");
+
 const Product = db.define(
   "products",
   {
@@ -47,6 +49,10 @@ const Product = db.define(
       type: Sequelize.DataTypes.INTEGER,
       required: true,
     },
+    addedBy: {
+      field: "addedBy",
+      type: Sequelize.DataTypes.NUMBER,
+    },
     dateTime: {
       field: "dateTime",
       type: Sequelize.DataTypes.DATE,
@@ -66,7 +72,7 @@ const Product = db.define(
   },
   {
     timestamps: false,
-    tableName: "users",
+    tableName: "products",
   }
 );
 

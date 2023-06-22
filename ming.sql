@@ -60,3 +60,36 @@ CHANGE `defaultStatus` `defaultStatus` varchar(255) NULL;
 -- 22 June 2023 8:39:26 PM
 ALTER TABLE `mingbackend`.`users`
 ADD COLUMN `addressId` int NULL AFTER `accessToken`;
+
+-- 23 June 2023 12:09:54 AM 
+CREATE TABLE `mingbackend`.`admins` (
+	`id` int AUTO_INCREMENT,
+	`adminId` int,
+	`adminName` varchar(255),
+	`email` varchar(255),
+	`password` varchar(255),
+	`accessToken` varchar(255),
+	`image` varchar(255),
+	`privilege` varchar(1000),
+	`dateTime` datetime,
+	`date` date,
+	`status` varchar(255),
+	PRIMARY KEY (id)
+);
+
+-- 23 June 2023 12:18:55 AM
+ALTER TABLE `mingbackend`.`admins`
+ADD COLUMN `addedBy` int NULL AFTER `status`;
+
+-- 23 June 2023 12:34:51 AM 
+CREATE TABLE `mingbackend`.`categories` (
+	`id` int AUTO_INCREMENT,
+	`categoryId` int,
+	`name` varchar(255),
+	`image` varchar(255),
+	`dateTime` datetime,
+	`date` date,
+	`addedBy` int,
+	`status` varchar(255),
+	PRIMARY KEY (id)
+);
