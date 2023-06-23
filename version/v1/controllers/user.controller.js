@@ -32,7 +32,7 @@ controller.registerUser = handler(async (req, res) => {
 
   if (ifEmailExist) throw "400|Email_Already_Exist!";
 
-  const userId = helperUtils.generateRandomNumber(8);
+  const userId = parseInt(helperUtils.generateRandomNumber(8));
 
   const salt = await bcrypt.genSalt(10);
   const password = await bcrypt.hash(req?.body?.password, salt);
@@ -91,7 +91,7 @@ controller.getSingleUser = handler(async (req, res) => {
 });
 
 controller.addUserAddress = handler(async (req, res) => {
-  const addressId = helperUtils.generateRandomNumber(8);
+  const addressId = parseInt(helperUtils.generateRandomNumber(8));
 
   const user = await User.findOne({
     where: {

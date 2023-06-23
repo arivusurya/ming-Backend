@@ -13,7 +13,7 @@ const constantUtils = require("../utils/constant.utils");
 controller = {};
 
 controller.addAdmin = handler(async (req, res) => {
-  const adminId = helperUtils.generateRandomNumber(8);
+  const adminId = parseInt(helperUtils.generateRandomNumber(8));
   const admin = await Admin.create({
     adminId: adminId,
     adminName: req?.body?.adminName,
@@ -32,7 +32,7 @@ controller.addAdmin = handler(async (req, res) => {
 });
 
 controller.addProductCategory = handler(async (req, res) => {
-  const categoryId = helperUtils.generateRandomNumber(8);
+  const categoryId = parseInt(helperUtils.generateRandomNumber(8));
   const category = await Category.create({
     categoryId: categoryId,
     name: req?.body?.name,
@@ -47,7 +47,7 @@ controller.addProductCategory = handler(async (req, res) => {
 });
 
 controller.addproduct = handler(async (req, res) => {
-  const productId = helperUtils?.generateRandomNumber(8);
+  const productId = parseInt(helperUtils?.generateRandomNumber(8));
 
   const product = await Product.create({
     productId: productId,
