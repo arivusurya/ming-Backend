@@ -7,6 +7,7 @@ utils.webProductStructure = (data) => ({
   image: data?.image ?? "",
   weight: data?.weight ?? 0,
   price: data?.price ?? 0,
+  type: data?.type ?? "",
 });
 
 utils.userStructure = (data) => ({
