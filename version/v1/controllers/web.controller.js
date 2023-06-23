@@ -10,6 +10,7 @@ const helperUtils = require("../utils/helperUtils");
 const authUtils = require("../utils/auth.utils");
 const constantUtils = require("../utils/constant.utils");
 const structureUtils = require("../utils/structure.utils");
+const sequelize = require("../models");
 
 controller = {};
 
@@ -37,6 +38,42 @@ controller.getSingleProductById = handler(async (req, res) => {
   if (!product) throw "400|Product_Not_Found!";
 
   return res.json(structureUtils.webProductStructure(product));
+});
+
+controller.getProducts = handler(async (req, res) => {
+  const condition = {};
+
+  if (req?.body?.search) {
+    condition["name"] = sequelize.where(
+      sequelize.fn("LOWER", sequelize.col("name")),
+      "LIKE",
+      "%" + req?.body?.search?.toLowerCase() + "%"
+    );
+  }
+
+  condition["status"] = constantUtils.ACTIVE;
+
+  const product = await Product.findAll({
+    where: condition,
+    order: [["id", "ASC"]],
+  });
+
+  return res.json(
+    product?.map((each) => ({
+      id: each?.id,
+      productId: each?.productId,
+      categoryId: req?.body?.categoryId,
+      productName: each?.name,
+      productImage: each?.image,
+      description: req?.body?.description,
+      weight: req?.body?.weight,
+      type: req?.body?.type,
+      price: req?.body?.price,
+      date: each?.date,
+      dateTime: each?.dateTime,
+      status: each?.status,
+    }))
+  );
 });
 
 module.exports = controller;

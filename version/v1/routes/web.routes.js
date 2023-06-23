@@ -8,5 +8,6 @@ const webValidation = require("../validations/web.validation");
 
 router.post("/getproductByCategory", validateBody(webValidation?.getProductByCategory), webController?.getProductByCategory);
 router.post("/getSingleProductById", validateBody(webValidation?.getSingleProductById), webController?.getSingleProductById);
+router.post("/searchProduct", webController.getProducts);
 
 module.exports = router;

@@ -17,6 +17,10 @@ validation.loginUser = Joi.object().keys({
   password: Joi.string().required(),
 });
 
+validation.getSingleUser = Joi.object().keys({
+  userId: Joi.number().required(),
+});
+
 validation.addUserAddress = Joi.object().keys({
   address: Joi.string().required(),
   apartment: Joi.string(),

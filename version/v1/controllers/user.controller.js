@@ -6,6 +6,7 @@ const Address = require("../models/address.model");
 const helperUtils = require("../utils/helperUtils");
 const constantUtils = require("../utils/constant.utils");
 const authUtils = require("../utils/auth.utils");
+const structureUtils = require("../utils/structure.utils");
 
 controller = {};
 
@@ -76,6 +77,17 @@ controller.loginUser = handler(async (req, res) => {
   const password = await bcrypt.compare(req?.body?.password, user?.password);
   if (!password) throw "400|Incorrect_Password";
   return res.json(user);
+});
+
+controller.getSingleUser = handler(async (req, res) => {
+  const user = await User.findOne({
+    where: {
+      userId: req?.body?.userId,
+      status: constantUtils.ACTIVE,
+    },
+  });
+
+  return res.json(structureUtils.userStructure(user));
 });
 
 controller.addUserAddress = handler(async (req, res) => {
