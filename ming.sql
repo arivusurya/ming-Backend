@@ -118,3 +118,29 @@ ADD COLUMN `image` varchar(255) NULL AFTER `status`;
 -- 23 June 2023 1:32:21 AM
 ALTER TABLE `mingbackend`.`products`
 ADD COLUMN `images` varchar(1000) NULL AFTER `image`;
+
+-- 23 June 2023 10:38:08 PM 
+CREATE TABLE `mingbackend`.`product_purchases` (
+	`id` int AUTO_INCREMENT,
+	`userId` int,
+	`productId` int,
+	`purchaseId` int,
+	`totalPrice` int,
+	`productPrice` int,
+	`dateTime` datetime,
+	`date` date,
+	`quantity` int,
+	PRIMARY KEY (id)
+);
+
+-- 23 June 2023 10:43:45 PM 
+CREATE TABLE `mingbackend`.`total_purchases` (
+	`id` int AUTO_INCREMENT,
+	`purchaseId` int,
+	`userId` int,
+	`price` int,
+	`dateTime` datetime,
+	`date` date,
+	`actionBy` int,
+	PRIMARY KEY (id)
+);
