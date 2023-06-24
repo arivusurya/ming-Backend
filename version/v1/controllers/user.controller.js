@@ -195,6 +195,34 @@ controller.getUserAddress = handler(async (req, res) => {
   );
 });
 
-controller.updateUserAddress = handler(async (req, res) => {});
+controller.updateUserAddress = handler(async (req, res) => {
+  const encryptedPhoneNumber = helperUtils.encrypt(req?.body?.phoneNumber);
+
+  const checkUser = await User.findOne({
+    where: {
+      userId: req?.user?.userId,
+    },
+  });
+
+  if (!checkUser) throw "400|User_Not_Found!";
+
+  const data = {
+    ...req?.body,
+    phoneNumber: encryptedPhoneNumber,
+  };
+
+  const [numUpdated, updatedUser] = await Address.update(data, {
+    where: {
+      userId: req?.user?.userId,
+      addressId: req?.body?.addressId,
+    },
+  });
+
+  if (numUpdated < 1) throw "400|Somthing_Went_Wrong!";
+
+  return res.json({
+    message: "success",
+  });
+});
 
 module.exports = controller;

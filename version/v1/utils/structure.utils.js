@@ -34,7 +34,8 @@ utils.addressStructure = (data) => ({
   city: data?.city ?? "",
   state: data?.state ?? "",
   country: data?.country ?? "",
-  pinCode: data?.pincode ?? 0,
+  pinCode: data?.pinCode ?? 0,
+  defaultStatus: data?.defaultStatus ?? "",
   phoneNumber: helperUtils.decrypt(data?.phoneNumber) ?? "",
 });
 
