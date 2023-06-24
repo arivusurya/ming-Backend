@@ -23,6 +23,14 @@ const Address = db.define(
       type: Sequelize.DataTypes.INTEGER,
       required: true,
     },
+    name: {
+      field: "name",
+      type: Sequelize.DataTypes.STRING,
+    },
+    phoneNumber: {
+      field: "phoneNumber",
+      type: Sequelize.DataTypes.STRING,
+    },
     address: {
       field: "address",
       type: Sequelize.DataTypes.STRING,

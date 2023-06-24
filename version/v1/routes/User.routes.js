@@ -15,5 +15,6 @@ router.post("/getSingleUser", validateBody(userValidation.getSingleUser), userCo
 router.post("/addUserAddress", validateUser, validateBody(userValidation.addUserAddress), userController.addUserAddress);
 router.post("/getAllAddress", validateUser, userController.getAllAddress);
 router.post("/editUserDeatils", validateUser, userController.editUserDeatils);
+router.post("/getUserAddress", validateUser, userController.getUserAddress);
 
 module.exports = router;

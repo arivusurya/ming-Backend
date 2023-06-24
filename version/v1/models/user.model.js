@@ -92,8 +92,8 @@ const User = db.define(
 );
 
 User.belongsTo(Address, {
-  foreignKey: "userId",
-  targetKey: "userId",
+  foreignKey: "addressId",
+  targetKey: "addressId",
   constraints: false,
 });
 

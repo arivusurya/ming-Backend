@@ -22,6 +22,7 @@ validation.getSingleUser = Joi.object().keys({
 });
 
 validation.addUserAddress = Joi.object().keys({
+  name: Joi.string().required(),
   address: Joi.string().required(),
   apartment: Joi.string(),
   city: Joi.string().required(),
@@ -29,6 +30,9 @@ validation.addUserAddress = Joi.object().keys({
   country: Joi.string().required(),
   pinCode: Joi.number().required(),
   defaultStatus: Joi.string().required(),
+  firstName: Joi.string().required(),
+  lastName: Joi.string().required(),
+  phoneNumber: Joi.string().required(),
 });
 
 module.exports = validation;

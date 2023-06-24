@@ -144,3 +144,11 @@ CREATE TABLE `mingbackend`.`total_purchases` (
 	`actionBy` int,
 	PRIMARY KEY (id)
 );
+
+-- 24 June 2023 3:14:47 PM
+ALTER TABLE `mingbackend`.`addresss`
+ADD COLUMN `name` varchar(255) NULL AFTER `country`;
+
+-- 24 June 2023 3:34:16 PM
+ALTER TABLE `mingbackend`.`addresss`
+ADD COLUMN `phoneNumber` varchar(255) NULL AFTER `name`;

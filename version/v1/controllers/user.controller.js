@@ -104,6 +104,7 @@ controller.addUserAddress = handler(async (req, res) => {
   const addAddress = await Address.create({
     addressId: addressId,
     userId: req?.user?.userId,
+    name: req?.body?.name,
     address: req?.body?.address,
     apartment: req?.body?.apartment,
     city: req?.body?.city,
@@ -111,11 +112,14 @@ controller.addUserAddress = handler(async (req, res) => {
     country: req?.body?.country,
     pinCode: req?.body?.pinCode,
     defaultStatus: req?.body?.defaultStatus,
+    phoneNumber: helperUtils.encrypt(req?.body?.phoneNumber),
   });
 
   if (!addAddress) throw "400|Somthing_Went_Wrong!";
 
   user.addressId = addressId;
+  user.firstName = req?.body?.firstName;
+  user.lastName = req?.body?.lastName;
 
   await user.save();
 
@@ -177,6 +181,20 @@ controller.editUserDeatils = handler(async (req, res) => {
   return res.json({
     message: "success",
   });
+});
+
+controller.getUserAddress = handler(async (req, res) => {
+  const address = await Address.findAll({
+    where: {
+      userId: req?.user?.userId,
+    },
+  });
+
+  console.log(JSON.stringify(address, null, 4));
+
+  return res.json(
+    address?.map((each) => structureUtils?.addressStructure(each))
+  );
 });
 
 module.exports = controller;

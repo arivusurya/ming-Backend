@@ -12,18 +12,30 @@ utils.webProductStructure = (data) => ({
 });
 
 utils.userStructure = (data) => ({
-  userId: data?.userId,
+  userId: data?.userId ?? 0,
+  addressId: data?.addressId ?? 0,
+  firstName: data?.firstName ?? "",
+  lastName: data?.lastName ?? "",
+  userName: data?.userName ?? "",
+  email: data?.email ?? "",
+  password: data?.password ?? "",
+  accessToken: data?.accessToken ?? "",
+  phoneNumber: helperUtils.decrypt(data?.phoneNumber) ?? "",
+  status: data?.status ?? "",
+  dateTime: data?.dateTime ?? "",
+  date: data?.date ?? "",
+});
+
+utils.addressStructure = (data) => ({
   addressId: data?.addressId,
-  firstName: data?.firstName,
-  lastName: data?.lastName,
-  userName: data?.userName,
-  email: data?.email,
-  password: data?.password,
-  accessToken: data?.accessToken,
-  phoneNumber: helperUtils.decrypt(data?.phoneNumber),
-  status: data?.status,
-  dateTime: data?.dateTime,
-  date: data?.date,
+  name: data?.name ?? "",
+  address: data?.address ?? "",
+  apartment: data?.apartment ?? "",
+  city: data?.city ?? "",
+  state: data?.state ?? "",
+  country: data?.country ?? "",
+  pinCode: data?.pincode ?? 0,
+  phoneNumber: helperUtils.decrypt(data?.phoneNumber) ?? "",
 });
 
 module.exports = utils;
