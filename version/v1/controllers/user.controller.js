@@ -76,7 +76,7 @@ controller.loginUser = handler(async (req, res) => {
 
   const password = await bcrypt.compare(req?.body?.password, user?.password);
   if (!password) throw "400|Incorrect_Password";
-  return res.json(user);
+  return res.json(structureUtils?.userStructure(user));
 });
 
 controller.getSingleUser = handler(async (req, res) => {
@@ -132,6 +132,51 @@ controller.getAllAddress = handler(async (req, res) => {
     },
   });
   return res.json(address);
+});
+
+controller.editUserDeatils = handler(async (req, res) => {
+  if (!req?.body?.userId) throw "400|UserId_Required";
+
+  const encryptedMobileNumber = helperUtils.encrypt(req?.body?.phoneNumber);
+
+  const checkUser = await User.findOne({
+    where: {
+      userId: req?.body?.userId,
+    },
+  });
+
+  if (!checkUser) throw "400|User_Not_Found!";
+
+  const data = {
+    ...req?.body,
+    mobileNumber: encryptedMobileNumber,
+  };
+
+  let mobile;
+
+  if (checkUser?.phoneNumber !== data?.phoneNumber) {
+    const findMobileNumber = await User.findOne({
+      where: {
+        mobileNumber: encryptedMobileNumber,
+      },
+    });
+
+    mobile = findMobileNumber;
+  }
+
+  if (mobile) throw "400|Mobile_Number_Exist!";
+
+  const [numUpdated, updatedUser] = await User.update(data, {
+    where: {
+      userId: req?.body?.userId,
+    },
+  });
+
+  if (numUpdated < 1) throw "400|Somthing_Went_Wrong!";
+
+  return res.json({
+    message: "success",
+  });
 });
 
 module.exports = controller;

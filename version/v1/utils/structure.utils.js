@@ -1,3 +1,4 @@
+const helperUtils = require("../utils/helperUtils");
 const utils = {};
 
 utils.webProductStructure = (data) => ({
@@ -19,7 +20,7 @@ utils.userStructure = (data) => ({
   email: data?.email,
   password: data?.password,
   accessToken: data?.accessToken,
-  phoneNumber: data?.phoneNumber,
+  phoneNumber: helperUtils.decrypt(data?.phoneNumber),
   status: data?.status,
   dateTime: data?.dateTime,
   date: data?.date,
