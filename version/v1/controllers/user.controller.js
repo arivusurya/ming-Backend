@@ -137,7 +137,7 @@ controller.getAllAddress = handler(async (req, res) => {
 controller.editUserDeatils = handler(async (req, res) => {
   if (!req?.body?.userId) throw "400|UserId_Required";
 
-  const encryptedMobileNumber = helperUtils.encrypt(req?.body?.phoneNumber);
+  const encryptedPhoneNumber = helperUtils.encrypt(req?.body?.phoneNumber);
 
   const checkUser = await User.findOne({
     where: {
@@ -149,19 +149,19 @@ controller.editUserDeatils = handler(async (req, res) => {
 
   const data = {
     ...req?.body,
-    mobileNumber: encryptedMobileNumber,
+    phoneNumber: encryptedPhoneNumber,
   };
 
   let mobile;
 
   if (checkUser?.phoneNumber !== data?.phoneNumber) {
-    const findMobileNumber = await User.findOne({
+    const findPhoneNumber = await User.findOne({
       where: {
-        mobileNumber: encryptedMobileNumber,
+        phoneNumber: encryptedPhoneNumber,
       },
     });
 
-    mobile = findMobileNumber;
+    mobile = findPhoneNumber;
   }
 
   if (mobile) throw "400|Mobile_Number_Exist!";
