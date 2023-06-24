@@ -19,6 +19,7 @@ utils.userStructure = (data) => ({
   email: data?.email,
   password: data?.password,
   accessToken: data?.accessToken,
+  phoneNumber: data?.phoneNumber,
   status: data?.status,
   dateTime: data?.dateTime,
   date: data?.date,
