@@ -139,13 +139,11 @@ controller.getAllAddress = handler(async (req, res) => {
 });
 
 controller.editUserDeatils = handler(async (req, res) => {
-  if (!req?.body?.userId) throw "400|UserId_Required";
-
   const encryptedPhoneNumber = helperUtils.encrypt(req?.body?.phoneNumber);
 
   const checkUser = await User.findOne({
     where: {
-      userId: req?.body?.userId,
+      userId: req?.user?.userId,
     },
   });
 
@@ -196,5 +194,7 @@ controller.getUserAddress = handler(async (req, res) => {
     address?.map((each) => structureUtils?.addressStructure(each))
   );
 });
+
+controller.updateUserAddress = handler(async (req, res) => {});
 
 module.exports = controller;
