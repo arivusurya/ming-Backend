@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
 
 app.use("*", (req, res) => {
   return res.json({
-    message: "NOT_FOUND!",
+    message: "PAGE_NOT_FOUND!",
   });
 });
 
