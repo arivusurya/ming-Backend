@@ -12,5 +12,6 @@ router.post("/getProductByCategory", validateBody(webValidation?.getProductByCat
 router.post("/getSingleProductById", validateBody(webValidation?.getSingleProductById), webController?.getSingleProductById);
 router.post("/searchProduct", webController.getProducts);
 router.post("/purchaseProduct", validateUser, webController.purchaseProduct);
+router.post("/userFeedback", validateBody(webValidation?.userFeedback), webController.userFeedback);
 
 module.exports = router;

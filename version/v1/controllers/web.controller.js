@@ -14,6 +14,7 @@ const constantUtils = require("../utils/constant.utils");
 const structureUtils = require("../utils/structure.utils");
 const sequelize = require("../models");
 const { Op } = require("sequelize");
+const Feedback = require("../models/feedback.model");
 
 controller = {};
 
@@ -142,6 +143,20 @@ controller.purchaseProduct = handler(async (req, res) => {
 
   return res.json({
     message: "Product Purchase Done!",
+  });
+});
+
+controller.userFeedback = handler(async (req, res) => {
+  const feedback = await Feedback.create({
+    userName: req?.body?.userName,
+    email: req?.body?.userName,
+    phoneNumber: helperUtils.encrypt(req?.body?.phoneNumber),
+    subject: req?.body?.subject,
+    message: req?.body?.message,
+  });
+  if (!feedback) throw "400|Somthing_Weent_Wrong!";
+  return res.json({
+    message: "success",
   });
 });
 

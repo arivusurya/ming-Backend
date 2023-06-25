@@ -152,3 +152,16 @@ ADD COLUMN `name` varchar(255) NULL AFTER `country`;
 -- 24 June 2023 3:34:16 PM
 ALTER TABLE `mingbackend`.`addresss`
 ADD COLUMN `phoneNumber` varchar(255) NULL AFTER `name`;
+
+-- 24 June 2023 11:25:15 PM 
+CREATE TABLE `mingbackend`.`feed_backs` (
+	`id` int AUTO_INCREMENT,
+	`userName` varchar(255),
+	`email` varchar(255),
+	`phoneNumber` varchar(255),
+	`subject` varchar(255),
+	`message` varchar(255),
+	`dateTime` datetime,
+	`date` date,
+	PRIMARY KEY (id)
+);
