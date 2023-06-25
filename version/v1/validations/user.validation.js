@@ -24,7 +24,7 @@ validation.getSingleUser = Joi.object().keys({
 validation.addUserAddress = Joi.object().keys({
   name: Joi.string().required(),
   address: Joi.string().required(),
-  apartment: Joi.string(),
+  // apartment: Joi.string()
   city: Joi.string().required(),
   state: Joi.string().required(),
   country: Joi.string().required(),

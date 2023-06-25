@@ -20,7 +20,8 @@ utils.userStructure = (data) => ({
   email: data?.email ?? "",
   password: data?.password ?? "",
   accessToken: data?.accessToken ?? "",
-  phoneNumber: helperUtils.decrypt(data?.phoneNumber) ?? "",
+  phoneNumber:
+    data?.phoneNumber === "" ? "" : helperUtils.decrypt(data?.phoneNumber),
   status: data?.status ?? "",
   dateTime: data?.dateTime ?? "",
   date: data?.date ?? "",

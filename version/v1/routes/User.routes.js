@@ -10,6 +10,7 @@ const userController = require("../controllers/user.controller");
 router.post("/getAllUsers", userController.getAllUser);
 router.post("/registerUser", validateBody(userValidation.registerUser), userController.registerUser);
 router.post("/loginUser", validateBody(userValidation.loginUser), userController.loginUser);
+router.post("/googleAuth", userController.googleAuth);
 router.post("/getSingleUser", validateBody(userValidation.getSingleUser), userController?.getSingleUser);
 
 router.post("/addUserAddress", validateUser, validateBody(userValidation.addUserAddress), userController.addUserAddress);

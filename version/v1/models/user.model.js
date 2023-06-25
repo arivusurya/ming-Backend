@@ -32,12 +32,10 @@ const User = db.define(
     firstName: {
       field: "firstName",
       type: Sequelize.DataTypes.STRING,
-      required: true,
     },
     lastName: {
       field: "lastName",
       type: Sequelize.DataTypes.STRING,
-      required: true,
     },
     email: {
       field: "email",
@@ -47,17 +45,14 @@ const User = db.define(
     password: {
       field: "password",
       type: Sequelize.DataTypes.STRING,
-      required: true,
     },
     confirmPassword: {
       field: "confirmPassword",
       type: Sequelize.DataTypes.STRING,
-      required: true,
     },
     phoneNumber: {
       field: "phoneNumber",
       type: Sequelize.DataTypes.STRING,
-      required: true,
     },
     accessToken: {
       field: "accessToken",

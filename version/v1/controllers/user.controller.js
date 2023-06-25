@@ -225,4 +225,32 @@ controller.updateUserAddress = handler(async (req, res) => {
   });
 });
 
+controller.googleAuth = handler(async (req, res) => {
+  if (!req?.body?.email) throw "400|Email_Required!";
+  if (!req?.body?.userName) throw "400|UserName_Required!";
+
+  let loginUser;
+
+  const user = await User.findOne({
+    where: {
+      email: req?.body?.email,
+    },
+  });
+
+  if (!user) {
+    const userId = parseInt(helperUtils.generateRandomNumber(8));
+    const newUser = await User.create({
+      userId: userId,
+      email: req?.body?.email,
+      userName: req?.body?.userName,
+      accessToken: authUtils.generateToken(userId),
+    });
+    loginUser = newUser;
+  } else {
+    loginUser = user;
+  }
+
+  return res.json(structureUtils.userStructure(loginUser));
+});
+
 module.exports = controller;
