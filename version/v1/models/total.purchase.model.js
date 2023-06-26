@@ -1,7 +1,6 @@
 const Sequelize = require("sequelize");
 const db = require("./index");
-
-const ProductPurchase = require("../models/purchase.model");
+const Cart = require("../models/cart.model");
 
 const ProductPurchaseTotal = db.define(
   "ProductPurchaseTotals",
@@ -52,7 +51,7 @@ const ProductPurchaseTotal = db.define(
   }
 );
 
-ProductPurchaseTotal.belongsTo(ProductPurchase, {
+ProductPurchaseTotal.belongsTo(Cart, {
   foreignKey: "purchaseId",
   targetKey: "purchaseId",
   constraint: false,

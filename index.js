@@ -4,6 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 
 const rateLimit = require("express-rate-limit");
+const Cart = require("./version/v1/models/cart.model");
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -46,6 +47,7 @@ const PORT = process.env.PORT ?? 5000;
 
 if (process.env.SERVERLESS !== true) {
   app.listen(PORT, async () => {
+    console.log(process.env.USERNAME);
     console.log(`Server is running on port ${PORT}`);
   });
 }

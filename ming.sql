@@ -120,18 +120,34 @@ ALTER TABLE `mingbackend`.`products`
 ADD COLUMN `images` varchar(1000) NULL AFTER `image`;
 
 -- 23 June 2023 10:38:08 PM 
-CREATE TABLE `mingbackend`.`product_purchases` (
-	`id` int AUTO_INCREMENT,
-	`userId` int,
-	`productId` int,
-	`purchaseId` int,
-	`totalPrice` int,
-	`productPrice` int,
-	`dateTime` datetime,
-	`date` date,
-	`quantity` int,
-	PRIMARY KEY (id)
+-- CREATE TABLE `mingbackend`.`product_purchases` (
+-- 	`id` int AUTO_INCREMENT,
+-- 	`userId` int,
+-- 	`productId` int,
+-- 	`purchaseId` int,
+-- 	`totalPrice` int,
+-- 	`productPrice` int,
+-- 	`dateTime` datetime,
+-- 	`date` date,
+-- 	`quantity` int,
+-- 	PRIMARY KEY (id)
+-- );
+-- Replace this table into Cart 
+-- 24-6-2023
+CREATE TABLE `mingbackend`.`Cart` (
+  `id` INT AUTO_INCREMENT,
+  `purchaseId` INT NOT NULL,
+  `userId` INT NOT NULL,
+  `productId` INT NOT NULL,
+  `dateTime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date` DATE NOT NULL DEFAULT (CURDATE()),
+  `totalPrice` INT NOT NULL,
+  `productPrice` INT NOT NULL,
+  `quantity` INT NOT NULL,
+  `status` VARCHAR(255) NOT NULL DEFAULT 'active',
+  PRIMARY KEY (`id`)
 );
+
 
 -- 23 June 2023 10:43:45 PM 
 CREATE TABLE `mingbackend`.`total_purchases` (

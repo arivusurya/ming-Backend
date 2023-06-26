@@ -5,7 +5,7 @@ const Address = require("../models/address.model");
 const User = require("../models/user.model");
 const Admin = require("../models/admin.model");
 const Category = require("../models/category.model");
-const ProductPurchase = require("../models/purchase.model");
+const ProductPurchase = require("../models/cart.model");
 const TotalPurchase = require("../models/total.purchase.model");
 
 const helperUtils = require("../utils/helperUtils");
@@ -15,6 +15,8 @@ const structureUtils = require("../utils/structure.utils");
 const sequelize = require("../models");
 const { Op } = require("sequelize");
 const Feedback = require("../models/feedback.model");
+const Cart = require("../models/cart.model");
+const { Console } = require("winston/lib/winston/transports");
 
 controller = {};
 
@@ -160,4 +162,151 @@ controller.userFeedback = handler(async (req, res) => {
   });
 });
 
+controller.getcartbyuser = handler(async (req, res) => {
+  const userId = req.body.UserId;
+
+  const cart = await ProductPurchase.findAll({ where: { userId: userId } });
+  res.json({ cart });
+});
+
+// controller.addtocart = handler(async (req, res) => {
+//   if (!req.user?.userId) throw "400 user_id Required";
+//   if (req.body.length === 0) throw "400 product required";
+
+//   const products = await Product.findAll({
+//     where: {
+//       productId: {
+//         [Op.in]: req?.body?.map((each) => each?.productId),
+//       },
+//     },
+//   });
+//   let purchaseId = parseInt(helperUtils.generateRandomNumber(8));
+//   let cartrows = [];
+//   for (let i = 0; i < req.body.length; i++) {
+//     for (let j = 0; j < products.length; j++) {
+//       if (Number(req.body[i].productId) === products[j].productId) {
+//         cartrows.push({
+//           userId: req.user?.userId,
+//           purchaseId: purchaseId,
+//           productId: products[j].productId,
+//           quantity: req.body[i].quantity,
+//           totalPrice: products[j].price * req.body[i].quantity,
+//           productPrice: products[j].price,
+//           status: "active",
+//         });
+//         break;
+//       }
+//     }
+//   }
+//   await Cart.bulkCreate(cartrows);
+//   res.json({ message: "cart addeded susscefully" });
+// });
+
+controller.addtocart = handler(async (req, res) => {
+  if (!req.user?.userId) throw "400 user_id Required";
+  if (req.body.length === 0) throw "400 product required";
+
+  const products = await Product.findAll({
+    where: {
+      productId: {
+        [Op.in]: req?.body?.map((each) => each?.productId),
+      },
+    },
+  });
+
+  const purchaseId = parseInt(helperUtils.generateRandomNumber(8));
+  const cartrows = [];
+
+  for (let i = 0; i < req.body.length; i++) {
+    const existingCartEntry = await Cart.findOne({
+      where: {
+        userId: req.user?.userId,
+        productId: req.body[i].productId,
+      },
+    });
+
+    if (existingCartEntry) {
+      // Update the existing cart entry instead of creating a new one
+      const updatedQuantity = req.body[i].quantity;
+      await existingCartEntry.update({
+        quantity: updatedQuantity,
+        totalPrice: products[i].price * updatedQuantity,
+      });
+    } else {
+      const product = products.find(
+        (p) => p.productId === req.body[i].productId
+      );
+
+      if (product) {
+        cartrows.push({
+          userId: req.user?.userId,
+          purchaseId: purchaseId,
+          productId: product.productId,
+          quantity: req.body[i].quantity,
+          totalPrice: product.price * req.body[i].quantity,
+          productPrice: product.price,
+          status: "active",
+        });
+      }
+    }
+  }
+
+  if (cartrows.length > 0) {
+    await Cart.bulkCreate(cartrows);
+  }
+  let cartitems = await Cart.findAll({
+    where: { userId: req.user?.userId, status: "active" },
+  });
+  res.status(200).json({ message: "Sucess", cartitems: cartitems });
+});
+
+controller.updateCart = handler(async (req, res) => {
+  if (!req.user?.userId) throw "400 user_id Required";
+  if (!req.body) throw "303 data required";
+
+  const product = await Product.findOne({
+    where: { productId: req.body.productId },
+  });
+  if (!product) throw "404 Product not found ";
+  const cart = await Cart.findOne({
+    where: { id: req.body.cartid },
+  });
+  if (!cart) throw "404 no cart found";
+  cart.totalPrice = product.price * req.body.quantity;
+  await cart.save();
+  res.json(cart);
+});
 module.exports = controller;
+
+// Cartcontroller.addToCart = async (req, res) => {
+//   const userid = req.User.userid;
+//   const productId = req.body.productId;
+//   const quantity = req.body.quantity || 1;
+
+//   try {
+//     const existingCartRow = await Model.cart.findOne({
+//       where: {
+//         userid: userid,
+//         productId: productId,
+//       },
+//     });
+
+//     if (existingCartRow) {
+//       const newCartRow = await existingCartRow.increment("quantity", {
+//         by: quantity,
+//       });
+//       newCartRow.quantity += Number(quantity);
+//       res.send(newCartRow);
+//     } else {
+//       const newCartRow = await Model.cart.create({
+//         userid: userid,
+//         productId: productId,
+//         quantity: quantity,
+//       });
+//       res.send(newCartRow);
+//     }
+//   } catch (error) {
+//     logger.error(error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// };
