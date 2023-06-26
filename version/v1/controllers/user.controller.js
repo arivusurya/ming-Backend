@@ -72,7 +72,7 @@ controller.loginUser = handler(async (req, res) => {
       email: req?.body?.email,
     },
   });
-  if (!user) throw "400|Wrong_Email!";
+  if (!user) throw "400|User_Not_Found!";
 
   const password = await bcrypt.compare(req?.body?.password, user?.password);
   if (!password) throw "400|Incorrect_Password";
