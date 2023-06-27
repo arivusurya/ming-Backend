@@ -16,7 +16,6 @@ const sequelize = require("../models");
 const { Op } = require("sequelize");
 const Feedback = require("../models/feedback.model");
 const Cart = require("../models/cart.model");
-const { Console } = require("winston/lib/winston/transports");
 
 controller = {};
 
@@ -163,9 +162,10 @@ controller.userFeedback = handler(async (req, res) => {
 });
 
 controller.getcartbyuser = handler(async (req, res) => {
-  const userId = req.body.UserId;
-
-  const cart = await ProductPurchase.findAll({ where: { userId: userId } });
+  if (!req?.body?.userId) throw "400|User_Id_Requried!";
+  const cart = await ProductPurchase.findAll({
+    where: { userId: req?.body?.userId },
+  });
   res.json({ cart });
 });
 
@@ -203,8 +203,7 @@ controller.getcartbyuser = handler(async (req, res) => {
 // });
 
 controller.addtocart = handler(async (req, res) => {
-  if (!req.user?.userId) throw "400 user_id Required";
-  if (req.body.length === 0) throw "400 product required";
+  if (req?.body?.length === 0) throw "400|Product_Required";
 
   const products = await Product.findAll({
     where: {
@@ -221,31 +220,31 @@ controller.addtocart = handler(async (req, res) => {
     const existingCartEntry = await Cart.findOne({
       where: {
         userId: req.user?.userId,
-        productId: req.body[i].productId,
+        productId: req?.body[i]?.productId,
       },
     });
 
     if (existingCartEntry) {
       // Update the existing cart entry instead of creating a new one
-      const updatedQuantity = req.body[i].quantity;
+      const updatedQuantity = req?.body[i]?.quantity;
       await existingCartEntry.update({
         quantity: updatedQuantity,
-        totalPrice: products[i].price * updatedQuantity,
+        totalPrice: products[i]?.price * updatedQuantity,
       });
     } else {
       const product = products.find(
-        (p) => p.productId === req.body[i].productId
+        (p) => p?.productId === req?.body[i]?.productId
       );
 
       if (product) {
         cartrows.push({
-          userId: req.user?.userId,
+          userId: req?.user?.userId,
           purchaseId: purchaseId,
-          productId: product.productId,
-          quantity: req.body[i].quantity,
-          totalPrice: product.price * req.body[i].quantity,
+          productId: product?.productId,
+          quantity: req?.body[i]?.quantity,
+          totalPrice: product?.price * req?.body[i]?.quantity,
           productPrice: product.price,
-          status: "active",
+          status: constantUtils.ACTIVE,
         });
       }
     }
@@ -256,7 +255,7 @@ controller.addtocart = handler(async (req, res) => {
   }
 
   let cartitems = await Cart.findAll({
-    where: { userId: req.user?.userId, status: "active" },
+    where: { userId: req.user?.userId, status: constantUtils.ACTIVE },
     include: [
       {
         model: Product,
@@ -264,24 +263,23 @@ controller.addtocart = handler(async (req, res) => {
     ],
   });
 
-  res.status(200).json({ message: "Sucess", cartitems: cartitems });
+  return res.status(200).json({ message: "Sucess", cartitems: cartitems });
 });
 
 controller.updateCart = handler(async (req, res) => {
-  if (!req.user?.userId) throw "400 user_id Required";
-  if (!req.body) throw "303 data required";
+  if (!req.body) throw "400|Data_Required";
 
   const product = await Product.findOne({
-    where: { productId: req.body.productId },
+    where: { productId: req?.body?.productId },
   });
-  if (!product) throw "404 Product not found ";
+  if (!product) throw "404|Product_Not_Found!";
   const cart = await Cart.findOne({
-    where: { id: req.body.cartid },
+    where: { id: req?.body?.cartid },
   });
-  if (!cart) throw "404 no cart found";
-  cart.totalPrice = product.price * req.body.quantity;
+  if (!cart) throw "404|No_Cart_Found!";
+  cart.totalPrice = product?.price * req?.body?.quantity;
   await cart.save();
-  res.json(cart);
+  return res.json(cart);
 });
 module.exports = controller;
 
