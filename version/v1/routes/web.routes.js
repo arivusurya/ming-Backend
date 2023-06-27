@@ -11,7 +11,7 @@ const webValidation = require("../validations/web.validation");
 router.post("/getProductByCategory", validateBody(webValidation?.getProductByCategory), webController?.getProductByCategory);
 router.post("/getSingleProductById", validateBody(webValidation?.getSingleProductById), webController?.getSingleProductById);
 router.post("/searchProduct", webController.getProducts);
-router.post("/purchaseProduct", validateUser, webController.purchaseProduct);
+// router.post("/purchaseProduct", validateUser, webController.purchaseProduct);
 router.post("/userFeedback", validateBody(webValidation?.userFeedback), webController.userFeedback);
 router.post("/getcartbyuser", webController.getcartbyuser);
 router.post("/addtocart", validateUser, webController.addtocart);
