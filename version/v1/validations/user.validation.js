@@ -35,4 +35,10 @@ validation.addUserAddress = Joi.object().keys({
   phoneNumber: Joi.string().required(),
 });
 
+validation.resetPassword = Joi.object().keys({
+  email: Joi.string().required(),
+  password: Joi.string().required(),
+  confirmPassword: Joi.string().required(),
+});
+
 module.exports = validation;

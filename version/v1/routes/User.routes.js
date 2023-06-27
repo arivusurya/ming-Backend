@@ -18,5 +18,8 @@ router.post("/getAllAddress", validateUser, userController.getAllAddress);
 router.post("/editUserDeatils", validateUser, userController.editUserDeatils);
 router.post("/getUserAddress", validateUser, userController.getUserAddress);
 router.post("/updateUserAddress", validateUser, userController.updateUserAddress);
+router.post("/deleteUserAddress", validateUser, userController.deleteUserAddress);
+router.post("/verifyEmailAddresss", userController.verifyEmailAddresss);
+router.post("/resetPassword", validateBody(userValidation?.resetPassword), userController.resetPassword);
 
 module.exports = router;

@@ -185,10 +185,9 @@ controller.getUserAddress = handler(async (req, res) => {
   const address = await Address.findAll({
     where: {
       userId: req?.user?.userId,
+      status: constantUtils.ACTIVE,
     },
   });
-
-  console.log(JSON.stringify(address, null, 4));
 
   return res.json(
     address?.map((each) => structureUtils?.addressStructure(each))
@@ -251,6 +250,62 @@ controller.googleAuth = handler(async (req, res) => {
   }
 
   return res.json(structureUtils.userStructure(loginUser));
+});
+
+controller.deleteUserAddress = handler(async (req, res) => {
+  if (!req?.body?.addressId) throw "400|Address_Id_Required!";
+  const address = await Address.findOne({
+    where: {
+      addressId: req?.body?.addressId,
+      status: constantUtils.ACTIVE,
+    },
+  });
+  if (!address) throw "400|Address_Not_Found!";
+  address.status = constantUtils.INACTIVE;
+
+  await address.save();
+
+  return res.json({
+    message: "success",
+  });
+});
+
+controller.verifyEmailAddresss = handler(async (req, res) => {
+  if (!req?.body?.email) throw "400|Email_Required!";
+  const email = await User.findOne({
+    where: {
+      email: req?.body?.email,
+    },
+  });
+
+  if (!email) throw "400|Email_Not_Found!";
+  return res.json({
+    message: "success",
+    email: email?.email,
+  });
+});
+
+controller.resetPassword = handler(async (req, res) => {
+  const salt = await bcrypt.genSalt(10);
+  const password = await bcrypt.hash(req?.body?.password, salt);
+  const confirmPassword = await bcrypt.hash(req?.body?.confirmPassword, salt);
+
+  const checkEmail = await User.findOne({
+    where: {
+      email: req?.body?.email,
+    },
+  });
+
+  if (!checkEmail) throw "Somthing_Went_Wrong_Try_Again!";
+
+  checkEmail.password = password;
+  checkEmail.confirmPassword = confirmPassword;
+
+  await checkEmail.save();
+
+  return res.json({
+    message: "success",
+  });
 });
 
 module.exports = controller;
