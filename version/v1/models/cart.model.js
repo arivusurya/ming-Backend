@@ -2,14 +2,19 @@ const Sequelize = require("sequelize");
 const Product = require("../models/product.model");
 const db = require("./index");
 
-const ProductPurchase = db.define(
-  "productPurchases",
+const Cart = db.define(
+  "Cart",
   {
     id: {
       field: "id",
       type: Sequelize.DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
+      allowNull: false,
+    },
+    purchaseId: {
+      field: "purchaseId",
+      type: Sequelize.DataTypes.INTEGER,
       allowNull: false,
     },
     userId: {
@@ -19,11 +24,6 @@ const ProductPurchase = db.define(
     },
     productId: {
       field: "productId",
-      type: Sequelize.DataTypes.INTEGER,
-      allowNull: false,
-    },
-    purchaseId: {
-      field: "purchaseId",
       type: Sequelize.DataTypes.INTEGER,
       allowNull: false,
     },
@@ -54,17 +54,23 @@ const ProductPurchase = db.define(
       type: Sequelize.DataTypes.INTEGER,
       allowNull: false,
     },
+    status: {
+      field: "status",
+      type: Sequelize.DataTypes.STRING,
+      default: "active",
+      allowNull: false,
+    },
   },
   {
     timestamps: false,
-    tableName: "product_purchases",
+    tableName: "Cart",
   }
 );
 
-ProductPurchase.belongsTo(Product, {
+Cart.belongsTo(Product, {
   foreignKey: "productId",
   targetKey: "productId",
   constraints: false,
 });
 
-module.exports = ProductPurchase;
+module.exports = Cart;
