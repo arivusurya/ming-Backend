@@ -82,71 +82,71 @@ controller.getProducts = handler(async (req, res) => {
   );
 });
 
-controller.purchaseProduct = handler(async (req, res) => {
-  if (!req?.body?.userId) throw "400|User_Id_Requried!";
-  if (req?.body?.products?.length === 0) throw "400|No_Product_Found!";
-  if (!Array.isArray(req?.body?.products)) throw "400|Array_Only!";
+// controller.purchaseProduct = handler(async (req, res) => {
+//   if (!req?.body?.userId) throw "400|User_Id_Requried!";
+//   if (req?.body?.products?.length === 0) throw "400|No_Product_Found!";
+//   if (!Array.isArray(req?.body?.products)) throw "400|Array_Only!";
 
-  const user = await User.findOne({
-    userId: req?.user?.userId,
-  });
+//   const user = await User.findOne({
+//     userId: req?.user?.userId,
+//   });
 
-  if (!user) throw "400|User_Not_Found!";
+//   if (!user) throw "400|User_Not_Found!";
 
-  let purchaseId = "";
+//   let purchaseId = "";
 
-  while (!purchaseId) {
-    purchaseId = parseInt(helperUtils.generateRandomNumber(8));
-    const ifIdExists = await TotalPurchase.count({
-      where: {
-        purchaseId,
-      },
-    });
-    if (ifIdExists) purchaseId = "";
-  }
+//   while (!purchaseId) {
+//     purchaseId = parseInt(helperUtils.generateRandomNumber(8));
+//     const ifIdExists = await TotalPurchase.count({
+//       where: {
+//         purchaseId,
+//       },
+//     });
+//     if (ifIdExists) purchaseId = "";
+//   }
 
-  const products = await Product.findAll({
-    where: {
-      productId: {
-        [Op.in]: req?.body?.products?.map((each) => each?.productId),
-      },
-    },
-  });
+//   const products = await Product.findAll({
+//     where: {
+//       productId: {
+//         [Op.in]: req?.body?.products?.map((each) => each?.productId),
+//       },
+//     },
+//   });
 
-  let price = [];
-  let totalPrice = 0;
-  let purchaseProducts = [];
+//   let price = [];
+//   let totalPrice = 0;
+//   let purchaseProducts = [];
 
-  products?.map((each) =>
-    req?.body?.products?.filter((i) => {
-      if (i?.productId === each?.productId) {
-        price?.push(each?.price * i?.quantity);
-        purchaseProducts.push({
-          userId: req?.body?.userId,
-          productId: each?.productId,
-          purchaseId,
-          totalPrice: each?.price * i?.quantity,
-          productPrice: each?.price,
-          quantity: i?.quantity,
-        });
-      }
-    })
-  );
-  totalPrice = price?.reduce((a, b) => a + b, 0);
+//   products?.map((each) =>
+//     req?.body?.products?.filter((i) => {
+//       if (i?.productId === each?.productId) {
+//         price?.push(each?.price * i?.quantity);
+//         purchaseProducts.push({
+//           userId: req?.body?.userId,
+//           productId: each?.productId,
+//           purchaseId,
+//           totalPrice: each?.price * i?.quantity,
+//           productPrice: each?.price,
+//           quantity: i?.quantity,
+//         });
+//       }
+//     })
+//   );
+//   totalPrice = price?.reduce((a, b) => a + b, 0);
 
-  await ProductPurchase.bulkCreate(purchaseProducts);
+//   await ProductPurchase.bulkCreate(purchaseProducts);
 
-  await TotalPurchase.create({
-    purchaseId,
-    userId: req?.body?.userId,
-    price: totalPrice,
-    actionBy: req?.user?.id,
-  });
+//   await TotalPurchase.create({
+//     purchaseId,
+//     userId: req?.body?.userId,
+//     price: totalPrice,
+//     actionBy: req?.user?.id,
+//   });
 
-  return res.json({
-    message: "Product Purchase Done!",
-  });
-});
+//   return res.json({
+//     message: "Product Purchase Done!",
+//   });
+// });
 
 controller.userFeedback = handler(async (req, res) => {
   const feedback = await Feedback.create({
