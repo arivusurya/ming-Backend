@@ -254,9 +254,16 @@ controller.addtocart = handler(async (req, res) => {
   if (cartrows.length > 0) {
     await Cart.bulkCreate(cartrows);
   }
+
   let cartitems = await Cart.findAll({
     where: { userId: req.user?.userId, status: "active" },
+    include: [
+      {
+        model: Product,
+      },
+    ],
   });
+
   res.status(200).json({ message: "Sucess", cartitems: cartitems });
 });
 
