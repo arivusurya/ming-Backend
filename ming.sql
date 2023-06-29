@@ -194,3 +194,7 @@ CREATE TABLE `mingbackend`.`reviews` (
 	`date` date,
 	PRIMARY KEY (id)
 );
+
+-- 30 June 2023 12:28:31 AM
+ALTER TABLE `mingbackend`.`reviews`
+ADD COLUMN `productId` int NULL AFTER `date`;

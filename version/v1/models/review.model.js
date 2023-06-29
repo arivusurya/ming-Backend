@@ -15,6 +15,10 @@ const Review = db.define(
       field: "userId",
       type: Sequelize.DataTypes.INTEGER,
     },
+    productId: {
+      field: "productId",
+      type: Sequelize.DataTypes.INTEGER,
+    },
     name: {
       field: "name",
       type: Sequelize.DataTypes.STRING,
