@@ -25,7 +25,7 @@ utils.userStructure = (data) => ({
   status: data?.status ?? "",
   dateTime: data?.dateTime ?? "",
   date: data?.date ?? "",
-  address: utils.addressStructure(data?.addresss),
+  address: data?.addresss ? utils.addressStructure(data?.addresss) : "",
 });
 
 utils.addressStructure = (data) => ({

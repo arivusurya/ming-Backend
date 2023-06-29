@@ -89,6 +89,10 @@ controller.getSingleUser = handler(async (req, res) => {
       userId: req?.body?.userId,
       status: constantUtils.ACTIVE,
     },
+    include: {
+      model: Address,
+      required: true,
+    },
   });
 
   return res.json(structureUtils.userStructure(user));
@@ -174,11 +178,11 @@ controller.editUserDeatils = handler(async (req, res) => {
 
   const [numUpdated, updatedUser] = await User.update(data, {
     where: {
-      userId: req?.body?.userId,
+      userId: req?.user?.userId,
     },
   });
 
-  if (numUpdated < 1) throw "400|Somthing_Went_Wrong!";
+  // if (numUpdated < 1) throw "400|Somthing_Went_Wrong!";
 
   return res.json({
     message: "success",
