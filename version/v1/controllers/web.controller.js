@@ -64,20 +64,7 @@ controller.getProducts = handler(async (req, res) => {
   });
 
   return res.json(
-    product?.map((each) => ({
-      id: each?.id,
-      productId: each?.productId,
-      categoryId: req?.body?.categoryId,
-      productName: each?.name,
-      productImage: each?.image,
-      description: req?.body?.description,
-      weight: req?.body?.weight,
-      type: req?.body?.type,
-      price: req?.body?.price,
-      date: each?.date,
-      dateTime: each?.dateTime,
-      status: each?.status,
-    }))
+    product?.map((each) => structureUtils.webProductStructure(each))
   );
 });
 

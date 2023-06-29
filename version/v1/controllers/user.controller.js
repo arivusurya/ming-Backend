@@ -71,6 +71,10 @@ controller.loginUser = handler(async (req, res) => {
     where: {
       email: req?.body?.email,
     },
+    include: {
+      model: Address,
+      required: true,
+    },
   });
   if (!user) throw "400|User_Not_Found!";
 
@@ -296,7 +300,7 @@ controller.resetPassword = handler(async (req, res) => {
     },
   });
 
-  if (!checkEmail) throw "Somthing_Went_Wrong_Try_Again!";
+  if (!checkEmail) throw "400|Somthing_Went_Wrong_Try_Again!";
 
   checkEmail.password = password;
   checkEmail.confirmPassword = confirmPassword;
@@ -306,6 +310,33 @@ controller.resetPassword = handler(async (req, res) => {
   return res.json({
     message: "success",
   });
+});
+
+controller.getUserAddressById = handler(async (req, res) => {
+  if (!req?.body?.userId) throw "400|User_Id_Required!";
+  if (!req?.body?.addressId) throw "400|Address_Id_Required!";
+
+  const user = await User.findOne({
+    where: {
+      userId: req?.body?.userId,
+      addressId: req?.body?.addressId,
+    },
+    include: {
+      model: Address,
+      required: true,
+    },
+  });
+
+  if (!user) throw "400|User_Not_Found!";
+
+  let address;
+
+  if (user?.addresss?.status === "ACTIVE") address = user?.addresss;
+
+  if (user?.addresss?.status === "INACTIVE") address = {};
+
+  return res.json(structureUtils.addressStructure(address));
+  // return res.json(address);
 });
 
 module.exports = controller;
