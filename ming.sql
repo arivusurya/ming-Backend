@@ -181,3 +181,16 @@ CREATE TABLE `mingbackend`.`feed_backs` (
 	`date` date,
 	PRIMARY KEY (id)
 );
+
+-- 29 June 2023 11:25:18 PM 
+CREATE TABLE `mingbackend`.`reviews` (
+	`id` int AUTO_INCREMENT,
+	`userId` int,
+	`name` varchar(255),
+	`email` varchar(255),
+	`review` varchar(255),
+	`star` int,
+	`dateTime` datetime,
+	`date` date,
+	PRIMARY KEY (id)
+);
