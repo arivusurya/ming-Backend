@@ -134,7 +134,7 @@ ADD COLUMN `images` varchar(1000) NULL AFTER `image`;
 -- );
 -- Replace this table into Cart 
 -- 24-6-2023
-CREATE TABLE `mingbackend`.`Cart` (
+CREATE TABLE `mingbackend`.`carts` (
   `id` INT AUTO_INCREMENT,
   `purchaseId` INT NOT NULL,
   `userId` INT NOT NULL,
