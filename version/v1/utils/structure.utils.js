@@ -18,7 +18,6 @@ utils.userStructure = (data) => ({
   lastName: data?.lastName ?? "",
   userName: data?.userName ?? "",
   email: data?.email ?? "",
-  password: data?.password ?? "",
   accessToken: data?.accessToken ?? "",
   phoneNumber:
     data?.phoneNumber === "" ? "" : helperUtils.decrypt(data?.phoneNumber),
@@ -40,6 +39,17 @@ utils.addressStructure = (data) => ({
   defaultStatus: data?.defaultStatus ?? "",
   phoneNumber:
     data?.phoneNumber === "" ? "" : helperUtils.decrypt(data?.phoneNumber),
+});
+
+utils.getCartStruce = (product, cart) => ({
+  productId: product?.productId,
+  name: product?.name,
+  image: product?.image,
+  price: product?.price,
+  quantity: cart?.quantity,
+  description: product?.description,
+  type: product?.type,
+  weight: product?.weight,
 });
 
 module.exports = utils;

@@ -4,6 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 
 const rateLimit = require("express-rate-limit");
+const Cart = require("./version/v1/models/cart.model");
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -12,12 +13,12 @@ const limiter = rateLimit({
     res.status(429).send("Too many requests, please try again later.");
   },
 });
-
 const app = express();
 
 app.use(limiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
 app.use(cors("*"));
 app.use(morgan("dev"));
 
