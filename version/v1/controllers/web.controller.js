@@ -190,9 +190,84 @@ controller.getcartbyuser = handler(async (req, res) => {
 //   res.json({ message: "cart addeded susscefully" });
 // });
 
+// controller.addtocart = handler(async (req, res) => {
+//   if (!req.user?.userId) throw "400 user_id Required";
+//   if (req?.body?.length === 0) throw "400 product required";
+
+//   const products = await Product.findAll({
+//     where: {
+//       productId: {
+//         [Op.in]: req?.body?.map((each) => each?.productId),
+//       },
+//     },
+//   });
+
+//   const purchaseId = parseInt(helperUtils.generateRandomNumber(8));
+//   const cartrows = [];
+
+//   for (const item of req.body) {
+//     const existingCartEntry = await Cart.findOne({
+//       where: {
+//         userId: req.user?.userId,
+//         productId: item?.productId,
+//       },
+//     });
+
+//     if (existingCartEntry) {
+//       // Update the existing cart entry instead of creating a new one
+//       const updatedQuantity = item?.quantity;
+//       await existingCartEntry.update({
+//         quantity: updatedQuantity,
+//         totalPrice:
+//           products.find((p) => p?.productId === item?.productId)?.price *
+//           updatedQuantity,
+//       });
+//     } else {
+//       const product = products.find((p) => p?.productId === item?.productId);
+
+//       if (product) {
+//         cartrows.push({
+//           userId: req?.user?.userId,
+//           purchaseId: purchaseId,
+//           productId: product?.productId,
+//           quantity: item?.quantity,
+//           totalPrice: product?.price * item?.quantity,
+//           productPrice: product.price,
+//           status: constantUtils.ACTIVE,
+//         });
+//       }
+//     }
+//   }
+
+//   if (cartrows?.length > 0) {
+//     await Cart.bulkCreate(cartrows);
+//   }
+
+//   let cartitems = await Cart.findAll({
+//     where: { userId: req.user?.userId, status: constantUtils.ACTIVE },
+//     include: [
+//       {
+//         model: Product,
+//         required: true,
+//       },
+//     ],
+//   });
+
+//   return res.status(200).json({ message: "Sucess", cartitems: cartitems });
+// });
+
 controller.addtocart = handler(async (req, res) => {
-  if (!req.user?.userId) throw "400 user_id Required";
-  if (req?.body?.length === 0) throw "400 product required";
+  if (!req.user?.userId) throw "400 | user_id Required";
+  if (req.body.length === 0) throw "400 | product required";
+  console.log(req.body);
+
+  await Cart.destroy({ where: { userId: req.user?.userId, status: "active" } })
+    .then(() => {
+      console.log("deleted");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 
   const products = await Product.findAll({
     where: {
@@ -205,55 +280,54 @@ controller.addtocart = handler(async (req, res) => {
   const purchaseId = parseInt(helperUtils.generateRandomNumber(8));
   const cartrows = [];
 
-  for (const item of req.body) {
+  for (let i = 0; i < req.body.length; i++) {
     const existingCartEntry = await Cart.findOne({
       where: {
         userId: req.user?.userId,
-        productId: item?.productId,
+        productId: req.body[i].productId,
       },
     });
 
     if (existingCartEntry) {
       // Update the existing cart entry instead of creating a new one
-      const updatedQuantity = item?.quantity;
+      const updatedQuantity = req.body[i].quantity;
       await existingCartEntry.update({
         quantity: updatedQuantity,
-        totalPrice:
-          products.find((p) => p?.productId === item?.productId)?.price *
-          updatedQuantity,
+        totalPrice: products[i].price * updatedQuantity,
       });
     } else {
-      const product = products.find((p) => p?.productId === item?.productId);
+      const product = products.find(
+        (p) => p.productId === req.body[i].productId
+      );
 
       if (product) {
         cartrows.push({
-          userId: req?.user?.userId,
+          userId: req.user?.userId,
           purchaseId: purchaseId,
-          productId: product?.productId,
-          quantity: item?.quantity,
-          totalPrice: product?.price * item?.quantity,
+          productId: product.productId,
+          quantity: req.body[i].quantity,
+          totalPrice: product.price * req.body[i].quantity,
           productPrice: product.price,
-          status: constantUtils.ACTIVE,
+          status: "active",
         });
       }
     }
   }
 
-  if (cartrows?.length > 0) {
+  if (cartrows.length > 0) {
     await Cart.bulkCreate(cartrows);
   }
 
   let cartitems = await Cart.findAll({
-    where: { userId: req.user?.userId, status: constantUtils.ACTIVE },
+    where: { purchaseId: purchaseId, status: "active" },
     include: [
       {
         model: Product,
-        required: true,
       },
     ],
   });
 
-  return res.status(200).json({ message: "Sucess", cartitems: cartitems });
+  res.status(200).json({ message: "Sucess", cartitems: cartitems });
 });
 
 controller.updateCart = handler(async (req, res) => {
