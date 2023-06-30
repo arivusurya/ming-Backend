@@ -12,6 +12,11 @@ const limiter = rateLimit({
     res.status(429).send("Too many requests, please try again later.");
   },
 });
+const app = express();
+
+app.use(limiter);
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 app.use(cors("*"));
 app.use(morgan("dev"));
