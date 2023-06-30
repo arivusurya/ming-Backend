@@ -203,8 +203,17 @@ controller.getcartbyuser = handler(async (req, res) => {
 // });
 
 controller.addtocart = handler(async (req, res) => {
-  if (!req.user?.userId) throw "400 user_id Required";
-  if (req.body.length === 0) throw "400 product required";
+  if (!req.user?.userId) throw "400 | user_id Required";
+  if (req.body.length === 0) throw "400 | product required";
+  console.log(req.body);
+
+  await Cart.destroy({ where: { userId: req.user?.userId, status: "active" } })
+    .then(() => {
+      console.log("deleted");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 
   const products = await Product.findAll({
     where: {
@@ -256,7 +265,7 @@ controller.addtocart = handler(async (req, res) => {
   }
 
   let cartitems = await Cart.findAll({
-    where: { userId: req.user?.userId, status: "active" },
+    where: { purchaseId: purchaseId, status: "active" },
     include: [
       {
         model: Product,
@@ -283,6 +292,30 @@ controller.updateCart = handler(async (req, res) => {
   await cart.save();
   res.json(cart);
 });
+
+controller.getCartByUserId = handler(async (req, res) => {
+  if (!req.user?.userId) throw "400 | user_id Required";
+  console.log(req.user.userId);
+  const cart = await Cart.findAll({
+    where: { userId: req.user?.userId, status: "active" },
+    include: [
+      {
+        model: Product,
+      },
+    ],
+  });
+  if (cart.length === 0) {
+    return res.status(200).json({ message: "No cart ", cart: cart });
+  }
+
+  const formattedCart = cart.map((item) => {
+    const product = item.product;
+    return structureUtils.getCartStruce(product, item);
+  });
+
+  return res.status(200).json({ cart: formattedCart });
+});
+
 module.exports = controller;
 
 // Cartcontroller.addToCart = async (req, res) => {

@@ -13,7 +13,7 @@ router.post("/getSingleProductById", validateBody(webValidation?.getSingleProduc
 router.post("/searchProduct", webController.getProducts);
 // router.post("/purchaseProduct", validateUser, webController.purchaseProduct);
 router.post("/userFeedback", validateBody(webValidation?.userFeedback), webController.userFeedback);
-router.post("/getcartbyuser", webController.getcartbyuser);
+router.get("/getcartbyuser", validateUser, webController.getCartByUserId);
 router.post("/addtocart", validateUser, webController.addtocart);
 router.post("/updatecart", validateUser, webController.updateCart);
 
