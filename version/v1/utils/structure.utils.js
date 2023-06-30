@@ -24,6 +24,7 @@ utils.userStructure = (data) => ({
   status: data?.status ?? "",
   dateTime: data?.dateTime ?? "",
   date: data?.date ?? "",
+  address: data?.addresss ? utils.addressStructure(data?.addresss) : "",
 });
 
 utils.addressStructure = (data) => ({
@@ -36,7 +37,8 @@ utils.addressStructure = (data) => ({
   country: data?.country ?? "",
   pinCode: data?.pinCode ?? 0,
   defaultStatus: data?.defaultStatus ?? "",
-  phoneNumber: helperUtils.decrypt(data?.phoneNumber) ?? "",
+  phoneNumber:
+    data?.phoneNumber === "" ? "" : helperUtils.decrypt(data?.phoneNumber),
 });
 
 utils.getCartStruce = (product, cart) => ({

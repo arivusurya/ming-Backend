@@ -16,7 +16,7 @@ const sequelize = require("../models");
 const { Op } = require("sequelize");
 const Feedback = require("../models/feedback.model");
 const Cart = require("../models/cart.model");
-const { Console } = require("winston/lib/winston/transports");
+const Review = require("../models/review.model");
 
 controller = {};
 
@@ -65,20 +65,7 @@ controller.getProducts = handler(async (req, res) => {
   });
 
   return res.json(
-    product?.map((each) => ({
-      id: each?.id,
-      productId: each?.productId,
-      categoryId: req?.body?.categoryId,
-      productName: each?.name,
-      productImage: each?.image,
-      description: req?.body?.description,
-      weight: req?.body?.weight,
-      type: req?.body?.type,
-      price: req?.body?.price,
-      date: each?.date,
-      dateTime: each?.dateTime,
-      status: each?.status,
-    }))
+    product?.map((each) => structureUtils.webProductStructure(each))
   );
 });
 
@@ -163,9 +150,10 @@ controller.userFeedback = handler(async (req, res) => {
 });
 
 controller.getcartbyuser = handler(async (req, res) => {
-  const userId = req.body.UserId;
-
-  const cart = await ProductPurchase.findAll({ where: { userId: userId } });
+  if (!req?.body?.userId) throw "400|User_Id_Requried!";
+  const cart = await ProductPurchase.findAll({
+    where: { userId: req?.body?.userId },
+  });
   res.json({ cart });
 });
 
@@ -203,17 +191,8 @@ controller.getcartbyuser = handler(async (req, res) => {
 // });
 
 controller.addtocart = handler(async (req, res) => {
-  if (!req.user?.userId) throw "400 | user_id Required";
-  if (req.body.length === 0) throw "400 | product required";
-  console.log(req.body);
-
-  await Cart.destroy({ where: { userId: req.user?.userId, status: "active" } })
-    .then(() => {
-      console.log("deleted");
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  if (!req.user?.userId) throw "400 user_id Required";
+  if (req?.body?.length === 0) throw "400 product required";
 
   const products = await Product.findAll({
     where: {
@@ -226,71 +205,105 @@ controller.addtocart = handler(async (req, res) => {
   const purchaseId = parseInt(helperUtils.generateRandomNumber(8));
   const cartrows = [];
 
-  for (let i = 0; i < req.body.length; i++) {
+  for (const item of req.body) {
     const existingCartEntry = await Cart.findOne({
       where: {
         userId: req.user?.userId,
-        productId: req.body[i].productId,
+        productId: item?.productId,
       },
     });
 
     if (existingCartEntry) {
       // Update the existing cart entry instead of creating a new one
-      const updatedQuantity = req.body[i].quantity;
+      const updatedQuantity = item?.quantity;
       await existingCartEntry.update({
         quantity: updatedQuantity,
-        totalPrice: products[i].price * updatedQuantity,
+        totalPrice:
+          products.find((p) => p?.productId === item?.productId)?.price *
+          updatedQuantity,
       });
     } else {
-      const product = products.find(
-        (p) => p.productId === req.body[i].productId
-      );
+      const product = products.find((p) => p?.productId === item?.productId);
 
       if (product) {
         cartrows.push({
-          userId: req.user?.userId,
+          userId: req?.user?.userId,
           purchaseId: purchaseId,
-          productId: product.productId,
-          quantity: req.body[i].quantity,
-          totalPrice: product.price * req.body[i].quantity,
+          productId: product?.productId,
+          quantity: item?.quantity,
+          totalPrice: product?.price * item?.quantity,
           productPrice: product.price,
-          status: "active",
+          status: constantUtils.ACTIVE,
         });
       }
     }
   }
 
-  if (cartrows.length > 0) {
+  if (cartrows?.length > 0) {
     await Cart.bulkCreate(cartrows);
   }
 
   let cartitems = await Cart.findAll({
-    where: { purchaseId: purchaseId, status: "active" },
+    where: { userId: req.user?.userId, status: constantUtils.ACTIVE },
     include: [
       {
         model: Product,
+        required: true,
       },
     ],
   });
 
-  res.status(200).json({ message: "Sucess", cartitems: cartitems });
+  return res.status(200).json({ message: "Sucess", cartitems: cartitems });
 });
 
 controller.updateCart = handler(async (req, res) => {
-  if (!req.user?.userId) throw "400 user_id Required";
-  if (!req.body) throw "303 data required";
+  if (!req.body) throw "400|Data_Required";
 
   const product = await Product.findOne({
-    where: { productId: req.body.productId },
+    where: { productId: req?.body?.productId },
   });
-  if (!product) throw "404 Product not found ";
+  if (!product) throw "404|Product_Not_Found!";
   const cart = await Cart.findOne({
-    where: { id: req.body.cartid },
+    where: { id: req?.body?.cartid },
   });
-  if (!cart) throw "404 no cart found";
-  cart.totalPrice = product.price * req.body.quantity;
+  if (!cart) throw "404|No_Cart_Found!";
+  cart.totalPrice = product?.price * req?.body?.quantity;
   await cart.save();
-  res.json(cart);
+  return res.json(cart);
+});
+
+controller.addReview = handler(async (req, res) => {
+  if (!req?.body?.name) throw "400|Name_Required!";
+  if (!req?.body?.email) throw "400|Email_Required!";
+  if (!req?.body?.review) throw "400|Review_Required!";
+  if (!req?.body?.star) throw "400|Star_Required!";
+  if (!req?.body?.productId) throw "400|Product_Id_Required!";
+
+  let user;
+
+  if (req?.body?.userId) {
+    const existUser = await User.findOne({
+      where: {
+        userId: req?.body?.userId,
+      },
+    });
+    user = existUser;
+  }
+
+  const review = await Review.create({
+    name: req?.body?.name,
+    email: req?.body?.email,
+    review: req?.body?.review,
+    star: req?.body?.star,
+    userId: user?.userId,
+    productId: req?.body?.productId,
+  });
+
+  if (!review) throw "400|Somthing_Went_Wrong!";
+
+  return res.json({
+    message: "success!",
+  });
 });
 
 controller.getCartByUserId = handler(async (req, res) => {
@@ -317,36 +330,3 @@ controller.getCartByUserId = handler(async (req, res) => {
 });
 
 module.exports = controller;
-
-// Cartcontroller.addToCart = async (req, res) => {
-//   const userid = req.User.userid;
-//   const productId = req.body.productId;
-//   const quantity = req.body.quantity || 1;
-
-//   try {
-//     const existingCartRow = await Model.cart.findOne({
-//       where: {
-//         userid: userid,
-//         productId: productId,
-//       },
-//     });
-
-//     if (existingCartRow) {
-//       const newCartRow = await existingCartRow.increment("quantity", {
-//         by: quantity,
-//       });
-//       newCartRow.quantity += Number(quantity);
-//       res.send(newCartRow);
-//     } else {
-//       const newCartRow = await Model.cart.create({
-//         userid: userid,
-//         productId: productId,
-//         quantity: quantity,
-//       });
-//       res.send(newCartRow);
-//     }
-//   } catch (error) {
-//     logger.error(error);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// };
