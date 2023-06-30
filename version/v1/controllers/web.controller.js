@@ -276,6 +276,7 @@ controller.addReview = handler(async (req, res) => {
   if (!req?.body?.email) throw "400|Email_Required!";
   if (!req?.body?.review) throw "400|Review_Required!";
   if (!req?.body?.star) throw "400|Star_Required!";
+  if (!req?.body?.productId) throw "400|Product_Id_Required!";
 
   let user;
 
@@ -294,6 +295,7 @@ controller.addReview = handler(async (req, res) => {
     review: req?.body?.review,
     star: req?.body?.star,
     userId: user?.userId,
+    productId: req?.body?.productId,
   });
 
   if (!review) throw "400|Somthing_Went_Wrong!";
