@@ -16,6 +16,7 @@ const sequelize = require("../models");
 const { Op } = require("sequelize");
 const Feedback = require("../models/feedback.model");
 const Cart = require("../models/cart.model");
+const Review = require("../models/review.model");
 
 controller = {};
 
@@ -203,33 +204,33 @@ controller.addtocart = handler(async (req, res) => {
   const purchaseId = parseInt(helperUtils.generateRandomNumber(8));
   const cartrows = [];
 
-  for (let i = 0; i < req.body.length; i++) {
+  for (const item of req.body) {
     const existingCartEntry = await Cart.findOne({
       where: {
         userId: req.user?.userId,
-        productId: req?.body[i]?.productId,
+        productId: item?.productId,
       },
     });
 
     if (existingCartEntry) {
       // Update the existing cart entry instead of creating a new one
-      const updatedQuantity = req?.body[i]?.quantity;
+      const updatedQuantity = item?.quantity;
       await existingCartEntry.update({
         quantity: updatedQuantity,
-        totalPrice: products[i]?.price * updatedQuantity,
+        totalPrice:
+          products.find((p) => p?.productId === item?.productId)?.price *
+          updatedQuantity,
       });
     } else {
-      const product = products.find(
-        (p) => p?.productId === req?.body[i]?.productId
-      );
+      const product = products.find((p) => p?.productId === item?.productId);
 
       if (product) {
         cartrows.push({
           userId: req?.user?.userId,
           purchaseId: purchaseId,
           productId: product?.productId,
-          quantity: req?.body[i]?.quantity,
-          totalPrice: product?.price * req?.body[i]?.quantity,
+          quantity: item?.quantity,
+          totalPrice: product?.price * item?.quantity,
           productPrice: product.price,
           status: constantUtils.ACTIVE,
         });
@@ -237,7 +238,7 @@ controller.addtocart = handler(async (req, res) => {
     }
   }
 
-  if (cartrows.length > 0) {
+  if (cartrows?.length > 0) {
     await Cart.bulkCreate(cartrows);
   }
 
@@ -246,6 +247,7 @@ controller.addtocart = handler(async (req, res) => {
     include: [
       {
         model: Product,
+        required: true,
       },
     ],
   });
@@ -268,6 +270,41 @@ controller.updateCart = handler(async (req, res) => {
   await cart.save();
   return res.json(cart);
 });
+
+controller.addReview = handler(async (req, res) => {
+  if (!req?.body?.name) throw "400|Name_Required!";
+  if (!req?.body?.email) throw "400|Email_Required!";
+  if (!req?.body?.review) throw "400|Review_Required!";
+  if (!req?.body?.star) throw "400|Star_Required!";
+  if (!req?.body?.productId) throw "400|Product_Id_Required!";
+
+  let user;
+
+  if (req?.body?.userId) {
+    const existUser = await User.findOne({
+      where: {
+        userId: req?.body?.userId,
+      },
+    });
+    user = existUser;
+  }
+
+  const review = await Review.create({
+    name: req?.body?.name,
+    email: req?.body?.email,
+    review: req?.body?.review,
+    star: req?.body?.star,
+    userId: user?.userId,
+    productId: req?.body?.productId,
+  });
+
+  if (!review) throw "400|Somthing_Went_Wrong!";
+
+  return res.json({
+    message: "success!",
+  });
+});
+
 module.exports = controller;
 
 // Cartcontroller.addToCart = async (req, res) => {
