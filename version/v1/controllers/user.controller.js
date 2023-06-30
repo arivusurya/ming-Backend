@@ -73,7 +73,6 @@ controller.loginUser = handler(async (req, res) => {
     },
     include: {
       model: Address,
-      required: true,
     },
   });
   if (!user) throw "400|User_Not_Found!";

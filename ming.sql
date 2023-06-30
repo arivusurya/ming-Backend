@@ -198,3 +198,18 @@ CREATE TABLE `mingbackend`.`reviews` (
 -- 30 June 2023 12:28:31 AM
 ALTER TABLE `mingbackend`.`reviews`
 ADD COLUMN `productId` int NULL AFTER `date`;
+
+
+
+
+CREATE TABLE `mingbackend`.`Cart` (
+  `id` INT AUTO_INCREMENT,
+  `userId` INT NOT NULL,
+  `productId` INT NOT NULL,
+  `quantity` INT NOT NULL,
+  `dateTime` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `date` date,
+  `status` VARCHAR(255) DEFAULT 'active',
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`productId`) REFERENCES `Product`(`productId`)
+);
