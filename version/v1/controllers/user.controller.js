@@ -73,7 +73,6 @@ controller.loginUser = handler(async (req, res) => {
     },
     include: {
       model: Address,
-      required: true,
     },
   });
   if (!user) throw "400|User_Not_Found!";
@@ -200,6 +199,16 @@ controller.getUserAddress = handler(async (req, res) => {
   return res.json(
     address?.map((each) => structureUtils?.addressStructure(each))
   );
+});
+
+controller.getUserById = handler(async (req, res) => {
+  const user = await User.findOne({
+    where: {
+      userId: req?.user?.userId,
+    },
+  });
+
+  return res.json(structureUtils.userStructure(user));
 });
 
 controller.updateUserAddress = handler(async (req, res) => {
