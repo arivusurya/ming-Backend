@@ -538,15 +538,16 @@ controller.g2c = handler(async (req, res) => {
 
 controller.abc = handler(async (req, res) => {
   if (!req?.user?.userId) throw "400|User_Id_Required!";
-  if (req?.body?.products?.length === 0) throw "400|No_Product_Found!";
-  if (!Array.isArray(req?.body?.products)) throw "400|Array_Only!";
+  if (req?.body?.length === 0) throw "400|No_Product_Found!";
+  console.log(req.body);
+  if (!Array.isArray(req?.body)) throw "400|Array_Only!";
 
   const cart = await Cart.findAll({
     where: { userId: req.user.userId },
   });
 
   const newarray = [];
-  for (const e of req.body.products) {
+  for (const e of req.body) {
     const product = await Product.findOne({
       where: { productId: e.productId },
     });
