@@ -47,7 +47,9 @@ controller.getSingleProductById = handler(async (req, res) => {
 });
 
 controller.getProducts = handler(async (req, res) => {
-  const condition = {};
+  const condition = {
+    status: constantUtils.ACTIVE,
+  };
 
   if (req?.body?.search) {
     condition["name"] = sequelize.where(
@@ -55,17 +57,17 @@ controller.getProducts = handler(async (req, res) => {
       "LIKE",
       "%" + req?.body?.search?.toLowerCase() + "%"
     );
+  } else {
+    return res.json([]);
   }
 
-  condition["status"] = constantUtils.ACTIVE;
-
-  const product = await Product.findAll({
+  const products = await Product.findAll({
     where: condition,
     order: [["id", "ASC"]],
   });
 
   return res.json(
-    product?.map((each) => structureUtils.webProductStructure(each))
+    products?.map((each) => structureUtils.webProductStructure(each))
   );
 });
 
