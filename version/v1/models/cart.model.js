@@ -3,7 +3,7 @@ const Product = require("../models/product.model");
 const db = require("./index");
 
 const Cart = db.define(
-  "Cart",
+  "cart",
   {
     id: {
       field: "id",
@@ -48,7 +48,7 @@ const Cart = db.define(
   },
   {
     timestamps: false,
-    tableName: "Cart",
+    tableName: "carts",
   }
 );
 
