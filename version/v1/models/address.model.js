@@ -39,6 +39,7 @@ const Address = db.define(
     apartment: {
       field: "apartment",
       type: Sequelize.DataTypes.STRING,
+      allowNull: false,
     },
     city: {
       field: "city",

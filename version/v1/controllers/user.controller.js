@@ -71,9 +71,6 @@ controller.loginUser = handler(async (req, res) => {
     where: {
       email: req?.body?.email,
     },
-    include: {
-      model: Address,
-    },
   });
   if (!user) throw "400|User_Not_Found!";
 
@@ -107,6 +104,22 @@ controller.addUserAddress = handler(async (req, res) => {
   });
 
   if (!user) throw "400|User_Not_Found!";
+
+  const exitAddress = await Address.findOne({
+    where: {
+      userId: req?.user?.userId,
+      address: req?.body?.address,
+      apartment: req?.body?.apartment,
+      city: req?.body?.city,
+      state: req?.body?.state,
+      country: req?.body?.country,
+      pinCode: req?.body?.pinCode,
+    },
+  });
+
+  if (exitAddress) {
+    return res.status(200).json({ message: "Address already exist" });
+  }
 
   const addAddress = await Address.create({
     addressId: addressId,
@@ -213,7 +226,7 @@ controller.getUserById = handler(async (req, res) => {
 
 controller.updateUserAddress = handler(async (req, res) => {
   const encryptedPhoneNumber = helperUtils.encrypt(req?.body?.phoneNumber);
-
+  console.log(req?.body);
   const checkUser = await User.findOne({
     where: {
       userId: req?.user?.userId,
@@ -221,6 +234,21 @@ controller.updateUserAddress = handler(async (req, res) => {
   });
 
   if (!checkUser) throw "400|User_Not_Found!";
+
+  const exitAddress = await Address.findOne({
+    where: {
+      userId: req?.user?.userId,
+      address: req?.body?.address,
+      apartment: req?.body?.apartment,
+      city: req?.body?.city,
+      state: req?.body?.state,
+      pinCode: req?.body?.pinCode,
+    },
+  });
+
+  if (exitAddress) {
+    return res.status(200).json({ message: "Address already exist" });
+  }
 
   const data = {
     ...req?.body,
@@ -278,9 +306,8 @@ controller.deleteUserAddress = handler(async (req, res) => {
     },
   });
   if (!address) throw "400|Address_Not_Found!";
-  address.status = constantUtils.INACTIVE;
 
-  await address.save();
+  await address.destroy();
 
   return res.json({
     message: "success",

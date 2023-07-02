@@ -48,7 +48,6 @@ const PORT = process.env.PORT ?? 5000;
 
 if (process.env.SERVERLESS !== true) {
   app.listen(PORT, async () => {
-    await Cart.sync({ alert: true });
     console.log(`Server is running on port ${PORT}`);
   });
 }
