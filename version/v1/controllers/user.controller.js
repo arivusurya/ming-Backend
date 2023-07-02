@@ -201,6 +201,16 @@ controller.getUserAddress = handler(async (req, res) => {
   );
 });
 
+controller.getUserById = handler(async (req, res) => {
+  const user = await User.findOne({
+    where: {
+      userId: req?.user?.userId,
+    },
+  });
+
+  return res.json(structureUtils.userStructure(user));
+});
+
 controller.updateUserAddress = handler(async (req, res) => {
   const encryptedPhoneNumber = helperUtils.encrypt(req?.body?.phoneNumber);
 
