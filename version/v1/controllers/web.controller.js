@@ -405,4 +405,19 @@ controller.getCartByUserId = handler(async (req, res) => {
   return res.status(200).json({ cart: formattedCart });
 });
 
+controller.getAllReviews = handler(async (req, res) => {
+  if (!req?.body?.productId) throw "400|Product_Id_Required!";
+  const review = await Review.findAll({
+    productId: req?.body?.productId,
+    order: [["star", "DESC"]],
+    limit: 10,
+  });
+  if (!review) throw "400|No_Review_Found!";
+  const data = review?.map((each) => structureUtils.reviewStructure(each));
+
+  console.log(data, null, 4);
+
+  return res.json(review?.map((each) => structureUtils.reviewStructure(each)));
+});
+
 module.exports = controller;

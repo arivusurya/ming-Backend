@@ -52,4 +52,11 @@ utils.getCartStruce = (product, cart) => ({
   weight: product?.weight,
 });
 
+utils.reviewStructure = (data) => ({
+  userName: data?.name,
+  email: data?.email,
+  review: data?.review,
+  star: data?.star,
+});
+
 module.exports = utils;

@@ -17,5 +17,6 @@ router.get("/getcartbyuser", validateUser, webController.getCartByUserId);
 router.post("/addtocart", validateUser, webController.addtocart);
 router.post("/updatecart", validateUser, webController.updateCart);
 router.post("/addReview", webController.addReview);
+router.post("/getAllReviews", webController.getAllReviews);
 
 module.exports = router;
