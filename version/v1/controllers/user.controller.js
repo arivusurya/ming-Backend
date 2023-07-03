@@ -49,8 +49,6 @@ controller.registerUser = handler(async (req, res) => {
 
   const newUser = await User.create({
     userId: userId,
-    firstName: req?.body?.firstName,
-    lastName: req?.body?.lastName,
     userName: req?.body?.userName,
     email: req?.body?.email,
     phoneNumber: helperUtils.encrypt(req?.body?.phoneNumber),
@@ -124,7 +122,9 @@ controller.addUserAddress = handler(async (req, res) => {
   const addAddress = await Address.create({
     addressId: addressId,
     userId: req?.user?.userId,
-    name: req?.body?.name,
+    contact: user?.email,
+    firstName: req?.body?.firstName,
+    lastName: req?.body?.lastName,
     address: req?.body?.address,
     apartment: req?.body?.apartment,
     city: req?.body?.city,
@@ -138,8 +138,6 @@ controller.addUserAddress = handler(async (req, res) => {
   if (!addAddress) throw "400|Somthing_Went_Wrong!";
 
   user.addressId = addressId;
-  user.firstName = req?.body?.firstName;
-  user.lastName = req?.body?.lastName;
 
   await user.save();
 
@@ -210,7 +208,7 @@ controller.getUserAddress = handler(async (req, res) => {
   });
 
   return res.json(
-    address?.map((each) => structureUtils?.addressStructure(each))
+    address?.map((each) => structureUtils.addressStructure(each))
   );
 });
 
@@ -245,10 +243,14 @@ controller.updateUserAddress = handler(async (req, res) => {
       pinCode: req?.body?.pinCode,
     },
   });
+  const updateAdd = await Address.findOne({
+    where: {
+      addressId: req?.body?.addressId,
+    },
+  });
 
-  if (exitAddress) {
-    return res.status(200).json({ message: "Address already exist" });
-  }
+  if (exitAddress.addressId !== updateAdd.addressId)
+    throw "400|Address_already_exist";
 
   const data = {
     ...req?.body,

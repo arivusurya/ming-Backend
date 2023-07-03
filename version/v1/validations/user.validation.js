@@ -3,8 +3,6 @@ const Joi = require("joi");
 const validation = {};
 
 validation.registerUser = Joi.object().keys({
-  firstName: Joi.string().required(),
-  lastName: Joi.string().required(),
   userName: Joi.string().required(),
   email: Joi.string().required(),
   phoneNumber: Joi.string().required(),
@@ -22,7 +20,7 @@ validation.getSingleUser = Joi.object().keys({
 });
 
 validation.addUserAddress = Joi.object().keys({
-  name: Joi.string().required(),
+  contact: Joi.string().email().required(),
   address: Joi.string().required(),
   apartment: Joi.string().allow(""),
   city: Joi.string().required(),

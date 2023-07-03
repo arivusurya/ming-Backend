@@ -29,14 +29,6 @@ const User = db.define(
       type: Sequelize.DataTypes.STRING,
       required: true,
     },
-    firstName: {
-      field: "firstName",
-      type: Sequelize.DataTypes.STRING,
-    },
-    lastName: {
-      field: "lastName",
-      type: Sequelize.DataTypes.STRING,
-    },
     email: {
       field: "email",
       type: Sequelize.DataTypes.STRING,
