@@ -213,3 +213,43 @@ CREATE TABLE `mingbackend`.`Cart` (
   PRIMARY KEY (`id`),
   FOREIGN KEY (`productId`) REFERENCES `Product`(`productId`)
 );
+
+--july 4 2023 5:15
+CREATE TABLE `mingbackend`.`users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `userId` int DEFAULT NULL,
+  `addressId` int DEFAULT NULL,
+  `userName` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `confirmPassword` varchar(255) DEFAULT NULL,
+  `phoneNumber` varchar(255) DEFAULT NULL,
+  `accessToken` varchar(255) DEFAULT NULL,
+  `dateTime` datetime DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `lastLoginTime` datetime DEFAULT NULL,
+  `status` varchar(255) DEFAULT 'ACTIVE',
+  PRIMARY KEY (`id`)
+) 
+
+
+CREATE TABLE `mingbackend`.`addresss` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `addressId` int DEFAULT NULL,
+  `userId` int DEFAULT NULL,
+  `contact` varchar(255) DEFAULT NULL,
+  `firstName` varchar(255) DEFAULT NULL,
+  `lastName` varchar(255) DEFAULT NULL,
+  `phoneNumber` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `apartment` varchar(255) NOT NULL,
+  `city` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `pinCode` varchar(255) DEFAULT NULL,
+  `dateTime` datetime DEFAULT NULL,
+  `date` datetime DEFAULT NULL,
+  `defaultStatus` varchar(255) DEFAULT 'INACTIVE',
+  `status` varchar(255) DEFAULT 'ACTIVE',
+  PRIMARY KEY (`id`)
+)
