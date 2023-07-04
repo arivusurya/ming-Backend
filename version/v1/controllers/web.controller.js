@@ -409,7 +409,6 @@ controller.a2c = handler(async (req, res) => {
   const userId = req?.user?.userId;
   const productId = req.body?.productId;
   const quantity = 1; //default value should be one
-  console.log(req.body);
 
   const product = Product.findOne({
     where: {
@@ -449,7 +448,7 @@ controller.u2c = handler(async (req, res) => {
       productId: productId,
     },
   });
-  if (!product) throw "404|Product Not Found";
+  if (!product) throw "404|Product_Not_Found";
 
   let cart = await Cart.findOne({
     where: {
@@ -458,7 +457,7 @@ controller.u2c = handler(async (req, res) => {
     },
   });
 
-  if (!cart) throw "404|cart Not Found";
+  if (!cart) throw "404|Cart_Not_Found";
 
   if (quantity === 0) {
     await cart.destroy();
@@ -471,8 +470,7 @@ controller.u2c = handler(async (req, res) => {
 });
 
 controller.g2c = handler(async (req, res) => {
-  if (!req.user?.userId) throw "400 | user_id Required";
-  console.log(req.user.userId);
+  if (!req.user?.userId) throw "400|User_Id_Required";
   const cart = await Cart.findAll({
     where: { userId: req.user?.userId, status: "active" },
     include: [
@@ -541,7 +539,6 @@ controller.g2c = handler(async (req, res) => {
 controller.abc = handler(async (req, res) => {
   if (!req?.user?.userId) throw "400|User_Id_Required!";
   if (req?.body?.length === 0) throw "400|No_Product_Found!";
-  console.log(req.body);
   if (!Array.isArray(req?.body)) throw "400|Array_Only!";
 
   const cart = await Cart.findAll({
