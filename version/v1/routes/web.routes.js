@@ -18,5 +18,6 @@ router.post("/addtocart", validateUser, webController.addtocart);
 router.post("/updatecart", validateUser, webController.updateCart);
 router.post("/addReview", webController.addReview);
 router.post("/getAllReviews", webController.getAllReviews);
+router.post("/compareDiscountCode", validateUser, webController.compareDiscountCode);
 
 module.exports = router;

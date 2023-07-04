@@ -17,6 +17,7 @@ const { Op } = require("sequelize");
 const Feedback = require("../models/feedback.model");
 const Cart = require("../models/cart.model");
 const Review = require("../models/review.model");
+const Discount = require("../models/discount.model");
 
 controller = {};
 
@@ -407,17 +408,46 @@ controller.getCartByUserId = handler(async (req, res) => {
 
 controller.getAllReviews = handler(async (req, res) => {
   if (!req?.body?.productId) throw "400|Product_Id_Required!";
-  const review = await Review.findAll({
-    productId: req?.body?.productId,
+
+  const reviews = await Review.findAll({
+    where: { productId: req?.body?.productId },
     order: [["star", "DESC"]],
     limit: 10,
   });
-  if (!review) throw "400|No_Review_Found!";
-  const data = review?.map((each) => structureUtils.reviewStructure(each));
 
-  console.log(data, null, 4);
+  if (!reviews) throw "400|No_Review_Found!";
 
-  return res.json(review?.map((each) => structureUtils.reviewStructure(each)));
+  const data = reviews.map((each) => structureUtils.reviewStructure(each));
+
+  return res.json(data);
+});
+
+controller.compareDiscountCode = handler(async (req, res) => {
+  if (!req?.body?.discountCode) throw "400|Discount_Code_Requried!";
+  const discountCode = await Discount.findOne({
+    where: {
+      discountCode: req?.body?.discountCode,
+    },
+  });
+
+  if (!discountCode) throw "400|No_Discount_Code_Found!";
+
+  const currentDate = new Date();
+
+  let action = true;
+
+  if (currentDate < discountCode?.startDate) {
+    action = false;
+  }
+
+  if (currentDate > discountCode?.endDate) {
+    action = false;
+  }
+
+  if (!action) throw "400|Dicount_Code_Expired!";
+
+  if (action)
+    return res.json(structureUtils.compareDiscountStructure(discountCode));
 });
 
 module.exports = controller;

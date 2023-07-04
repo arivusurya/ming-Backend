@@ -9,6 +9,8 @@ const Category = require("../models/category.model");
 const helperUtils = require("../utils/helperUtils");
 const authUtils = require("../utils/auth.utils");
 const constantUtils = require("../utils/constant.utils");
+const strunctureUtils = require("../utils/structure.utils");
+const Discount = require("../models/discount.model");
 
 controller = {};
 
@@ -66,6 +68,70 @@ controller.addproduct = handler(async (req, res) => {
   return res.json({
     message: "success!",
   });
+});
+
+controller.addDiscountCode = handler(async (req, res) => {
+  if (!req?.body?.discountCode) throw "400|Discount_Code_Required!";
+  if (!req?.body?.amount) throw "400|Amount_Required!";
+  if (!req?.body?.startDate) throw "400|Start_Date_Required!";
+  if (!req?.body?.endDate) throw "400|End_Date_Required!";
+
+  const discountId = helperUtils.generateRandomNumber(8);
+  const discount = await Discount.create({
+    discountId: discountId,
+    discountCode: req?.body?.discountCode,
+    amount: req?.body?.amount,
+    startDate: req?.body?.startDate,
+    endDate: req?.body?.endDate,
+    addedBy: req?.admin?.adminId,
+  });
+
+  if (!discount) throw "400|Somthing_Went_Wrong!";
+
+  return res.json({
+    message: "success!",
+  });
+});
+
+controller.getAllDiscountCode = handler(async (req, res) => {
+  const condition = {};
+
+  if (req?.body?.status) condition["status"] = req?.body?.status;
+
+  const discount = await Discount.findAll(condition);
+
+  const discountData = discount?.map((each) =>
+    strunctureUtils.discountStructure(each)
+  );
+
+  return res.json(discountData);
+});
+
+controller.compareDiscountCode = handler(async (req, res) => {
+  if (!req?.body?.discountCode) throw "400|Discount_Code_Requried!";
+  const discountCode = await Discount.findOne({
+    where: {
+      discountCode: req?.body?.discountCode,
+    },
+  });
+
+  if (!discountCode) throw "400|No_Discount_Code_Found!";
+
+  const currentDate = new Date();
+
+  let action = true;
+
+  if (currentDate < discountCode?.startDate) {
+    action = false;
+  }
+
+  if (currentDate > discountCode?.enDate) {
+    action = false;
+  }
+
+  if (!action) throw "400|Dicount_Code_Expired!";
+
+  if (action) return res.json(strunctureUtils.discountStructure(discountCode));
 });
 
 module.exports = controller;

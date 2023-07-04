@@ -53,10 +53,25 @@ utils.getCartStruce = (product, cart) => ({
 });
 
 utils.reviewStructure = (data) => ({
-  userName: data?.name,
-  email: data?.email,
-  review: data?.review,
-  star: data?.star,
+  userName: data?.name ?? "",
+  email: data?.email ?? "",
+  review: data?.review ?? "",
+  star: data?.star ?? 0,
+});
+
+utils.discountStructure = (data) => ({
+  discoutId: data?.discountId ?? 0,
+  discountCode: data?.discountCode ?? "",
+  amount: data?.amount ?? 0,
+  startDate: data?.startDate ?? "",
+  endDate: data?.endDate ?? "",
+  status: data?.status ?? "",
+});
+
+utils.compareDiscountStructure = (data) => ({
+  discoutId: data?.discountId ?? 0,
+  discountCode: data?.discountCode ?? "",
+  amount: data?.amount ?? 0,
 });
 
 module.exports = utils;
