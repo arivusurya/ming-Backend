@@ -12,11 +12,6 @@ const ProductPurchaseTotal = db.define(
       autoIncrement: true,
       allowNull: false,
     },
-    purchaseId: {
-      field: "purchaseId",
-      type: Sequelize.DataTypes.INTEGER,
-      allowNull: false,
-    },
     userId: {
       field: "userId",
       type: Sequelize.DataTypes.INTEGER,
@@ -50,11 +45,5 @@ const ProductPurchaseTotal = db.define(
     tableName: "total_purchases",
   }
 );
-
-ProductPurchaseTotal.belongsTo(Cart, {
-  foreignKey: "purchaseId",
-  targetKey: "purchaseId",
-  constraint: false,
-});
 
 module.exports = ProductPurchaseTotal;

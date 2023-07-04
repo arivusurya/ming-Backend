@@ -3,18 +3,13 @@ const Product = require("../models/product.model");
 const db = require("./index");
 
 const Cart = db.define(
-  "carts",
+  "cart",
   {
     id: {
       field: "id",
       type: Sequelize.DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
-      allowNull: false,
-    },
-    purchaseId: {
-      field: "purchaseId",
-      type: Sequelize.DataTypes.INTEGER,
       allowNull: false,
     },
     userId: {
@@ -24,6 +19,11 @@ const Cart = db.define(
     },
     productId: {
       field: "productId",
+      type: Sequelize.DataTypes.INTEGER,
+      allowNull: false,
+    },
+    quantity: {
+      field: "quantity",
       type: Sequelize.DataTypes.INTEGER,
       allowNull: false,
     },
@@ -38,21 +38,6 @@ const Cart = db.define(
       type: Sequelize.DataTypes.DATEONLY,
       allowNull: false,
       defaultValue: Sequelize.NOW,
-    },
-    totalPrice: {
-      field: "totalPrice",
-      type: Sequelize.DataTypes.INTEGER,
-      allowNull: false,
-    },
-    productPrice: {
-      field: "productPrice",
-      type: Sequelize.DataTypes.INTEGER,
-      allowNull: false,
-    },
-    quantity: {
-      field: "quantity",
-      type: Sequelize.DataTypes.INTEGER,
-      allowNull: false,
     },
     status: {
       field: "status",

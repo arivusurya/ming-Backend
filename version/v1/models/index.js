@@ -3,7 +3,7 @@ const Sequelize = require("sequelize");
 
 const sequelize = new Sequelize(
   process.env.DATABASENAME,
-  process.env.USERNAME,
+  process.env.dbUSERNAME,
   process.env.PASSWORD,
   {
     host: process.env.MYSQL_HOST,
