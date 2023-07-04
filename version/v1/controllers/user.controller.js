@@ -205,7 +205,7 @@ controller.getUserAddress = handler(async (req, res) => {
   });
 
   return res.json(
-    address?.map((each) => structureUtils.addressStructure(each))
+    address?.map((each) => structureUtils?.addressStructure(each))
   );
 });
 
@@ -216,7 +216,7 @@ controller.getUserById = handler(async (req, res) => {
     },
   });
 
-  return res.json(structureUtils.userStructure(user));
+  return res.json(structureUtils?.userStructure(user));
 });
 
 controller.updateUserAddress = handler(async (req, res) => {
