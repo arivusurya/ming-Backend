@@ -231,8 +231,7 @@ CREATE TABLE `mingbackend`.`users` (
   `status` varchar(255) DEFAULT 'ACTIVE',
   PRIMARY KEY (`id`)
 ) 
-
-
+--july 4 2023 5:15
 CREATE TABLE `mingbackend`.`addresss` (
   `id` int NOT NULL AUTO_INCREMENT,
   `addressId` int DEFAULT NULL,
@@ -253,3 +252,14 @@ CREATE TABLE `mingbackend`.`addresss` (
   `status` varchar(255) DEFAULT 'ACTIVE',
   PRIMARY KEY (`id`)
 )
+--july 4 2023 5:15
+CREATE TABLE `mingbackend`.`carts` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `userId` int NOT NULL,
+  `productId` int NOT NULL,
+  `quantity` int NOT NULL,
+  `dateTime` datetime NOT NULL,
+  `date` date NOT NULL,
+  `status` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) 
