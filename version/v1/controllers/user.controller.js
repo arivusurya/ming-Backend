@@ -115,10 +115,7 @@ controller.addUserAddress = handler(async (req, res) => {
     },
   });
 
-  if (exitAddress) {
-    return res.status(200).json({ message: "Address already exist" });
-  }
-
+  if (exitAddress) throw "400|Address_Already_Exist!"
   const addAddress = await Address.create({
     addressId: addressId,
     userId: req?.user?.userId,
