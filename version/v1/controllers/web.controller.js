@@ -434,7 +434,7 @@ controller.a2c = handler(async (req, res) => {
       userId: userId,
       productId: productId,
       quantity: quantity,
-      status: "active",
+      status: constantUtils.ACTIVE,
     });
     return res.status(200).json({ message: "Product add sucessfully" });
   }
@@ -477,7 +477,7 @@ controller.u2c = handler(async (req, res) => {
 controller.g2c = handler(async (req, res) => {
   if (!req.user?.userId) throw "400|User_Id_Required";
   const cart = await Cart.findAll({
-    where: { userId: req.user?.userId, status: "active" },
+    where: { userId: req.user?.userId, status: constantUtils.ACTIVE },
     include: [
       {
         model: Product,
@@ -495,7 +495,6 @@ controller.g2c = handler(async (req, res) => {
 
   return res.status(200).json({ cart: formattedCart });
 });
-
 
 controller.getAllReviews = handler(async (req, res) => {
   if (!req?.body?.productId) throw "400|Product_Id_Required!";
@@ -607,7 +606,7 @@ controller.abc = handler(async (req, res) => {
       userId: req.user.userId,
       productId: e.productId,
       quantity: e.quantity,
-      status: "active",
+      status: constantUtils.ACTIVE,
     });
   }
 
