@@ -29,7 +29,9 @@ utils.userStructure = (data) => ({
 
 utils.addressStructure = (data) => ({
   addressId: data?.addressId,
-  name: data?.name ?? "",
+  contact: data?.contact,
+  firstName: data?.firstName,
+  lastName: data?.lastName,
   address: data?.address ?? "",
   apartment: data?.apartment ?? "",
   city: data?.city ?? "",

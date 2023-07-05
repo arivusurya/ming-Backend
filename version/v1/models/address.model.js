@@ -23,9 +23,20 @@ const Address = db.define(
       type: Sequelize.DataTypes.INTEGER,
       required: true,
     },
-    name: {
-      field: "name",
+    contact: {
+      field: "contact",
       type: Sequelize.DataTypes.STRING,
+    },
+
+    firstName: {
+      field: "firstName",
+      type: Sequelize.DataTypes.STRING,
+      required: true,
+    },
+    lastName: {
+      field: "lastName",
+      type: Sequelize.DataTypes.STRING,
+      required: true,
     },
     phoneNumber: {
       field: "phoneNumber",
@@ -39,6 +50,7 @@ const Address = db.define(
     apartment: {
       field: "apartment",
       type: Sequelize.DataTypes.STRING,
+      allowNull: false,
     },
     city: {
       field: "city",
