@@ -200,7 +200,21 @@ ALTER TABLE `mingbackend`.`reviews`
 ADD COLUMN `productId` int NULL AFTER `date`;
 
 
+-- 4 July 2023 11:46:01 AM 
+CREATE TABLE `mingbackend`.`discounts` (
+	`id` int AUTO_INCREMENT,
+	`discount_id` int,
+	`discount_code` varchar(255),
+	`amount` int,
+	`start_date` datetime,
+	`end_date` datetime,
+	`status` varchar(255),
+	PRIMARY KEY (id)
+);
 
+-- 4 July 2023 12:08:05 PM
+ALTER TABLE `mingbackend`.`discounts`
+ADD COLUMN `added_by` int NULL AFTER `status`;
 
 CREATE TABLE `mingbackend`.`Cart` (
   `id` INT AUTO_INCREMENT,

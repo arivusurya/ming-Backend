@@ -17,6 +17,8 @@ router.post("/userFeedback", validateBody(webValidation?.userFeedback), webContr
 // router.post("/addtocart", validateUser, webController.addtocart);
 // router.post("/updatecart", validateUser, webController.updateCart);
 router.post("/addReview", webController.addReview);
+router.post("/getAllReviews", webController.getAllReviews);
+router.post("/compareDiscountCode", validateUser, webController.compareDiscountCode);
 router.post("/addtocart", validateUser, webController.a2c);
 router.post("/updatecart", validateUser, webController.u2c);
 router.get("/getcartbyuser", validateUser, webController.g2c);
