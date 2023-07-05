@@ -107,31 +107,4 @@ controller.getAllDiscountCode = handler(async (req, res) => {
   return res.json(discountData);
 });
 
-controller.compareDiscountCode = handler(async (req, res) => {
-  if (!req?.body?.discountCode) throw "400|Discount_Code_Requried!";
-  const discountCode = await Discount.findOne({
-    where: {
-      discountCode: req?.body?.discountCode,
-    },
-  });
-
-  if (!discountCode) throw "400|No_Discount_Code_Found!";
-
-  const currentDate = new Date();
-
-  let action = true;
-
-  if (currentDate < discountCode?.startDate) {
-    action = false;
-  }
-
-  if (currentDate > discountCode?.enDate) {
-    action = false;
-  }
-
-  if (!action) throw "400|Dicount_Code_Expired!";
-
-  if (action) return res.json(strunctureUtils.discountStructure(discountCode));
-});
-
 module.exports = controller;

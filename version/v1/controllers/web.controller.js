@@ -30,6 +30,10 @@ controller.getProductByCategory = handler(async (req, res) => {
   });
   if (!product) throw "400|Product_Not_Found!";
 
+  const data = product?.map((each) => structureUtils.webProductStructure(each));
+
+  console.log(typeof data);
+
   return res.json(
     product?.map((each) => structureUtils.webProductStructure(each))
   );

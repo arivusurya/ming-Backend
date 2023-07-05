@@ -16,6 +16,10 @@ const Discount = db.define(
       field: "discount_id",
       type: Sequelize.DataTypes.INTEGER,
     },
+    offerType: {
+      field: "offer_type",
+      type: Sequelize.DataTypes.STRING,
+    },
     discountCode: {
       field: "discount_code",
       type: Sequelize.DataTypes.STRING,
