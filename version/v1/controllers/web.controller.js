@@ -32,8 +32,6 @@ controller.getProductByCategory = handler(async (req, res) => {
 
   const data = product?.map((each) => structureUtils.webProductStructure(each));
 
-  console.log(typeof data);
-
   return res.json(
     product?.map((each) => structureUtils.webProductStructure(each))
   );

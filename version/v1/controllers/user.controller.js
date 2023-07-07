@@ -7,6 +7,7 @@ const helperUtils = require("../utils/helperUtils");
 const constantUtils = require("../utils/constant.utils");
 const authUtils = require("../utils/auth.utils");
 const structureUtils = require("../utils/structure.utils");
+const decodeJWT = require("jwt-decode");
 
 controller = {};
 
@@ -83,10 +84,6 @@ controller.getSingleUser = handler(async (req, res) => {
       userId: req?.body?.userId,
       status: constantUtils.ACTIVE,
     },
-    include: {
-      model: Address,
-      required: true,
-    },
   });
 
   return res.json(structureUtils.userStructure(user));
@@ -115,7 +112,7 @@ controller.addUserAddress = handler(async (req, res) => {
     },
   });
 
-  if (exitAddress) throw "400|Address_Already_Exist!"
+  if (exitAddress) throw "400|Address_Already_Exist!";
   const addAddress = await Address.create({
     addressId: addressId,
     userId: req?.user?.userId,
@@ -189,7 +186,7 @@ controller.editUserDeatils = handler(async (req, res) => {
     },
   });
 
-  // if (numUpdated < 1) throw "400|Somthing_Went_Wrong!";
+  if (numUpdated < 1) throw "400|Somthing_Went_Wrong!";
 
   return res.json({
     message: "success",
@@ -269,14 +266,14 @@ controller.updateUserAddress = handler(async (req, res) => {
 });
 
 controller.googleAuth = handler(async (req, res) => {
-  if (!req?.body?.email) throw "400|Email_Required!";
-  if (!req?.body?.userName) throw "400|UserName_Required!";
+  if (!req?.body?.res?.credential) throw "400|Invalid_Value!";
+  const userDetails = decodeJWT(req?.body?.res?.credential);
 
   let loginUser;
 
   const user = await User.findOne({
     where: {
-      email: req?.body?.email,
+      email: userDetails?.email,
     },
   });
 
@@ -284,13 +281,15 @@ controller.googleAuth = handler(async (req, res) => {
     const userId = parseInt(helperUtils.generateRandomNumber(8));
     const newUser = await User.create({
       userId: userId,
-      email: req?.body?.email,
-      userName: req?.body?.userName,
+      email: userDetails?.email,
+      userName: userDetails?.given_name,
       accessToken: authUtils.generateToken(userId),
     });
     loginUser = newUser;
+    console.log(`new user`);
   } else {
     loginUser = user;
+    console.log(`exist user`);
   }
 
   return res.json(structureUtils.userStructure(loginUser));
