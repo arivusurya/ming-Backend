@@ -14,17 +14,11 @@ utils.webProductStructure = (data) => ({
 utils.userStructure = (data) => ({
   userId: data?.userId ?? 0,
   addressId: data?.addressId ?? 0,
-  firstName: data?.firstName ?? "",
-  lastName: data?.lastName ?? "",
   userName: data?.userName ?? "",
   email: data?.email ?? "",
   accessToken: data?.accessToken ?? "",
   phoneNumber:
     data?.phoneNumber === "" ? "" : helperUtils.decrypt(data?.phoneNumber),
-  status: data?.status ?? "",
-  dateTime: data?.dateTime ?? "",
-  date: data?.date ?? "",
-  address: data?.addresss ? utils.addressStructure(data?.addresss) : "",
 });
 
 utils.addressStructure = (data) => ({
