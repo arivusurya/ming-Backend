@@ -27,8 +27,8 @@ utils.sendEmail = async (email, subject, url) => {
             </head>
             <body>
               <p>Hi,</p>
-              <p>Thank you for registering on our site. To verify your email address, please follow this link:</p>
-              <p><a href="${url}">${url}</a></p>
+              <p>Thank you for registering on our site. To verify your email address, please copy the below link:</p>
+              <p>${url}</p>
               <p>If you did not request this verification, please ignore this email.</p>
             </body>
           </html>
