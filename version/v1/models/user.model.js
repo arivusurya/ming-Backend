@@ -71,6 +71,11 @@ const User = db.define(
       enum: [constantUtils.ACTIVE, constantUtils.INACTIVE],
       defaultValue: constantUtils.ACTIVE,
     },
+    verified: {
+      field: "verified",
+      type: Sequelize.DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
   {
     timestamps: false,

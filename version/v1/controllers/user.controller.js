@@ -2,12 +2,16 @@ const handler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const User = require("../models/user.model");
 const Address = require("../models/address.model");
+const Token = require("../models/token.model");
 
 const helperUtils = require("../utils/helperUtils");
 const constantUtils = require("../utils/constant.utils");
 const authUtils = require("../utils/auth.utils");
 const structureUtils = require("../utils/structure.utils");
+const emailUtils = require("../utils/email.utils");
+
 const decodeJWT = require("jwt-decode");
+const { nanoid } = require("nanoid");
 
 controller = {};
 
@@ -58,11 +62,69 @@ controller.registerUser = handler(async (req, res) => {
     accessToken: authUtils.generateToken(userId),
   });
 
-  if (!newUser) throw "400|No_User_Found!";
+  if (!newUser) throw "400|Somthing_Went_Wrong!";
+
+  const id = nanoid(12);
+
+  const expiresAt = new Date();
+  expiresAt.setMinutes(expiresAt?.getMinutes() + 5);
+
+  const token = await Token.create({
+    userId: newUser.userId,
+    token: id,
+    expiresAt: expiresAt,
+  });
+
+  console.log(JSON.stringify(token, null, 4));
+
+  const url = `http://localhost:3000/verifyuser?userId=${newUser?.userId}&token=${token.token}`;
+
+  await emailUtils?.sendEmail(
+    newUser?.email,
+    "Verify Your Email Through Below Link",
+    url
+  );
 
   return res.json({
-    message: "success",
+    message: "An Email Sent To Your Registered Email And Please Verify...",
   });
+});
+
+controller.verifyUserEmail = handler(async (req, res) => {
+  try {
+    console.log(req?.params);
+    const user = await User.findOne({
+      where: {
+        userId: req?.body?.userId,
+        status: constantUtils.ACTIVE,
+      },
+    });
+    if (!user) throw "400|Invalid_Link!";
+
+    const token = await Token.findOne({
+      where: {
+        userId: user?.userId,
+        token: req?.body?.token,
+      },
+    });
+    if (!token) throw "400|Invalid_Token!";
+
+    const updateUser = await User.update(
+      { verified: true },
+      {
+        where: {
+          userId: user?.userId,
+        },
+      }
+    );
+    await token.destroy();
+
+    return res.json({
+      message: "Email Verified Successfully!",
+    });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 controller.loginUser = handler(async (req, res) => {

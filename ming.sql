@@ -277,3 +277,10 @@ CREATE TABLE `mingbackend`.`carts` (
   `status` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) 
+
+-- 8 July 2023 4:00:43 PM
+CREATE TABLE `mingbackend`.`tokens` (`id` int AUTO_INCREMENT,`userId` int,`token` varchar(255),`expiresAt` datetime, PRIMARY KEY (id));
+
+-- 8 July 2023 4:47:46 PM
+ALTER TABLE `mingbackend`.`users`
+ADD COLUMN `verified` boolean NULL AFTER `addressId`;
