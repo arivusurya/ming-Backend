@@ -36,7 +36,7 @@ utils.sendEmail = async (email, subject, url) => {
     };
 
     await transport.sendMail({
-      from: "gandhi@pepul.com",
+      from: "gandhi@gmail.com",
       to: email,
       subject: subject,
       html: emailTemplate(url),
