@@ -148,8 +148,11 @@ controller.getSingleUser = handler(async (req, res) => {
     where: {
       userId: req?.body?.userId,
       status: constantUtils.ACTIVE,
+      verified: true,
     },
   });
+
+  if (!user) throw "400|User_Not_Found!";
 
   return res.json(structureUtils.userStructure(user));
 });
@@ -349,6 +352,7 @@ controller.googleAuth = handler(async (req, res) => {
       email: userDetails?.email,
       userName: userDetails?.given_name,
       accessToken: authUtils.generateToken(userId),
+      verified: true,
     });
     loginUser = newUser;
     console.log(`new user`);
