@@ -77,7 +77,9 @@ controller.registerUser = handler(async (req, res) => {
 
   console.log(JSON.stringify(token, null, 4));
 
-  const url = `http://localhost:3000/verifyuser?userId=${newUser?.userId}&token=${token.token}`;
+  const url = `${process.env.BASE_URL}?userId=${encodeURIComponent(
+    newUser?.userId
+  )}&token=${encodeURIComponent(token.token)}`;
 
   await emailUtils?.sendEmail(
     newUser?.email,
@@ -131,6 +133,7 @@ controller.loginUser = handler(async (req, res) => {
   const user = await User.findOne({
     where: {
       email: req?.body?.email,
+      verified: true,
     },
   });
   if (!user) throw "400|User_Not_Found!";

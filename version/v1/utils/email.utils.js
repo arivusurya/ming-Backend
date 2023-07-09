@@ -11,8 +11,8 @@ utils.sendEmail = async (email, subject, url) => {
       post: 587,
       secure: true,
       auth: {
-        user: "gandhi@pepul.com",
-        pass: "ekjmhxdagijdbfkp",
+        user: process.env.BASE_USERNAME,
+        pass: process.env.BASE_PASSWORD,
       },
     });
     transport.use("compile", htmlToText());
@@ -36,7 +36,7 @@ utils.sendEmail = async (email, subject, url) => {
     };
 
     await transport.sendMail({
-      from: "gandhi@gmail.com",
+      from: "gandhigoku02@gmail.com",
       to: email,
       subject: subject,
       html: emailTemplate(url),
