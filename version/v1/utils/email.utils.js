@@ -1,3 +1,4 @@
+require("dotenv").config();
 const nodemailer = require("nodemailer");
 const { htmlToText } = require("nodemailer-html-to-text");
 
