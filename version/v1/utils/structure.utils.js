@@ -18,7 +18,7 @@ utils.userStructure = (data) => ({
   email: data?.email ?? "",
   accessToken: data?.accessToken ?? "",
   phoneNumber:
-    data?.phoneNumber === "" ? "" : helperUtils.decrypt(data?.phoneNumber),
+    data?.phoneNumber === null ? "" : helperUtils.decrypt(data?.phoneNumber),
 });
 
 utils.addressStructure = (data) => ({
@@ -34,7 +34,7 @@ utils.addressStructure = (data) => ({
   pinCode: data?.pinCode ?? 0,
   defaultStatus: data?.defaultStatus ?? "",
   phoneNumber:
-    data?.phoneNumber === "" ? "" : helperUtils.decrypt(data?.phoneNumber),
+    data?.phoneNumber === null ? "" : helperUtils.decrypt(data?.phoneNumber),
 });
 
 utils.getCartStruce = (product, cart) => ({
