@@ -6,7 +6,8 @@ const User = require("../models/user.model");
 const Admin = require("../models/admin.model");
 const Category = require("../models/category.model");
 const ProductPurchase = require("../models/cart.model");
-const TotalPurchase = require("../models/total.purchase.model");
+
+const { v4 } = require("uuid");
 
 const helperUtils = require("../utils/helperUtils");
 const authUtils = require("../utils/auth.utils");
@@ -17,6 +18,12 @@ const { Op } = require("sequelize");
 const Feedback = require("../models/feedback.model");
 const Cart = require("../models/cart.model");
 const Review = require("../models/review.model");
+const Razorpay = require("razorpay");
+const razorpay = require("../utils/Razorpay.helper");
+const OrderItem = require("../models/orderItem.model");
+const Order = require("../models/order.model");
+const { default: axios } = require("axios");
+const ShipToken = require("../models/shiprocket.model");
 
 controller = {};
 
@@ -583,6 +590,99 @@ controller.abc = handler(async (req, res) => {
   }
 
   return res.status(200).json({ message: "Cart updated successfully" });
+});
+
+controller.makepayment = handler(async (req, res) => {
+  let userId = req.user.userId;
+  console.log(userId);
+  try {
+    const cartitems = await Cart.findAll({
+      where: {
+        userId: userId,
+        status: "active",
+      },
+      include: [
+        {
+          model: Product,
+        },
+      ],
+    });
+    let productcost = helperUtils.FindProductCost(cartitems);
+    const amount = productcost + req?.body?.shippingCost;
+
+    const order = await razorpay.orders.create({
+      currency: "INR",
+      receipt: v4(),
+      payment_capture: 1,
+      amount: amount * 100,
+    });
+    let orderItems = helperUtils.cartitems(order.id, cartitems);
+    const dborder = await Order.create({
+      orderId: order.id,
+      userId: req?.user?.userId,
+      Productcost: productcost,
+      shippingCost: req?.body?.shippingCost,
+      amount: amount,
+      addressId: req?.body?.addressId,
+      hasPaid: constantUtils.NOTPAID,
+      status: constantUtils.INACTIVE,
+    });
+    await OrderItem.bulkCreate(orderItems);
+    res.json(order);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+controller.servicecheck = handler(async (req, res) => {
+  if (!req?.body?.pincode) throw "400|please provide valid Pin Code";
+  const { data } = await axios.post(
+    process.env.shiprocketlogin,
+    {
+      email: process.env.shiprocketemail,
+      password: process.env.shiprocketpass,
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  const cartitems = await Cart.findAll({
+    where: {
+      userId: req?.user?.userId,
+      status: "active",
+    },
+    include: [
+      {
+        model: Product,
+      },
+    ],
+  });
+
+  let weightinkg = helperUtils.findWeight(cartitems);
+
+  console.log(weightinkg);
+  if (weightinkg < 0.5) {
+    weightinkg = 0.5;
+  }
+  console.log(weightinkg);
+
+  const service = await axios.get(
+    `https://apiv2.shiprocket.in/v1/external/courier/serviceability/?pickup_postcode=${process.env.pickup_postcode}&delivery_postcode=${req?.body?.pincode}&cod=0&weight=${weightinkg}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+
+  if (service.data.data.available_courier_companies.length === 0)
+    throw "400|No service avalialbe on this Pincode";
+  let courier = service.data.data.available_courier_companies[0];
+
+  res.json(structureUtils.courier(courier));
 });
 
 module.exports = controller;

@@ -21,5 +21,7 @@ router.post("/addtocart", validateUser, webController.a2c);
 router.post("/updatecart", validateUser, webController.u2c);
 router.get("/getcartbyuser", validateUser, webController.g2c);
 router.post("/addbulkcart", validateUser, webController.abc);
+router.post("/makepayment", validateUser, webController.makepayment);
+router.post("/servicecheck", validateUser, webController.servicecheck);
 
 module.exports = router;

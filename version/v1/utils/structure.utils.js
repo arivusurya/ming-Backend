@@ -54,4 +54,11 @@ utils.getCartStruce = (product, cart) => ({
   weight: product?.weight,
 });
 
+utils.courier = (courier) => ({
+  courier_name: courier.courier_name,
+  price: courier.freight_charge,
+  estimated_delivery_days: courier.estimated_delivery_days,
+  etd: courier.etd,
+});
+
 module.exports = utils;

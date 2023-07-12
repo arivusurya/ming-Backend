@@ -85,7 +85,6 @@ controller.getSingleUser = handler(async (req, res) => {
     },
     include: {
       model: Address,
-      required: true,
     },
   });
 
@@ -143,6 +142,7 @@ controller.addUserAddress = handler(async (req, res) => {
 
   return res.json({
     message: "success!",
+    Address: structureUtils.addressStructure(addAddress),
   });
 });
 
