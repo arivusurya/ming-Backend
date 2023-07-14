@@ -44,8 +44,8 @@ process.on("uncaughtException", function (err) {
 const PORT = process.env.PORT ?? 5000;
 
 if (process.env.SERVERLESS !== true) {
-  const crons = require("./cron");
-  crons.initiateCrons();
+  // const crons = require("./cron");
+  // crons.initiateCrons();
   app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);
   });
