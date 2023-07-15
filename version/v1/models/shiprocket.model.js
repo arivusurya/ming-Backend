@@ -16,18 +16,6 @@ const ShipToken = db.define(
       type: Sequelize.DataTypes.STRING(500),
       allowNull: false,
     },
-    count: {
-      field: "count",
-      type: Sequelize.DataTypes.INTEGER,
-      allowNull: false,
-      default: 0,
-    },
-    createdAt: {
-      type: Sequelize.DataTypes.DATE,
-      defaultValue: Sequelize.DataTypes.NOW,
-      allowNull: false,
-      expires: 30 * 1000, // Token expires after 30 seconds
-    },
   },
   {
     timestamps: false,

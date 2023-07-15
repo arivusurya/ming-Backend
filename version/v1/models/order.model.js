@@ -62,8 +62,8 @@ const Order = db.define(
       field: "hasPaid",
       type: Sequelize.DataTypes.STRING,
       allowNull: false,
-      enum: [constantUtils.PAID, constantUtils.NOTPAID],
-      defaultValue: constantUtils.NOTPAID,
+      enum: [constantUtils.PAID, constantUtils.PENDING, constantUtils.FAILED],
+      defaultValue: constantUtils.PENDING,
     },
     status: {
       field: "status",
@@ -79,6 +79,15 @@ const Order = db.define(
     },
     shippingMethod: {
       field: "shippingMethod",
+      type: Sequelize.DataTypes.STRING,
+    },
+    isFreeShipping: {
+      field: "isFreeShipping",
+      type: Sequelize.DataTypes.STRING,
+      enum: [constantUtils.FreeShiping, constantUtils.PaidShipping],
+    },
+    paymentId: {
+      field: "paymentId",
       type: Sequelize.DataTypes.STRING,
     },
   },

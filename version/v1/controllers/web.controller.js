@@ -24,6 +24,7 @@ const OrderItem = require("../models/orderItem.model");
 const Order = require("../models/order.model");
 const { default: axios } = require("axios");
 const ShipToken = require("../models/shiprocket.model");
+const crypto = require("crypto");
 
 controller = {};
 
@@ -593,8 +594,8 @@ controller.abc = handler(async (req, res) => {
 });
 
 controller.makepayment = handler(async (req, res) => {
-  let userId = req.user.userId;
-  console.log(userId);
+  let userId = req?.user?.userId;
+  let courier = req?.courier;
   try {
     const cartitems = await Cart.findAll({
       where: {
@@ -608,7 +609,12 @@ controller.makepayment = handler(async (req, res) => {
       ],
     });
     let productcost = helperUtils.FindProductCost(cartitems);
-    const amount = productcost + req?.body?.shippingCost;
+    let amount = 0;
+    if (productcost > 1000) {
+      amount = productcost;
+    } else {
+      amount = productcost + courier?.price;
+    }
 
     const order = await razorpay.orders.create({
       currency: "INR",
@@ -621,12 +627,18 @@ controller.makepayment = handler(async (req, res) => {
       orderId: order.id,
       userId: req?.user?.userId,
       Productcost: productcost,
-      shippingCost: req?.body?.shippingCost,
+      shippingCost: courier?.price,
       amount: amount,
       addressId: req?.body?.addressId,
-      hasPaid: constantUtils.NOTPAID,
+      hasPaid: constantUtils.PENDING,
       status: constantUtils.INACTIVE,
+      shippingMethod: courier.courier_name,
+      isFreeShipping:
+        productcost > 1000
+          ? constantUtils.FreeShiping
+          : constantUtils.PaidShipping,
     });
+
     await OrderItem.bulkCreate(orderItems);
     res.json(order);
   } catch (error) {
@@ -636,18 +648,9 @@ controller.makepayment = handler(async (req, res) => {
 
 controller.servicecheck = handler(async (req, res) => {
   if (!req?.body?.pincode) throw "400|please provide valid Pin Code";
-  const { data } = await axios.post(
-    process.env.shiprocketlogin,
-    {
-      email: process.env.shiprocketemail,
-      password: process.env.shiprocketpass,
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+
+  const token = await ShipToken.findOne();
+
   const cartitems = await Cart.findAll({
     where: {
       userId: req?.user?.userId,
@@ -673,7 +676,7 @@ controller.servicecheck = handler(async (req, res) => {
     {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${data.token}`,
+        Authorization: `Bearer ${token.token}`,
       },
     }
   );
@@ -683,6 +686,53 @@ controller.servicecheck = handler(async (req, res) => {
   let courier = service.data.data.available_courier_companies[0];
 
   res.json(structureUtils.courier(courier));
+});
+
+controller.PaymentVerification = handler(async (req, res) => {
+  const body = req?.body?.payload;
+  const signature = req?.headers["x-razorpay-signature"];
+  const check = crypto.createHmac("sha256", process.env.paymentverifySecret);
+  check.update(JSON.stringify(req?.body));
+  const mysign = check.digest("hex");
+  if (mysign === signature) {
+    const order = await Order.findOne({
+      where: { orderId: body.payment.entity.order_id },
+    });
+    order.paymentId = body.payment.entity.id;
+    order.hasPaid = constantUtils.PAID;
+    order.status = constantUtils.ACTIVEORDERS;
+    let user_id = order.userId;
+    let cart = await Cart.findAll({
+      where: { userId: user_id, status: "active" },
+    });
+    console.log(cart);
+    cart.map(async (e) => {
+      await e.destroy();
+    });
+
+    await order.save();
+  }
+
+  res.status(200).json({ message: "ok" });
+});
+
+controller.failedPayment = handler(async (req, res) => {
+  const entity = req?.body?.payload?.payment?.entity;
+  const signature = req?.headers["x-razorpay-signature"];
+  const check = crypto.createHmac("sha256", process.env.paymentverifySecret);
+  check.update(JSON.stringify(req?.body));
+  const mysign = check.digest("hex");
+
+  if (mysign === signature) {
+    const order = await Order.findOne({
+      where: { orderId: entity.order_id },
+    });
+    order.paymentId = entity.id;
+    order.hasPaid = constantUtils.FAILED;
+    await order.save();
+  }
+
+  res.status(200).json({ message: "ok" });
 });
 
 module.exports = controller;
