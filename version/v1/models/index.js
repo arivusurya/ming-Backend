@@ -3,7 +3,7 @@ const Sequelize = require("sequelize");
 
 const sequelize = new Sequelize(
   process.env.DATABASENAME,
-  process.env.USERNAME,
+  process.env.dbUSERNAME,
   process.env.PASSWORD,
   {
     host: process.env.MYSQL_HOST,
@@ -14,9 +14,9 @@ const sequelize = new Sequelize(
     dialectModule: require("mysql2"),
     dialectOptions: {
       charset: "utf8mb4",
-      ssl: {
-        rejectUnauthorized: false,
-      },
+      // ssl: {
+      //   rejectUnauthorized: false,
+      // },
     },
     timezone: "+05:30",
     pool: {
