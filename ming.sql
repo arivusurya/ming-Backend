@@ -200,7 +200,21 @@ ALTER TABLE `mingbackend`.`reviews`
 ADD COLUMN `productId` int NULL AFTER `date`;
 
 
+-- 4 July 2023 11:46:01 AM 
+CREATE TABLE `mingbackend`.`discounts` (
+	`id` int AUTO_INCREMENT,
+	`discount_id` int,
+	`discount_code` varchar(255),
+	`amount` int,
+	`start_date` datetime,
+	`end_date` datetime,
+	`status` varchar(255),
+	PRIMARY KEY (id)
+);
 
+-- 4 July 2023 12:08:05 PM
+ALTER TABLE `mingbackend`.`discounts`
+ADD COLUMN `added_by` int NULL AFTER `status`;
 
 CREATE TABLE `mingbackend`.`Cart` (
   `id` INT AUTO_INCREMENT,
@@ -231,8 +245,7 @@ CREATE TABLE `mingbackend`.`users` (
   `status` varchar(255) DEFAULT 'ACTIVE',
   PRIMARY KEY (`id`)
 ) 
-
-
+--july 4 2023 5:15
 CREATE TABLE `mingbackend`.`addresss` (
   `id` int NOT NULL AUTO_INCREMENT,
   `addressId` int DEFAULT NULL,
@@ -253,3 +266,21 @@ CREATE TABLE `mingbackend`.`addresss` (
   `status` varchar(255) DEFAULT 'ACTIVE',
   PRIMARY KEY (`id`)
 )
+--july 4 2023 5:15
+CREATE TABLE `mingbackend`.`carts` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `userId` int NOT NULL,
+  `productId` int NOT NULL,
+  `quantity` int NOT NULL,
+  `dateTime` datetime NOT NULL,
+  `date` date NOT NULL,
+  `status` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) 
+
+-- 8 July 2023 4:00:43 PM
+CREATE TABLE `mingbackend`.`tokens` (`id` int AUTO_INCREMENT,`userId` int,`token` varchar(255),`expiresAt` datetime, PRIMARY KEY (id));
+
+-- 8 July 2023 4:47:46 PM
+ALTER TABLE `mingbackend`.`users`
+ADD COLUMN `verified` boolean NULL AFTER `addressId`;

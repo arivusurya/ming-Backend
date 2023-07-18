@@ -24,4 +24,6 @@ router.post("/resetPassword", validateBody(userValidation?.resetPassword), userC
 router.post("/getUserAddressById", userController.getUserAddressById);
 router.post("/getUserById", validateUser, userController.getUserById);
 
+router.post("/verifyUserEmail", userController.verifyUserEmail);
+
 module.exports = router;

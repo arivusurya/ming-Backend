@@ -2,11 +2,16 @@ const handler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const User = require("../models/user.model");
 const Address = require("../models/address.model");
+const Token = require("../models/token.model");
 
 const helperUtils = require("../utils/helperUtils");
 const constantUtils = require("../utils/constant.utils");
 const authUtils = require("../utils/auth.utils");
 const structureUtils = require("../utils/structure.utils");
+const emailUtils = require("../utils/email.utils");
+
+const decodeJWT = require("jwt-decode");
+const { nanoid } = require("nanoid");
 
 controller = {};
 
@@ -57,17 +62,78 @@ controller.registerUser = handler(async (req, res) => {
     accessToken: authUtils.generateToken(userId),
   });
 
-  if (!newUser) throw "400|No_User_Found!";
+  if (!newUser) throw "400|Somthing_Went_Wrong!";
+
+  const id = nanoid(12);
+
+  const expiresAt = new Date();
+  expiresAt.setMinutes(expiresAt?.getMinutes() + 5);
+
+  const token = await Token.create({
+    userId: newUser.userId,
+    token: id,
+    expiresAt: expiresAt,
+  });
+
+  console.log(JSON.stringify(token, null, 4));
+
+  const url = `${process.env.BASE_URL}?userId=${encodeURIComponent(
+    newUser?.userId
+  )}&token=${encodeURIComponent(token.token)}`;
+
+  await emailUtils?.sendEmail(
+    newUser?.email,
+    "Verify Your Email Through Below Link",
+    url
+  );
 
   return res.json({
-    message: "success",
+    message: "An Email Sent To Your Registered Email And Please Verify...",
   });
+});
+
+controller.verifyUserEmail = handler(async (req, res) => {
+  try {
+    console.log(req?.params);
+    const user = await User.findOne({
+      where: {
+        userId: req?.body?.userId,
+        status: constantUtils.ACTIVE,
+      },
+    });
+    if (!user) throw "400|Invalid_Link!";
+
+    const token = await Token.findOne({
+      where: {
+        userId: user?.userId,
+        token: req?.body?.token,
+      },
+    });
+    if (!token) throw "400|Invalid_Token!";
+
+    const updateUser = await User.update(
+      { verified: true },
+      {
+        where: {
+          userId: user?.userId,
+        },
+      }
+    );
+    await token.destroy();
+
+    return res.json({
+      message: "Email Verified Successfully!",
+    });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 controller.loginUser = handler(async (req, res) => {
   const user = await User.findOne({
     where: {
       email: req?.body?.email,
+      verified: true,
     },
   });
   if (!user) throw "400|User_Not_Found!";
@@ -82,11 +148,16 @@ controller.getSingleUser = handler(async (req, res) => {
     where: {
       userId: req?.body?.userId,
       status: constantUtils.ACTIVE,
+
     },
     include: {
       model: Address,
+
+      verified: true,
     },
   });
+
+  if (!user) throw "400|User_Not_Found!";
 
   return res.json(structureUtils.userStructure(user));
 });
@@ -114,10 +185,7 @@ controller.addUserAddress = handler(async (req, res) => {
     },
   });
 
-  if (exitAddress) {
-    return res.status(200).json({ message: "Address already exist" });
-  }
-
+  if (exitAddress) throw "400|Address_Already_Exist!";
   const addAddress = await Address.create({
     addressId: addressId,
     userId: req?.user?.userId,
@@ -192,7 +260,7 @@ controller.editUserDeatils = handler(async (req, res) => {
     },
   });
 
-  // if (numUpdated < 1) throw "400|Somthing_Went_Wrong!";
+  if (numUpdated < 1) throw "400|Somthing_Went_Wrong!";
 
   return res.json({
     message: "success",
@@ -208,7 +276,7 @@ controller.getUserAddress = handler(async (req, res) => {
   });
 
   return res.json(
-    address?.map((each) => structureUtils.addressStructure(each))
+    address?.map((each) => structureUtils?.addressStructure(each))
   );
 });
 
@@ -219,7 +287,7 @@ controller.getUserById = handler(async (req, res) => {
     },
   });
 
-  return res.json(structureUtils.userStructure(user));
+  return res.json(structureUtils?.userStructure(user));
 });
 
 controller.updateUserAddress = handler(async (req, res) => {
@@ -272,14 +340,14 @@ controller.updateUserAddress = handler(async (req, res) => {
 });
 
 controller.googleAuth = handler(async (req, res) => {
-  if (!req?.body?.email) throw "400|Email_Required!";
-  if (!req?.body?.userName) throw "400|UserName_Required!";
+  if (!req?.body?.res?.credential) throw "400|Invalid_Value!";
+  const userDetails = decodeJWT(req?.body?.res?.credential);
 
   let loginUser;
 
   const user = await User.findOne({
     where: {
-      email: req?.body?.email,
+      email: userDetails?.email,
     },
   });
 
@@ -287,13 +355,16 @@ controller.googleAuth = handler(async (req, res) => {
     const userId = parseInt(helperUtils.generateRandomNumber(8));
     const newUser = await User.create({
       userId: userId,
-      email: req?.body?.email,
-      userName: req?.body?.userName,
+      email: userDetails?.email,
+      userName: userDetails?.given_name,
       accessToken: authUtils.generateToken(userId),
+      verified: true,
     });
     loginUser = newUser;
+    console.log(`new user`);
   } else {
     loginUser = user;
+    console.log(`exist user`);
   }
 
   return res.json(structureUtils.userStructure(loginUser));
