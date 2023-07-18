@@ -12,6 +12,18 @@ utils.webProductStructure = (data) => ({
   type: data?.type ?? "",
 });
 
+utils.panelProductStructure = (data) => ({
+  productId: data?.productId ?? 0,
+  name: data?.name ?? "",
+  description: data?.description ?? "",
+  image: data?.image ?? "",
+  images: data?.images ?? "",
+  weight: data?.weight ?? 0,
+  price: data?.price ?? 0,
+  type: data?.type ?? "",
+  status : data?.status ?? ""
+});
+
 utils.userStructure = (data) => ({
   userId: data?.userId ?? 0,
   addressId: data?.addressId ?? 0,

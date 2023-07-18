@@ -53,6 +53,10 @@ const Product = db.define(
       type: Sequelize.DataTypes.STRING,
       required: true,
     },
+    categoryType : {
+      field : "categoryType",
+      type : Sequelize.DataTypes.STRING
+    },
     price: {
       field: "price",
       type: Sequelize.DataTypes.INTEGER,

@@ -9,8 +9,9 @@ const Category = require("../models/category.model");
 const helperUtils = require("../utils/helperUtils");
 const authUtils = require("../utils/auth.utils");
 const constantUtils = require("../utils/constant.utils");
-const strunctureUtils = require("../utils/structure.utils");
+const structureUtils = require("../utils/structure.utils");
 const Discount = require("../models/discount.model");
+const sequelize = require("../models");
 
 controller = {};
 
@@ -57,6 +58,8 @@ controller.addproduct = handler(async (req, res) => {
     name: req?.body?.name,
     description: req?.body?.description,
     image: req?.body?.image,
+    images : req?.body?.images,
+    categoryType : req?.body?.categoryType,
     weight: req?.body?.weight,
     type: req?.body?.type,
     price: req?.body?.price,
@@ -101,10 +104,72 @@ controller.getAllDiscountCode = handler(async (req, res) => {
   const discount = await Discount.findAll(condition);
 
   const discountData = discount?.map((each) =>
-    strunctureUtils.discountStructure(each)
+  structureUtils.discountStructure(each)
   );
 
   return res.json(discountData);
 });
+
+controller.getAllProducts = handler(async (req, res) => {
+  const condition = {};
+
+  if(req?.body?.status) condition["status"] = req?.body?.status
+
+  if(req?.body?.categoryType) condition["categoryType"] = req?.body?.categoryType
+  
+  const products = await Product.findAll({
+    where: condition,
+    order: [["id", "ASC"]],
+  });
+
+  return res.json(
+    products?.map((each) => structureUtils.panelProductStructure(each))
+  );
+});
+
+controller.adminLogin = handler(async(req,res) => {
+  if(!req?.body?.email) throw "400|Email_Required!"
+  if(!req?.body?.password) throw "400|Password_Required!"
+
+  const admin = await Admin.findOne({
+    where : {
+      email : req?.body?.email,
+      password : req?.body?.password
+    }
+  })
+
+  if(!admin) throw "400|Admin_Not_Found!"
+
+  return res.json(admin)
+
+})
+
+controller.toggleProductStatus = handler(async(req,res) => {
+  if(!req?.body?.productId) throw "400|ProductId_Required!"
+  if(!req?.body?.status) throw "400|Status_Required!"
+  const toogleStatus = await Product.findOne({
+    where : {
+      productId : req?.body?.productId
+    }
+  })
+  if(!toogleStatus) throw "400|Product_Not_Found!"
+  toogleStatus.status = req?.body?.status
+  await toogleStatus.save()
+
+return res.json({
+  message : "success!"
+})
+})
+
+controller.getAllCount = handler(async(req,res) => {
+  const product = await Product.count({
+    where : {
+      status : constantUtils.ACTIVE
+    }
+  })
+  return res.json({
+    productCount : product
+  })
+})
 
 module.exports = controller;

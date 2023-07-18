@@ -284,3 +284,6 @@ CREATE TABLE `mingbackend`.`tokens` (`id` int AUTO_INCREMENT,`userId` int,`token
 -- 8 July 2023 4:47:46 PM
 ALTER TABLE `mingbackend`.`users`
 ADD COLUMN `verified` boolean NULL AFTER `addressId`;
+
+ALTER TABLE `mingbackend`.`products`
+ADD COLUMN `categoryType` VARCHAR(255) COMMENT '' AFTER `images`;
