@@ -25,6 +25,7 @@ const Order = require("../models/order.model");
 const { default: axios } = require("axios");
 const ShipToken = require("../models/shiprocket.model");
 const crypto = require("crypto");
+const shiprocket = require("../utils/shiprocket.utils");
 
 controller = {};
 
@@ -705,15 +706,15 @@ controller.PaymentVerification = handler(async (req, res) => {
     let cart = await Cart.findAll({
       where: { userId: user_id, status: "active" },
     });
-    console.log(cart);
+
     cart.map(async (e) => {
       await e.destroy();
     });
 
     await order.save();
+    res.status(200).json({ message: "ok" });
+    await shiprocket.CreateOrder(order);
   }
-
-  res.status(200).json({ message: "ok" });
 });
 
 controller.failedPayment = handler(async (req, res) => {
@@ -734,5 +735,18 @@ controller.failedPayment = handler(async (req, res) => {
 
   res.status(200).json({ message: "ok" });
 });
+
+controller.orderItems = async (req, res) => {
+  req.body?.orderId;
+  const order_items = await OrderItem.findAll({
+    where: {
+      orderId: req?.body?.orderId,
+    },
+    include: [{ model: Product }],
+  });
+
+  console.log(order_items);
+  res.json(order_items);
+};
 
 module.exports = controller;

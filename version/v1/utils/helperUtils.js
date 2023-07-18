@@ -81,4 +81,17 @@ utils.findWeight = (cartitems) => {
   return weight / 1000;
 };
 
+utils.orderitemArray = (orderitem) => {
+  let item = [];
+  orderitem.map((e) => {
+    item.push({
+      name: e.product.name,
+      sku: e.product.productId,
+      units: e.quantity,
+      selling_price: e.product.price,
+    });
+  });
+  return item;
+};
+
 module.exports = utils;

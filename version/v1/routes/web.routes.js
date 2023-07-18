@@ -26,5 +26,6 @@ router.post("/makepayment", validateUser, ShippingPrice, webController.makepayme
 router.post("/servicecheck", validateUser, webController.servicecheck);
 router.post("/verifyPayement", controller.PaymentVerification);
 router.post("/failedpayments", controller.failedPayment);
+router.post("/oderitem", controller.orderItems);
 
 module.exports = router;

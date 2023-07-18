@@ -4,7 +4,12 @@ const Product = require("../models/product.model");
 const ShipToken = require("../models/shiprocket.model");
 const helperUtils = require("../utils/helperUtils");
 const structureUtils = require("../utils/structure.utils");
+const Order = require("../models/order.model");
+const OrderItem = require("../models/orderItem.model");
+const Address = require("../models/address.model");
+const { Console } = require("winston/lib/winston/transports");
 require("dotenv").config();
+const fs = require("fs");
 
 const utils = {};
 
@@ -53,6 +58,57 @@ utils.ShippingPrice = async (req, res, next) => {
   } catch (error) {
     console.log(error);
     res.status(400).json({ message: "Something went wrong" });
+  }
+};
+
+utils.CreateOrder = async (order) => {
+  try {
+    const token = await ShipToken.findOne();
+    const dborder = await Order.findOne({
+      where: {
+        orderId: order.orderId,
+      },
+      include: [
+        {
+          model: Address,
+        },
+      ],
+    });
+    console.log(dborder.orderId);
+    const order_items = await OrderItem.findAll({
+      where: {
+        orderId: dborder.orderId,
+      },
+      include: [{ model: Product }],
+    });
+    console.log(order_items.length);
+
+    const weight = helperUtils.findWeight(order_items);
+
+    const items = helperUtils.orderitemArray(order_items);
+    var body = structureUtils.ShiprocketOrder(dborder, items, weight);
+    const { data } = await axios.post(process.env.ordercreation, body, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token.token}`,
+      },
+    });
+
+    const res = await axios.post(
+      process.env.awb,
+      {
+        shipment_id: `${data.shipment_id}`,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token.token}`,
+        },
+      }
+    );
+    console.log(res.data);
+  } catch (err) {
+    console.log(err);
   }
 };
 
