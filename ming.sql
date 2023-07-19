@@ -288,6 +288,8 @@ ALTER TABLE `mingbackend`.`users`
 ADD COLUMN `verified` boolean NULL AFTER `addressId`;
 
 
+ALTER TABLE `mingbackend`.`products`
+ADD COLUMN `categoryType` VARCHAR(255) COMMENT '' AFTER `images`;
 
 -- july 19 6:35
 
@@ -324,3 +326,4 @@ CREATE TABLE `shiptokens` (
   `token` varchar(500) NOT NULL,
   PRIMARY KEY (`id`)
 )
+
