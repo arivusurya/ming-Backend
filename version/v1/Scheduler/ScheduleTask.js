@@ -1,7 +1,6 @@
 const axios = require("axios");
 require("dotenv").config();
 const ShipToken = require("../models/shiprocket.model");
-const { Console } = require("winston/lib/winston/transports");
 
 const IntiateToken = async () => {
   console.log("token is going to be requested");
@@ -17,7 +16,9 @@ const IntiateToken = async () => {
       },
     }
   );
+  console.log(data?.token);
   const token = await ShipToken.findOne();
+  console.log(token);
   if (token !== null) {
     token.token = data.token;
     await token.save();
