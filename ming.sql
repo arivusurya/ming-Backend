@@ -253,3 +253,39 @@ CREATE TABLE `mingbackend`.`addresss` (
   `status` varchar(255) DEFAULT 'ACTIVE',
   PRIMARY KEY (`id`)
 )
+
+-- july 19 6:35
+
+CREATE TABLE `mingbackend`.`orderItems` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `orderId` varchar(255) NOT NULL,
+  `productId` int NOT NULL,
+  `quantity` int NOT NULL,
+  PRIMARY KEY (`id`)
+)
+
+CREATE TABLE `mingbackend`.`orders` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `orderId` varchar(255) NOT NULL,
+  `userId` int NOT NULL,
+  `Productcost` int NOT NULL,
+  `shippingCost` int NOT NULL,
+  `amount` int NOT NULL,
+  `dateTime` datetime NOT NULL,
+  `date` date NOT NULL,
+  `addressId` int NOT NULL,
+  `hasPaid` varchar(255) NOT NULL DEFAULT 'PENDING',
+  `status` varchar(255) NOT NULL DEFAULT 'INACTIVE',
+  `shippingMethod` varchar(255) DEFAULT NULL,
+  `isFreeShipping` varchar(255) DEFAULT NULL,
+  `paymentId` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+)
+
+
+
+CREATE TABLE `shiptokens` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `token` varchar(500) NOT NULL,
+  PRIMARY KEY (`id`)
+)
