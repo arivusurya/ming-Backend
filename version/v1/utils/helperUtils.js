@@ -53,4 +53,45 @@ utils.decrypt = (text) => {
   return decrypted?.toString();
 };
 
+utils.FindProductCost = (cartitems) => {
+  let productcost = 0;
+  cartitems.map((e) => {
+    productcost += e.product.price * e.quantity;
+  });
+  return productcost;
+};
+
+utils.cartitems = (orderId, cart) => {
+  let cartitems = [];
+  cart.map((e) => {
+    cartitems.push({
+      orderId: orderId,
+      productId: e.productId,
+      quantity: e.quantity,
+    });
+  });
+  return cartitems;
+};
+
+utils.findWeight = (cartitems) => {
+  let weight = 0;
+  for (let e of cartitems) {
+    weight += e.product.weight * e.quantity;
+  }
+  return weight / 1000;
+};
+
+utils.orderitemArray = (orderitem) => {
+  let item = [];
+  orderitem.map((e) => {
+    item.push({
+      name: e.product.name,
+      sku: e.product.productId,
+      units: e.quantity,
+      selling_price: e.product.price,
+    });
+  });
+  return item;
+};
+
 module.exports = utils;

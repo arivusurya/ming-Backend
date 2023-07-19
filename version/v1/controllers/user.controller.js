@@ -148,6 +148,11 @@ controller.getSingleUser = handler(async (req, res) => {
     where: {
       userId: req?.body?.userId,
       status: constantUtils.ACTIVE,
+
+    },
+    include: {
+      model: Address,
+
       verified: true,
     },
   });
@@ -205,6 +210,7 @@ controller.addUserAddress = handler(async (req, res) => {
 
   return res.json({
     message: "success!",
+    Address: structureUtils.addressStructure(addAddress),
   });
 });
 

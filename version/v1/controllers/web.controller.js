@@ -6,7 +6,8 @@ const User = require("../models/user.model");
 const Admin = require("../models/admin.model");
 const Category = require("../models/category.model");
 const ProductPurchase = require("../models/cart.model");
-const TotalPurchase = require("../models/total.purchase.model");
+
+const { v4 } = require("uuid");
 
 const helperUtils = require("../utils/helperUtils");
 const authUtils = require("../utils/auth.utils");
@@ -17,7 +18,18 @@ const { Op } = require("sequelize");
 const Feedback = require("../models/feedback.model");
 const Cart = require("../models/cart.model");
 const Review = require("../models/review.model");
+
+const Razorpay = require("razorpay");
+const razorpay = require("../utils/Razorpay.helper");
+const OrderItem = require("../models/orderItem.model");
+const Order = require("../models/order.model");
+const { default: axios } = require("axios");
+const ShipToken = require("../models/shiprocket.model");
+const crypto = require("crypto");
+const shiprocket = require("../utils/shiprocket.utils");
+
 const Discount = require("../models/discount.model");
+
 
 controller = {};
 
@@ -627,5 +639,160 @@ controller.abc = handler(async (req, res) => {
 
   return res.status(200).json({ message: "Cart updated successfully" });
 });
+
+controller.makepayment = handler(async (req, res) => {
+  let userId = req?.user?.userId;
+  let courier = req?.courier;
+  try {
+    const cartitems = await Cart.findAll({
+      where: {
+        userId: userId,
+        status: "active",
+      },
+      include: [
+        {
+          model: Product,
+        },
+      ],
+    });
+    let productcost = helperUtils.FindProductCost(cartitems);
+    let amount = 0;
+    if (productcost > 1000) {
+      amount = productcost;
+    } else {
+      amount = productcost + courier?.price;
+    }
+
+    const order = await razorpay.orders.create({
+      currency: "INR",
+      receipt: v4(),
+      payment_capture: 1,
+      amount: amount * 100,
+    });
+    let orderItems = helperUtils.cartitems(order.id, cartitems);
+    const dborder = await Order.create({
+      orderId: order.id,
+      userId: req?.user?.userId,
+      Productcost: productcost,
+      shippingCost: courier?.price,
+      amount: amount,
+      addressId: req?.body?.addressId,
+      hasPaid: constantUtils.PENDING,
+      status: constantUtils.INACTIVE,
+      shippingMethod: courier.courier_name,
+      isFreeShipping:
+        productcost > 1000
+          ? constantUtils.FreeShiping
+          : constantUtils.PaidShipping,
+    });
+
+    await OrderItem.bulkCreate(orderItems);
+    res.json(order);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+controller.servicecheck = handler(async (req, res) => {
+  if (!req?.body?.pincode) throw "400|please provide valid Pin Code";
+
+  const token = await ShipToken.findOne();
+
+  const cartitems = await Cart.findAll({
+    where: {
+      userId: req?.user?.userId,
+      status: "active",
+    },
+    include: [
+      {
+        model: Product,
+      },
+    ],
+  });
+
+  let weightinkg = helperUtils.findWeight(cartitems);
+
+  console.log(weightinkg);
+  if (weightinkg < 0.5) {
+    weightinkg = 0.5;
+  }
+  console.log(weightinkg);
+
+  const service = await axios.get(
+    `https://apiv2.shiprocket.in/v1/external/courier/serviceability/?pickup_postcode=${process.env.pickup_postcode}&delivery_postcode=${req?.body?.pincode}&cod=0&weight=${weightinkg}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token.token}`,
+      },
+    }
+  );
+
+  if (service.data.data.available_courier_companies.length === 0)
+    throw "400|No service avalialbe on this Pincode";
+  let courier = service.data.data.available_courier_companies[0];
+
+  res.json(structureUtils.courier(courier));
+});
+
+controller.PaymentVerification = handler(async (req, res) => {
+  const body = req?.body?.payload;
+  const signature = req?.headers["x-razorpay-signature"];
+  const check = crypto.createHmac("sha256", process.env.paymentverifySecret);
+  check.update(JSON.stringify(req?.body));
+  const mysign = check.digest("hex");
+  if (mysign === signature) {
+    const order = await Order.findOne({
+      where: { orderId: body.payment.entity.order_id },
+    });
+    order.paymentId = body.payment.entity.id;
+    order.hasPaid = constantUtils.PAID;
+    order.status = constantUtils.ACTIVEORDERS;
+    let user_id = order.userId;
+    let cart = await Cart.findAll({
+      where: { userId: user_id, status: "active" },
+    });
+
+    cart.map(async (e) => {
+      await e.destroy();
+    });
+
+    await order.save();
+    res.status(200).json({ message: "ok" });
+    await shiprocket.CreateOrder(order);
+  }
+});
+
+controller.failedPayment = handler(async (req, res) => {
+  const entity = req?.body?.payload?.payment?.entity;
+  const signature = req?.headers["x-razorpay-signature"];
+  const check = crypto.createHmac("sha256", process.env.paymentverifySecret);
+  check.update(JSON.stringify(req?.body));
+  const mysign = check.digest("hex");
+
+  if (mysign === signature) {
+    const order = await Order.findOne({
+      where: { orderId: entity.order_id },
+    });
+    order.paymentId = entity.id;
+    order.hasPaid = constantUtils.FAILED;
+    await order.save();
+  }
+
+  res.status(200).json({ message: "ok" });
+});
+
+controller.orderItems = async (req, res) => {
+  req.body?.orderId;
+  const order_items = await OrderItem.findAll({
+    where: {
+      orderId: req?.body?.orderId,
+    },
+    include: [{ model: Product }],
+  });
+
+  console.log(order_items);
+  res.json(order_items);
+};
 
 module.exports = controller;
