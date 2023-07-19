@@ -6,6 +6,7 @@ utils.webProductStructure = (data) => ({
   name: data?.name ?? "",
   description: data?.description ?? "",
   image: data?.image ?? "",
+  images: data?.images ?? "",
   weight: data?.weight ?? 0,
   price: data?.price ?? 0,
   type: data?.type ?? "",
@@ -14,17 +15,11 @@ utils.webProductStructure = (data) => ({
 utils.userStructure = (data) => ({
   userId: data?.userId ?? 0,
   addressId: data?.addressId ?? 0,
-  firstName: data?.firstName ?? "",
-  lastName: data?.lastName ?? "",
   userName: data?.userName ?? "",
   email: data?.email ?? "",
   accessToken: data?.accessToken ?? "",
   phoneNumber:
-    data?.phoneNumber === "" ? "" : helperUtils.decrypt(data?.phoneNumber),
-  status: data?.status ?? "",
-  dateTime: data?.dateTime ?? "",
-  date: data?.date ?? "",
-  address: data?.addresss ? utils.addressStructure(data?.addresss) : "",
+    data?.phoneNumber === null ? "" : helperUtils.decrypt(data?.phoneNumber),
 });
 
 utils.addressStructure = (data) => ({
@@ -40,7 +35,7 @@ utils.addressStructure = (data) => ({
   pinCode: data?.pinCode ?? 0,
   defaultStatus: data?.defaultStatus ?? "",
   phoneNumber:
-    data?.phoneNumber === "" ? "" : helperUtils.decrypt(data?.phoneNumber),
+    data?.phoneNumber === null ? "" : helperUtils.decrypt(data?.phoneNumber),
 });
 
 utils.getCartStruce = (product, cart) => ({
@@ -53,6 +48,7 @@ utils.getCartStruce = (product, cart) => ({
   type: product?.type,
   weight: product?.weight,
 });
+
 
 utils.courier = (courier) => ({
   courier_name: courier.courier_name,
@@ -115,5 +111,28 @@ utils.ShiprocketOrder = (order, item, weight) => {
   Body.weight = weight;
   return Body;
 };
+
+utils.reviewStructure = (data) => ({
+  userName: data?.name ?? "",
+  email: data?.email ?? "",
+  review: data?.review ?? "",
+  star: data?.star ?? 0,
+});
+
+utils.discountStructure = (data) => ({
+  discoutId: data?.discountId ?? 0,
+  discountCode: data?.discountCode ?? "",
+  amount: data?.amount ?? 0,
+  startDate: data?.startDate ?? "",
+  endDate: data?.endDate ?? "",
+  status: data?.status ?? "",
+});
+
+utils.compareDiscountStructure = (data) => ({
+  discoutId: data?.discountId ?? 0,
+  discountCode: data?.discountCode ?? "",
+  amount: data?.amount ?? 0,
+});
+
 
 module.exports = utils;

@@ -18,6 +18,7 @@ const { Op } = require("sequelize");
 const Feedback = require("../models/feedback.model");
 const Cart = require("../models/cart.model");
 const Review = require("../models/review.model");
+
 const Razorpay = require("razorpay");
 const razorpay = require("../utils/Razorpay.helper");
 const OrderItem = require("../models/orderItem.model");
@@ -26,6 +27,9 @@ const { default: axios } = require("axios");
 const ShipToken = require("../models/shiprocket.model");
 const crypto = require("crypto");
 const shiprocket = require("../utils/shiprocket.utils");
+
+const Discount = require("../models/discount.model");
+
 
 controller = {};
 
@@ -37,6 +41,8 @@ controller.getProductByCategory = handler(async (req, res) => {
     },
   });
   if (!product) throw "400|Product_Not_Found!";
+
+  const data = product?.map((each) => structureUtils.webProductStructure(each));
 
   return res.json(
     product?.map((each) => structureUtils.webProductStructure(each))
@@ -418,7 +424,6 @@ controller.a2c = handler(async (req, res) => {
   const userId = req?.user?.userId;
   const productId = req.body?.productId;
   const quantity = 1; //default value should be one
-  console.log(req.body);
 
   const product = Product.findOne({
     where: {
@@ -439,7 +444,7 @@ controller.a2c = handler(async (req, res) => {
       userId: userId,
       productId: productId,
       quantity: quantity,
-      status: "active",
+      status: constantUtils.ACTIVE,
     });
     return res.status(200).json({ message: "Product add sucessfully" });
   }
@@ -458,7 +463,7 @@ controller.u2c = handler(async (req, res) => {
       productId: productId,
     },
   });
-  if (!product) throw "404|Product Not Found";
+  if (!product) throw "404|Product_Not_Found";
 
   let cart = await Cart.findOne({
     where: {
@@ -467,7 +472,7 @@ controller.u2c = handler(async (req, res) => {
     },
   });
 
-  if (!cart) throw "404|cart Not Found";
+  if (!cart) throw "404|Cart_Not_Found";
 
   if (quantity === 0) {
     await cart.destroy();
@@ -480,10 +485,9 @@ controller.u2c = handler(async (req, res) => {
 });
 
 controller.g2c = handler(async (req, res) => {
-  if (!req.user?.userId) throw "400 | user_id Required";
-  console.log(req.user.userId);
+  if (!req.user?.userId) throw "400|User_Id_Required";
   const cart = await Cart.findAll({
-    where: { userId: req.user?.userId, status: "active" },
+    where: { userId: req.user?.userId, status: constantUtils.ACTIVE },
     include: [
       {
         model: Product,
@@ -502,6 +506,49 @@ controller.g2c = handler(async (req, res) => {
   return res.status(200).json({ cart: formattedCart });
 });
 
+controller.getAllReviews = handler(async (req, res) => {
+  if (!req?.body?.productId) throw "400|Product_Id_Required!";
+
+  const reviews = await Review.findAll({
+    where: { productId: req?.body?.productId },
+    order: [["star", "DESC"]],
+    limit: 10,
+  });
+
+  if (!reviews) throw "400|No_Review_Found!";
+
+  const data = reviews.map((each) => structureUtils.reviewStructure(each));
+
+  return res.json(data);
+});
+
+controller.compareDiscountCode = handler(async (req, res) => {
+  if (!req?.body?.discountCode) throw "400|Discount_Code_Requried!";
+  const discountCode = await Discount.findOne({
+    where: {
+      discountCode: req?.body?.discountCode,
+    },
+  });
+
+  if (!discountCode) throw "400|No_Discount_Code_Found!";
+
+  const currentDate = new Date();
+
+  let action = true;
+
+  if (currentDate < discountCode?.startDate) {
+    action = false;
+  }
+
+  if (currentDate > discountCode?.endDate) {
+    action = false;
+  }
+
+  if (!action) throw "400|Dicount_Code_Expired!";
+
+  if (action)
+    return res.json(structureUtils.compareDiscountStructure(discountCode));
+});
 // controller.abc = handler(async (req, res) => {
 //   if (!req?.user?.userId) throw "400|User_Id_Requried!";
 //   if (req?.body?.products?.length === 0) throw "400|No_Product_Found!";
@@ -550,7 +597,6 @@ controller.g2c = handler(async (req, res) => {
 controller.abc = handler(async (req, res) => {
   if (!req?.user?.userId) throw "400|User_Id_Required!";
   if (req?.body?.length === 0) throw "400|No_Product_Found!";
-  console.log(req.body);
   if (!Array.isArray(req?.body)) throw "400|Array_Only!";
 
   const cart = await Cart.findAll({
@@ -570,7 +616,7 @@ controller.abc = handler(async (req, res) => {
       userId: req.user.userId,
       productId: e.productId,
       quantity: e.quantity,
-      status: "active",
+      status: constantUtils.ACTIVE,
     });
   }
 
