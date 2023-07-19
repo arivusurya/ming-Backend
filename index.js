@@ -63,7 +63,6 @@ if (process.env.SERVERLESS !== true) {
   // crons.initiateCrons();
   app.listen(PORT, async () => {
     // await OrderItem.sync({ force: true });
-    console.log("its worked");
     console.log(`Server is running on port ${PORT}`);
   });
 }
