@@ -26,6 +26,7 @@ const crypto = require("crypto");
 const shiprocket = require("../utils/shiprocket.utils");
 
 const Discount = require("../models/discount.model");
+const DiscountUser = require("../models/discountUser.model");
 
 controller = {};
 
