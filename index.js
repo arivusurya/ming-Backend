@@ -4,18 +4,11 @@ const cors = require("cors");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 
-const Cart = require("./version/v1/models/cart.model");
-const Address = require("./version/v1/models/address.model");
-const User = require("./version/v1/models/user.model");
-const Order = require("./version/v1/models/order.model");
-const OrderItem = require("./version/v1/models/orderItem.model");
-const ShipToken = require("./version/v1/models/shiprocket.model");
 const {
   IntiateToken,
   TokenCollector,
 } = require("./version/v1/Scheduler/ScheduleTask");
 const cron = require("node-cron");
-
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -59,10 +52,7 @@ process.on("uncaughtException", function (err) {
 const PORT = process.env.PORT ?? 5000;
 
 if (process.env.SERVERLESS !== true) {
-  // const crons = require("./cron");
-  // crons.initiateCrons();
   app.listen(PORT, async () => {
-    // await OrderItem.sync({ force: true });
     console.log(`Server is running on port ${PORT}`);
   });
 }

@@ -1,15 +1,15 @@
+require("dotenv").config();
 const { default: axios } = require("axios");
 const Cart = require("../models/cart.model");
 const Product = require("../models/product.model");
 const ShipToken = require("../models/shiprocket.model");
-const helperUtils = require("../utils/helperUtils");
-const structureUtils = require("../utils/structure.utils");
 const Order = require("../models/order.model");
 const OrderItem = require("../models/orderItem.model");
 const Address = require("../models/address.model");
-const { Console } = require("winston/lib/winston/transports");
-require("dotenv").config();
-const fs = require("fs");
+
+const helperUtils = require("../utils/helperUtils");
+const structureUtils = require("../utils/structure.utils");
+const constantUtils = require("../utils/constant.utils");
 
 const utils = {};
 
@@ -23,7 +23,7 @@ utils.ShippingPrice = async (req, res, next) => {
     const cartitems = await Cart.findAll({
       where: {
         userId: req?.user?.userId,
-        status: "active",
+        status: constantUtils.ACTIVE,
       },
       include: [
         {
@@ -41,7 +41,7 @@ utils.ShippingPrice = async (req, res, next) => {
     console.log(weightinkg);
 
     const service = await axios.get(
-      `https://apiv2.shiprocket.in/v1/external/courier/serviceability/?pickup_postcode=${process.env.pickup_postcode}&delivery_postcode=${req?.body?.pinCode}&cod=0&weight=${weightinkg}`,
+      `https://apiv2.shiprocket.in/v1/external/courier/serviceability/?pickup_postcode=${process.env.PICKUP_POSTCODE}&delivery_postcode=${req?.body?.pinCode}&cod=0&weight=${weightinkg}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -87,7 +87,7 @@ utils.CreateOrder = async (order) => {
 
     const items = helperUtils.orderitemArray(order_items);
     var body = structureUtils.ShiprocketOrder(dborder, items, weight);
-    const { data } = await axios.post(process.env.ordercreation, body, {
+    const { data } = await axios.post(process.env.ORDER_CREATION, body, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token.token}`,
@@ -95,7 +95,7 @@ utils.CreateOrder = async (order) => {
     });
 
     const res = await axios.post(
-      process.env.awb,
+      process.env.AWB_CODE,
       {
         shipment_id: `${data.shipment_id}`,
       },

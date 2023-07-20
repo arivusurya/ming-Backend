@@ -1,15 +1,14 @@
-const axios = require("axios");
 require("dotenv").config();
+const axios = require("axios");
 const ShipToken = require("../models/shiprocket.model");
-const { Console } = require("winston/lib/winston/transports");
 
 const IntiateToken = async () => {
   console.log("token is going to be requested");
   const { data } = await axios.post(
-    process.env.shiprocketlogin,
+    process.env.SHIPROCKET_LOGIN,
     {
-      email: process.env.shiprocketemail,
-      password: process.env.shiprocketpass,
+      email: process.env.SHIPROCKET_EMAIL,
+      password: process.env.SHIPROCKET_PASSWORD,
     },
     {
       headers: {
@@ -30,10 +29,10 @@ const IntiateToken = async () => {
 
 const TokenCollector = async () => {
   const { data } = await axios.post(
-    process.env.shiprocketlogin,
+    process.env.SHIPROCKET_LOGIN,
     {
-      email: process.env.shiprocketemail,
-      password: process.env.shiprocketpass,
+      email: process.env.SHIPROCKET_EMAIL,
+      password: process.env.SHIPROCKET_PASSWORD,
     },
     {
       headers: {
