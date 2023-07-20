@@ -219,8 +219,31 @@ controller.getAllReviews = handler(async (req, res) => {
   return res.json(data);
 });
 
+controller.userFeedback = handler(async (req, res) => {
+  const feedback = await Feedback.create({
+    userName: req?.body?.userName,
+    email: req?.body?.userName,
+    phoneNumber: helperUtils.encrypt(req?.body?.phoneNumber),
+    subject: req?.body?.subject,
+    message: req?.body?.message,
+  });
+  if (!feedback) throw "400|Somthing_Went_Wrong!";
+  return res.json({
+    message: "success",
+  });
+});
+
 controller.compareDiscountCode = handler(async (req, res) => {
   if (!req?.body?.discountCode) throw "400|Discount_Code_Requried!";
+  const ifCodeExist = await DiscountUser.findOne({
+    where: {
+      userId: req?.user?.userId,
+      discountCode: req?.body?.discountCode,
+    },
+  });
+
+  if (ifCodeExist) throw "400|Code_Already_Used!";
+
   const discountCode = await Discount.findOne({
     where: {
       discountCode: req?.body?.discountCode,
@@ -242,6 +265,16 @@ controller.compareDiscountCode = handler(async (req, res) => {
   }
 
   if (!action) throw "400|Dicount_Code_Expired!";
+
+  if (action) {
+    const discountUser = await DiscountUser.create({
+      userId: req?.user?.userId,
+      discountCode: req?.body?.discountCode,
+      discountId: discountCode?.discountId,
+      dateTime: new Date(),
+      time: new Date(),
+    });
+  }
 
   if (action)
     return res.json(structureUtils.compareDiscountStructure(discountCode));
