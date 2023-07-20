@@ -327,3 +327,18 @@ CREATE TABLE `shiptokens` (
   PRIMARY KEY (`id`)
 )
 
+-- 20 July 2023 6:50:04 PM 
+CREATE TABLE `mingbackend`.`discountusers` (
+	`id` int AUTO_INCREMENT,
+	`user_id` int,
+	`discount_id` int,
+	`discount_code` varchar(255),
+	`date_time` datetime,
+	`date` date,
+	PRIMARY KEY (id)
+);
+
+-- 20 July 2023 6:51:54 PM
+ALTER TABLE `mingbackend`.`discounts`
+ADD COLUMN `offer_type` varchar(255) NULL AFTER `added_by`;
+
