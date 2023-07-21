@@ -119,72 +119,37 @@ controller.addReview = handler(async (req, res) => {
   });
 });
 
-const productCache = {};
-const lock = new asyncLock();
-
-ontroller.a2c = handler(async (req, res) => {
+controller.a2c = handler(async (req, res) => {
   const userId = req?.user?.userId;
   const productId = req.body?.productId;
-  const quantity = 1; // Default value should be one
+  const quantity = 1; //default value should be one
 
   const product = await Product.findOne({
     where: {
       productId: productId,
     },
   });
-
   if (!product) throw "404|Product Not Found";
 
-  const cacheKey = `${userId}:${productId}`;
-
-  return lock.acquire(cacheKey, async () => {
-    if (productCache[cacheKey]) {
-      return res
-        .status(200)
-        .json({ message: "Adding product, please wait..." });
-    }
-
-    // Set the cache entry to prevent rapid additions of the same product
-    productCache[cacheKey] = true;
-
-    try {
-      const t = await sequelize.transaction(); // Start a database transaction
-
-      const existsRow = await Cart.findOne({
-        where: {
-          userId: userId,
-          productId: productId,
-        },
-        transaction: t, // Set the transaction for this query
-      });
-
-      if (!existsRow) {
-        await Cart.create(
-          {
-            userId: userId,
-            productId: productId,
-            quantity: quantity,
-            status: constantUtils.ACTIVE,
-          },
-          { transaction: t } // Set the transaction for the create operation
-        );
-        await t.commit(); // Commit the transaction if everything is successful
-        return res.status(200).json({ message: "Product added successfully" });
-      }
-
-      existsRow.quantity += quantity;
-      await existsRow.save({ transaction: t }); // Set the transaction for the update operation
-      await t.commit(); // Commit the transaction if everything is successful
-      return res.status(200).json({ message: "Product quantity increased" });
-    } catch (error) {
-      // Rollback the transaction if any error occurs
-      await t.rollback().catch(() => {});
-      throw error;
-    } finally {
-      // Remove the cache entry after successful addition or in case of an error
-      delete productCache[cacheKey];
-    }
+  const existsrow = await Cart.findOne({
+    where: {
+      userId: userId,
+      productId: productId,
+    },
   });
+
+  if (!existsrow) {
+    let cart = await Cart.create({
+      userId: userId,
+      productId: productId,
+      quantity: quantity,
+      status: constantUtils.ACTIVE,
+    });
+    return res.status(200).json({ message: "Product add sucessfully" });
+  }
+  existsrow.quantity += quantity;
+  await existsrow.save();
+  return res.status(200).json({ message: "Product quantity increased" });
 });
 
 controller.u2c = handler(async (req, res) => {
