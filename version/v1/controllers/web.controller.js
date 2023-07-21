@@ -142,7 +142,7 @@ controller.a2c = handler(async (req, res) => {
   productCache[cacheKey] = true;
   setTimeout(() => {
     delete productCache[cacheKey]; // Remove the cache entry after a short delay (e.g., 10 seconds)
-  }, 2000); // 10 seconds (adjust this value based on your requirements)
+  }, 10000); // 10 seconds (adjust this value based on your requirements)
 
   const t = await sequelize.transaction();
 
