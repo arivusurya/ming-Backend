@@ -157,7 +157,7 @@ controller.u2c = handler(async (req, res) => {
   const productId = req.body?.productId;
   const quantity = req.body?.quantity;
 
-  const product = Product.findOne({
+  const product = await Product.findOne({
     where: {
       productId: productId,
     },
