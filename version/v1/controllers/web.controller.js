@@ -6,6 +6,7 @@ const User = require("../models/user.model");
 const Admin = require("../models/admin.model");
 const Category = require("../models/category.model");
 const ProductPurchase = require("../models/cart.model");
+const asyncLock = require("async-lock");
 
 const { v4 } = require("uuid");
 
@@ -119,63 +120,73 @@ controller.addReview = handler(async (req, res) => {
 });
 
 const productCache = {};
+const lock = new asyncLock();
 
 controller.a2c = handler(async (req, res) => {
   const userId = req?.user?.userId;
   const productId = req.body?.productId;
-  const quantity = 1; //default value should be one
+  const quantity = 1; // Default value should be one
 
   const product = await Product.findOne({
     where: {
       productId: productId,
     },
   });
+
   if (!product) throw "404|Product Not Found";
 
   const cacheKey = `${userId}:${productId}`;
 
-  if (productCache[cacheKey]) {
-    return res.status(200).json({ message: "Adding product, please wait..." });
-  }
+  return lock.acquire(cacheKey, async () => {
+    if (productCache[cacheKey]) {
+      return res
+        .status(200)
+        .json({ message: "Adding product, please wait..." });
+    }
 
-  // Set the cache entry to prevent rapid additions of the same product
-  productCache[cacheKey] = true;
-  setTimeout(() => {
-    delete productCache[cacheKey]; // Remove the cache entry after a short delay (e.g., 10 seconds)
-  }, 10000); // 10 seconds (adjust this value based on your requirements)
 
-  const t = await sequelize.transaction();
+    // Set the cache entry to prevent rapid additions of the same product
+    productCache[cacheKey] = true;
 
-  try {
-    const existsrow = await Cart.findOne({
-      where: {
-        userId: userId,
-        productId: productId,
-      },
-      transaction: t,
-    });
 
-    if (!existsrow) {
-      let cart = await Cart.create(
-        {
+    try {
+      const t = await sequelize.transaction(); // Start a database transaction
+
+      const existsRow = await Cart.findOne({
+        where: {
           userId: userId,
           productId: productId,
-          quantity: quantity,
-          status: constantUtils.ACTIVE,
         },
-        { transaction: t }
-      );
-      await t.commit();
-      return res.status(200).json({ message: "Product add sucessfully" });
+        transaction: t, // Set the transaction for this query
+      });
+
+      if (!existsRow) {
+        await Cart.create(
+          {
+            userId: userId,
+            productId: productId,
+            quantity: quantity,
+            status: constantUtils.ACTIVE,
+          },
+          { transaction: t } // Set the transaction for the create operation
+        );
+        await t.commit(); // Commit the transaction if everything is successful
+        return res.status(200).json({ message: "Product added successfully" });
+      }
+
+      existsRow.quantity += quantity;
+      await existsRow.save({ transaction: t }); // Set the transaction for the update operation
+      await t.commit(); // Commit the transaction if everything is successful
+      return res.status(200).json({ message: "Product quantity increased" });
+    } catch (error) {
+      // Rollback the transaction if any error occurs
+      await t.rollback().catch(() => {});
+      throw error;
+    } finally {
+      // Remove the cache entry after successful addition or in case of an error
+      delete productCache[cacheKey];
     }
-    existsrow.quantity += quantity;
-    await existsrow.save({ transaction: t });
-    await t.commit();
-    return res.status(200).json({ message: "Product quantity increased" });
-  } catch (error) {
-    await t.rollback(); // Rollback the transaction if any error occurs
-    throw error;
-  }
+  });
 });
 
 controller.u2c = handler(async (req, res) => {
