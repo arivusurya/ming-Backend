@@ -118,6 +118,8 @@ controller.addReview = handler(async (req, res) => {
   });
 });
 
+const productCache = {};
+
 controller.a2c = handler(async (req, res) => {
   const userId = req?.user?.userId;
   const productId = req.body?.productId;
@@ -129,6 +131,18 @@ controller.a2c = handler(async (req, res) => {
     },
   });
   if (!product) throw "404|Product Not Found";
+
+  const cacheKey = `${userId}:${productId}`;
+
+  if (productCache[cacheKey]) {
+    return res.status(200).json({ message: "Adding product, please wait..." });
+  }
+
+  // Set the cache entry to prevent rapid additions of the same product
+  productCache[cacheKey] = true;
+  setTimeout(() => {
+    delete productCache[cacheKey]; // Remove the cache entry after a short delay (e.g., 10 seconds)
+  }, 2000); // 10 seconds (adjust this value based on your requirements)
 
   const t = await sequelize.transaction();
 
