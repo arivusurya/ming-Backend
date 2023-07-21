@@ -9,6 +9,7 @@ const {
   TokenCollector,
 } = require("./version/v1/Scheduler/ScheduleTask");
 const cron = require("node-cron");
+const Review = require("./version/v1/models/review.model");
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -54,7 +55,6 @@ const PORT = process.env.PORT ?? 5000;
 
 if (process.env.SERVERLESS !== true) {
   app.listen(PORT, async () => {
-    console.log("april Fool");
     console.log(`Server is running on port ${PORT}`);
   });
 }
