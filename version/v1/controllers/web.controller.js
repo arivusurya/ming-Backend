@@ -138,7 +138,11 @@ controller.a2c = handler(async (req, res) => {
     },
   });
 
-  if (!existsrow) {
+  if (existsrow) {
+    existsrow.quantity += quantity;
+    await existsrow.save();
+    return res.status(200).json({ message: "Product quantity increased" });
+  } else {
     let cart = await Cart.create({
       userId: userId,
       productId: productId,
@@ -147,9 +151,6 @@ controller.a2c = handler(async (req, res) => {
     });
     return res.status(200).json({ message: "Product add sucessfully" });
   }
-  existsrow.quantity += quantity;
-  await existsrow.save();
-  return res.status(200).json({ message: "Product quantity increased" });
 });
 
 controller.u2c = handler(async (req, res) => {
