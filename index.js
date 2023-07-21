@@ -9,6 +9,7 @@ const {
   TokenCollector,
 } = require("./version/v1/Scheduler/ScheduleTask");
 const cron = require("node-cron");
+const rateLimit = require("express-rate-limit");
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -17,6 +18,7 @@ const limiter = rateLimit({
     res.status(429).send("Too many requests, please try again later.");
   },
 });
+
 const app = express();
 
 app.use(limiter);
@@ -40,7 +42,7 @@ app.get("/", (req, res) => {
 
 app.use("*", (req, res) => {
   return res.json({
-    message: "NOT_FOUND!",
+    message: "PAGE_NOT_FOUND!",
   });
 });
 
