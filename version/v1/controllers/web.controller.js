@@ -144,8 +144,10 @@ ontroller.a2c = handler(async (req, res) => {
         .json({ message: "Adding product, please wait..." });
     }
 
+
     // Set the cache entry to prevent rapid additions of the same product
     productCache[cacheKey] = true;
+
 
     try {
       const t = await sequelize.transaction(); // Start a database transaction
