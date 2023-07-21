@@ -27,6 +27,7 @@ const shiprocket = require("../utils/shiprocket.utils");
 
 const Discount = require("../models/discount.model");
 const DiscountUser = require("../models/discountUser.model");
+const { Sequelize } = require("sequelize");
 
 controller = {};
 
@@ -122,32 +123,45 @@ controller.a2c = handler(async (req, res) => {
   const productId = req.body?.productId;
   const quantity = 1; //default value should be one
 
-  const product = Product.findOne({
+  const product = await Product.findOne({
     where: {
       productId: productId,
     },
   });
   if (!product) throw "404|Product Not Found";
 
-  const existsrow = await Cart.findOne({
-    where: {
-      userId: userId,
-      productId: productId,
-    },
-  });
+  const t = await sequelize.transaction();
 
-  if (!existsrow) {
-    let cart = await Cart.create({
-      userId: userId,
-      productId: productId,
-      quantity: quantity,
-      status: constantUtils.ACTIVE,
+  try {
+    const existsrow = await Cart.findOne({
+      where: {
+        userId: userId,
+        productId: productId,
+      },
+      transaction: t,
     });
-    return res.status(200).json({ message: "Product add sucessfully" });
+
+    if (!existsrow) {
+      let cart = await Cart.create(
+        {
+          userId: userId,
+          productId: productId,
+          quantity: quantity,
+          status: constantUtils.ACTIVE,
+        },
+        { transaction: t }
+      );
+      await t.commit();
+      return res.status(200).json({ message: "Product add sucessfully" });
+    }
+    existsrow.quantity += quantity;
+    await existsrow.save({ transaction: t });
+    await t.commit();
+    return res.status(200).json({ message: "Product quantity increased" });
+  } catch (error) {
+    await t.rollback(); // Rollback the transaction if any error occurs
+    throw error;
   }
-  existsrow.quantity += quantity;
-  await existsrow.save();
-  return res.status(200).json({ message: "Product quantity increased" });
 });
 
 controller.u2c = handler(async (req, res) => {
