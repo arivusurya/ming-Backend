@@ -16,7 +16,7 @@ const IntiateToken = async () => {
       },
     }
   );
-  const token = await ShipToken.findOne();
+  let token = await ShipToken.findOne();
 
   if (token !== null) {
     token.token = data.token;

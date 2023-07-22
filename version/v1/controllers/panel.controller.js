@@ -5,6 +5,7 @@ const Address = require("../models/address.model");
 const User = require("../models/user.model");
 const Admin = require("../models/admin.model");
 const Category = require("../models/category.model");
+const Order = require("../models/order.model");
 
 const helperUtils = require("../utils/helperUtils");
 const authUtils = require("../utils/auth.utils");
@@ -167,8 +168,14 @@ controller.getAllCount = handler(async(req,res) => {
       status : constantUtils.ACTIVE
     }
   })
+  const order = await Order.count({
+    where : {
+        status : constantUtils.ACTIVE
+        }
+      })
   return res.json({
-    productCount : product
+    productCount : product,
+    orderCount : order
   })
 })
 
