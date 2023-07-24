@@ -21,7 +21,7 @@ utils.panelProductStructure = (data) => ({
   weight: data?.weight ?? 0,
   price: data?.price ?? 0,
   type: data?.type ?? "",
-  status : data?.status ?? ""
+  status: data?.status ?? "",
 });
 
 utils.userStructure = (data) => ({
@@ -60,7 +60,6 @@ utils.getCartStruce = (product, cart) => ({
   type: product?.type,
   weight: product?.weight,
 });
-
 
 utils.courier = (courier) => ({
   courier_name: courier.courier_name,
@@ -145,6 +144,5 @@ utils.compareDiscountStructure = (data) => ({
   discountCode: data?.discountCode ?? "",
   amount: data?.amount ?? 0,
 });
-
 
 module.exports = utils;

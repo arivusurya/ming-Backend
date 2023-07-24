@@ -6,7 +6,6 @@ const User = require("../models/user.model");
 const Admin = require("../models/admin.model");
 const Category = require("../models/category.model");
 const ProductPurchase = require("../models/cart.model");
-const asyncLock = require("async-lock");
 
 const { v4 } = require("uuid");
 
@@ -118,8 +117,6 @@ controller.addReview = handler(async (req, res) => {
     message: "success!",
   });
 });
-
-
 
 controller.a2c = handler(async (req, res) => {
   const userId = req?.user?.userId;
@@ -485,5 +482,58 @@ controller.orderItems = async (req, res) => {
   console.log(order_items);
   return res.json(order_items);
 };
+
+controller.getUserOrderHistory = handler(async (req, res) => {
+  const condition = {
+    userId: req?.user?.userId,
+  };
+
+  if (req?.body?.status) condition["status"] = req?.body?.status;
+
+  const order = await Order.findAll({
+    where: condition,
+    limit: req?.body?.limit ?? 5,
+    skip: req?.body?.skip ?? 0,
+  });
+
+  const orderId = await order?.map((each) => each?.orderId);
+
+  const orderItems = await OrderItem.findAll({
+    where: {
+      orderId: orderId,
+    },
+    include: [
+      {
+        model: Order,
+        attributes: [
+          "orderId",
+          "userId",
+          "amount",
+          "dateTime",
+          "status",
+          "hasPaid",
+          "isFreeShipping",
+        ],
+        required: true,
+      },
+      {
+        model: Product,
+        attributes: ["productId", "name", "image"],
+        required: true,
+      },
+    ],
+  });
+
+  const groupedData = orderItems.reduce((acc, item) => {
+    const orderId = item.orderId;
+    if (!acc[orderId]) {
+      acc[orderId] = [];
+    }
+    acc[orderId].push(item);
+    return acc;
+  }, {});
+
+  return res.json(groupedData);
+});
 
 module.exports = controller;
