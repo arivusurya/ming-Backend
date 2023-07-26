@@ -3,6 +3,7 @@ const axios = require("axios");
 const ShipToken = require("../models/shiprocket.model");
 
 const IntiateToken = async () => {
+  try{
   console.log("token is going to be requested");
   const { data } = await axios.post(
     process.env.SHIPROCKET_LOGIN,
@@ -25,6 +26,9 @@ const IntiateToken = async () => {
     token = await ShipToken.create({
       token: data.token,
     });
+  }}
+  catch(error){
+    console.log(error)
   }
 };
 

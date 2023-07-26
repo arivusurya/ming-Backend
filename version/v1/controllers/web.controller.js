@@ -6,6 +6,7 @@ const User = require("../models/user.model");
 const Admin = require("../models/admin.model");
 const Category = require("../models/category.model");
 const ProductPurchase = require("../models/cart.model");
+const asyncLock = require("async-lock");
 
 const { v4 } = require("uuid");
 
@@ -27,6 +28,7 @@ const shiprocket = require("../utils/shiprocket.utils");
 
 const Discount = require("../models/discount.model");
 const DiscountUser = require("../models/discountUser.model");
+const { Sequelize } = require("sequelize");
 
 controller = {};
 
@@ -117,12 +119,14 @@ controller.addReview = handler(async (req, res) => {
   });
 });
 
+
+
 controller.a2c = handler(async (req, res) => {
   const userId = req?.user?.userId;
   const productId = req.body?.productId;
   const quantity = 1; //default value should be one
 
-  const product = Product.findOne({
+  const product = await Product.findOne({
     where: {
       productId: productId,
     },
@@ -136,7 +140,11 @@ controller.a2c = handler(async (req, res) => {
     },
   });
 
-  if (!existsrow) {
+  if (existsrow) {
+    existsrow.quantity += quantity;
+    await existsrow.save();
+    return res.status(200).json({ message: "Product quantity increased" });
+  } else {
     let cart = await Cart.create({
       userId: userId,
       productId: productId,
@@ -145,9 +153,6 @@ controller.a2c = handler(async (req, res) => {
     });
     return res.status(200).json({ message: "Product add sucessfully" });
   }
-  existsrow.quantity += quantity;
-  await existsrow.save();
-  return res.status(200).json({ message: "Product quantity increased" });
 });
 
 controller.u2c = handler(async (req, res) => {
@@ -155,7 +160,7 @@ controller.u2c = handler(async (req, res) => {
   const productId = req.body?.productId;
   const quantity = req.body?.quantity;
 
-  const product = Product.findOne({
+  const product = await Product.findOne({
     where: {
       productId: productId,
     },

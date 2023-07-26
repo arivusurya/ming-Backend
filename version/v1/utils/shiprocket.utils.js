@@ -94,19 +94,19 @@ utils.CreateOrder = async (order) => {
       },
     });
 
-    const res = await axios.post(
-      process.env.AWB_CODE,
-      {
-        shipment_id: `${data.shipment_id}`,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token.token}`,
-        },
-      }
-    );
-    console.log(res.data);
+    // const res = await axios.post(
+    //   process.env.AWB_CODE,
+    //   {
+    //     shipment_id: `${data.shipment_id}`,
+    //   },
+    //   {
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       Authorization: `Bearer ${token.token}`,
+    //     },
+    //   }
+    // );
+    // console.log(res.data);
   } catch (err) {
     console.log(err);
   }

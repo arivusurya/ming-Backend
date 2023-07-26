@@ -10,7 +10,6 @@ const {
   TokenCollector,
 } = require("./version/v1/Scheduler/ScheduleTask");
 const cron = require("node-cron");
-const ShipToken = require("./version/v1/models/shiprocket.model");
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -19,6 +18,7 @@ const limiter = rateLimit({
     res.status(429).send("Too many requests, please try again later.");
   },
 });
+
 const app = express();
 
 app.use(limiter);
@@ -42,7 +42,7 @@ app.get("/", (req, res) => {
 
 app.use("*", (req, res) => {
   return res.json({
-    message: "NOT_FOUND!",
+    message: "PAGE_NOT_FOUND!",
   });
 });
 
@@ -55,8 +55,6 @@ const PORT = process.env.PORT ?? 5000;
 
 if (process.env.SERVERLESS !== true) {
   app.listen(PORT, async () => {
-    await ShipToken.sync({force : true});
-    console.log("april Fool")
     console.log(`Server is running on port ${PORT}`);
   });
 }
