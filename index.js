@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
+const Order = require("./version/v1/models/order.model");
 
 const {
   IntiateToken,
@@ -26,7 +27,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(cors("*"));
 app.use(morgan("dev"));
-IntiateToken();
+// IntiateToken();
 // cron.schedule("0 0 * * 1", TokenCollector);
 
 app.use("/api/v1", require("./version/v1/router"));

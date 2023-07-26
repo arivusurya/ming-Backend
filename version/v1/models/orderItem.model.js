@@ -35,11 +35,11 @@ const OrderItem = db.define(
   }
 );
 
-OrderItem.belongsTo(Order, {
-  foreignKey: "orderId",
-  targetKey: "orderId",
-  constraints: false,
-});
+// OrderItem.belongsTo(Order, {
+//   foreignKey: "orderId",
+//   targetKey: "orderId",
+//   constraints: false,
+// });
 
 OrderItem.belongsTo(Product, {
   foreignKey: "productId",

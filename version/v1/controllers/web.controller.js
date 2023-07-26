@@ -440,6 +440,14 @@ controller.PaymentVerification = handler(async (req, res) => {
     order.hasPaid = constantUtils.PAID;
     order.status = constantUtils.ACTIVEORDERS;
     let user_id = order.userId;
+
+    if (order.shipprocketOrderId === null) {
+      let shipingdata = await shiprocket.CreateOrder(order);
+      order.shipprocketOrderId = shipingdata?.order_id;
+      await order.save();
+    }
+    await order.save();
+
     let cart = await Cart.findAll({
       where: { userId: user_id, status: "active" },
     });
@@ -449,7 +457,7 @@ controller.PaymentVerification = handler(async (req, res) => {
     });
 
     await order.save();
-    await shiprocket.CreateOrder(order);
+
     return res.status(200).json({ message: "ok" });
   }
 });
@@ -472,18 +480,5 @@ controller.failedPayment = handler(async (req, res) => {
 
   return res.status(200).json({ message: "ok" });
 });
-
-controller.orderItems = async (req, res) => {
-  req.body?.orderId;
-  const order_items = await OrderItem.findAll({
-    where: {
-      orderId: req?.body?.orderId,
-    },
-    include: [{ model: Product }],
-  });
-
-  console.log(order_items);
-  return res.json(order_items);
-};
 
 module.exports = controller;

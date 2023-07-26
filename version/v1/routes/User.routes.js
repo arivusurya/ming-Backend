@@ -23,7 +23,6 @@ router.post("/verifyEmailAddresss", userController.verifyEmailAddresss);
 router.post("/resetPassword", validateBody(userValidation?.resetPassword), userController.resetPassword);
 router.post("/getUserAddressById", userController.getUserAddressById);
 router.post("/getUserById", validateUser, userController.getUserById);
-
 router.post("/verifyUserEmail", userController.verifyUserEmail);
 
 module.exports = router;
