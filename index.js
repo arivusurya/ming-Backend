@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
+const Order = require("./version/v1/models/order.model");
 
 const {
   IntiateToken,
@@ -10,6 +11,7 @@ const {
 } = require("./version/v1/Scheduler/ScheduleTask");
 const cron = require("node-cron");
 const Review = require("./version/v1/models/review.model");
+const { getspecifcorder } = require("./version/v1/utils/shiprocket.utils");
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -27,7 +29,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(cors("*"));
 app.use(morgan("dev"));
-IntiateToken();
+// IntiateToken();
 // cron.schedule("0 0 * * 1", TokenCollector);
 
 app.use("/api/v1", require("./version/v1/router"));
@@ -55,6 +57,7 @@ const PORT = process.env.PORT ?? 5000;
 
 if (process.env.SERVERLESS !== true) {
   app.listen(PORT, async () => {
+    // await Order.sync({ alter: true });
     console.log(`Server is running on port ${PORT}`);
   });
 }

@@ -4,6 +4,9 @@ const Cart = require("./cart.model");
 const Address = require("./address.model");
 const constantUtils = require("../utils/constant.utils");
 const utils = require("../utils/constant.utils");
+const { types } = require("joi");
+const User = require("./user.model");
+const OrderItem = require("./orderItem.model");
 
 const Order = db.define(
   "orders",
@@ -90,12 +93,41 @@ const Order = db.define(
       field: "paymentId",
       type: Sequelize.DataTypes.STRING,
     },
+    shipprocketOrderId: {
+      field: "shipprocketOrderId",
+      type: Sequelize.DataTypes.STRING,
+    },
+    shippingId: {
+      field: "ShippingId",
+      type: Sequelize.DataTypes.STRING,
+    },
+    awbcode: {
+      field: "awbcode",
+      type: Sequelize.DataTypes.STRING,
+    },
   },
   {
     timestamps: false,
     tableName: "orders",
   }
 );
+
+Order.hasMany(OrderItem, {
+  foreignKey: "orderId", // This refers to the "orderId" column in the "OrderItem" model
+  sourceKey: "orderId",
+});
+
+OrderItem.belongsTo(Order, {
+  foreignKey: "orderId",
+  targetKey: "orderId",
+  constraints: false,
+});
+
+Order.belongsTo(User, {
+  foreignKey: "userId",
+  targetKey: "userId",
+  constraints: false,
+});
 
 Order.belongsTo(Address, {
   foreignKey: "addressId",

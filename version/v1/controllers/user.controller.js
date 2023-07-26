@@ -148,7 +148,6 @@ controller.getSingleUser = handler(async (req, res) => {
     where: {
       userId: req?.body?.userId,
       status: constantUtils.ACTIVE,
-
     },
     include: {
       model: Address,
@@ -450,6 +449,11 @@ controller.getUserAddressById = handler(async (req, res) => {
 
   return res.json(structureUtils.addressStructure(address));
   // return res.json(address);
+});
+
+controller.getuserOders = handler(async (req, res) => {
+  console.log(req?.User);
+  res.status(200);
 });
 
 module.exports = controller;
