@@ -13,6 +13,9 @@ const constantUtils = require("../utils/constant.utils");
 const structureUtils = require("../utils/structure.utils");
 const Discount = require("../models/discount.model");
 const sequelize = require("../models");
+const OrderItem = require("../models/orderItem.model");
+const { date } = require("joi");
+const { Sequelize } = require("sequelize");
 
 controller = {};
 
@@ -59,8 +62,8 @@ controller.addproduct = handler(async (req, res) => {
     name: req?.body?.name,
     description: req?.body?.description,
     image: req?.body?.image,
-    images : req?.body?.images,
-    categoryType : req?.body?.categoryType,
+    images: req?.body?.images,
+    categoryType: req?.body?.categoryType,
     weight: req?.body?.weight,
     type: req?.body?.type,
     price: req?.body?.price,
@@ -105,7 +108,7 @@ controller.getAllDiscountCode = handler(async (req, res) => {
   const discount = await Discount.findAll(condition);
 
   const discountData = discount?.map((each) =>
-  structureUtils.discountStructure(each)
+    structureUtils.discountStructure(each)
   );
 
   return res.json(discountData);
@@ -114,10 +117,11 @@ controller.getAllDiscountCode = handler(async (req, res) => {
 controller.getAllProducts = handler(async (req, res) => {
   const condition = {};
 
-  if(req?.body?.status) condition["status"] = req?.body?.status
+  if (req?.body?.status) condition["status"] = req?.body?.status;
 
-  if(req?.body?.categoryType) condition["categoryType"] = req?.body?.categoryType
-  
+  if (req?.body?.categoryType)
+    condition["categoryType"] = req?.body?.categoryType;
+
   const products = await Product.findAll({
     where: condition,
     order: [["id", "ASC"]],
@@ -128,55 +132,116 @@ controller.getAllProducts = handler(async (req, res) => {
   );
 });
 
-controller.adminLogin = handler(async(req,res) => {
-  if(!req?.body?.email) throw "400|Email_Required!"
-  if(!req?.body?.password) throw "400|Password_Required!"
+controller.adminLogin = handler(async (req, res) => {
+  if (!req?.body?.email) throw "400|Email_Required!";
+  if (!req?.body?.password) throw "400|Password_Required!";
 
   const admin = await Admin.findOne({
-    where : {
-      email : req?.body?.email,
-      password : req?.body?.password
-    }
-  })
+    where: {
+      email: req?.body?.email,
+      password: req?.body?.password,
+    },
+  });
 
-  if(!admin) throw "400|Admin_Not_Found!"
+  if (!admin) throw "400|Admin_Not_Found!";
 
-  return res.json(admin)
+  return res.json(admin);
+});
 
-})
-
-controller.toggleProductStatus = handler(async(req,res) => {
-  if(!req?.body?.productId) throw "400|ProductId_Required!"
-  if(!req?.body?.status) throw "400|Status_Required!"
+controller.toggleProductStatus = handler(async (req, res) => {
+  if (!req?.body?.productId) throw "400|ProductId_Required!";
+  if (!req?.body?.status) throw "400|Status_Required!";
   const toogleStatus = await Product.findOne({
-    where : {
-      productId : req?.body?.productId
-    }
-  })
-  if(!toogleStatus) throw "400|Product_Not_Found!"
-  toogleStatus.status = req?.body?.status
-  await toogleStatus.save()
+    where: {
+      productId: req?.body?.productId,
+    },
+  });
+  if (!toogleStatus) throw "400|Product_Not_Found!";
+  toogleStatus.status = req?.body?.status;
+  await toogleStatus.save();
 
-return res.json({
-  message : "success!"
-})
-})
-
-controller.getAllCount = handler(async(req,res) => {
-  const product = await Product.count({
-    where : {
-      status : constantUtils.ACTIVE
-    }
-  })
-  const order = await Order.count({
-    where : {
-        status : constantUtils.ACTIVE
-        }
-      })
   return res.json({
-    productCount : product,
-    orderCount : order
-  })
-})
+    message: "success!",
+  });
+});
+
+controller.getAllCount = handler(async (req, res) => {
+  const product = await Product.count({
+    where: {
+      status: constantUtils.ACTIVE,
+    },
+  });
+
+  const order = await Order.count({
+    where: {
+      status: constantUtils.ACTIVEORDERS,
+    },
+  });
+
+  const user = await User.count({
+    where: {
+      status: constantUtils.ACTIVE,
+    },
+  });
+
+  const transection = await Order.count({
+    where: {
+      status: constantUtils.ACTIVE,
+      hasPaid: constantUtils.PAID,
+    },
+  });
+  return res.json({
+    productCount: product,
+    orderCount: order,
+    CustomerCount: user,
+    transection: transection,
+  });
+});
+controller.getOders = handler(async (req, res) => {
+  const order = await Order.findAll({
+    where: {
+      status: constantUtils.ACTIVEORDERS,
+    },
+    include: [
+      {
+        model: User,
+      },
+      {
+        model: OrderItem,
+        include: Product,
+      },
+    ],
+  });
+
+  return res.json(structureUtils.AdminOrder(order));
+});
+
+controller.TopsellingProducts = handler(async (req, res) => {
+  try {
+    const topproducts = await OrderItem.findAll({
+      attributes: [
+        "productId",
+        [Sequelize.fn("SUM", Sequelize.col("quantity")), "totalUnits"],
+        [Sequelize.col("image"), "imageUrl"],
+        [Sequelize.col("name"), "Productname"],
+        // Include the 'imageUrl' attribute from the 'products' table
+      ],
+      include: [
+        {
+          model: Product,
+          attributes: [], // Include only the 'name' attribute from the 'products' table
+        },
+      ],
+      group: ["productId", "name", "image"], // Group by productId, Product.name, and Product.imageUrl
+      order: [[Sequelize.literal("totalUnits"), "DESC"]],
+      limit: 5,
+    });
+
+    res.status(200).json({ product: topproducts });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: "something went wrong" });
+  }
+});
 
 module.exports = controller;

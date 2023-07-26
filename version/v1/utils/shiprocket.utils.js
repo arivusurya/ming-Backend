@@ -94,6 +94,8 @@ utils.CreateOrder = async (order) => {
       },
     });
 
+    return data;
+
     // const res = await axios.post(
     //   process.env.AWB_CODE,
     //   {

@@ -21,7 +21,7 @@ utils.panelProductStructure = (data) => ({
   weight: data?.weight ?? 0,
   price: data?.price ?? 0,
   type: data?.type ?? "",
-  status : data?.status ?? ""
+  status: data?.status ?? "",
 });
 
 utils.userStructure = (data) => ({
@@ -60,7 +60,6 @@ utils.getCartStruce = (product, cart) => ({
   type: product?.type,
   weight: product?.weight,
 });
-
 
 utils.courier = (courier) => ({
   courier_name: courier.courier_name,
@@ -146,5 +145,30 @@ utils.compareDiscountStructure = (data) => ({
   amount: data?.amount ?? 0,
 });
 
+utils.AdminOrderItem = (data) => {
+  const orderItem = [];
+  data.map((e) => {
+    orderItem.push({
+      name: e?.product?.name,
+      price: e?.product?.price,
+      quantity: e?.quantity,
+      amount: e?.product?.price * e?.quantity,
+    });
+  });
+  return orderItem;
+};
+
+utils.AdminOrder = (data) => {
+  let Orders = [];
+  data.map((e) => {
+    Orders.push({
+      orderId: e?.orderId,
+      User: e?.user?.userName,
+      amount: e?.amount,
+      Item: utils.AdminOrderItem(e?.orderItems),
+    });
+  });
+  return Orders;
+};
 
 module.exports = utils;
