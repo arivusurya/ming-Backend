@@ -114,24 +114,4 @@ utils.CreateOrder = async (order) => {
   }
 };
 
-utils.getspecifcorder = async (order_id) => {
-  console.log(order_id);
-  const token =
-    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2FwaXYyLnNoaXByb2NrZXQuaW4vdjEvZXh0ZXJuYWwvYXV0aC9sb2dpbiIsImlhdCI6MTY5MDE5ODk1NiwiZXhwIjoxNjkxMDYyOTU2LCJuYmYiOjE2OTAxOTg5NTYsImp0aSI6IkNRbjdqUjFrNkRwbGlMVXUiLCJzdWIiOjMwNTgyNDMsInBydiI6IjA1YmI2NjBmNjdjYWM3NDVmN2IzZGExZWVmMTk3MTk1YTIxMWU2ZDkifQ.W17JUuL86wckQlHugeL6E4l4Bs_SkPlCsnVRw1-64LA";
-  try {
-    const { data } = await axios.get(
-      process.env.getorderDetails + `${order_id}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return data.data.shipments.id;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 module.exports = utils;
