@@ -4,6 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 const Order = require("./version/v1/models/order.model");
+const constantutils = require("./version/v1/utils/constant.utils");
 
 const {
   IntiateToken,
@@ -38,6 +39,38 @@ app.get("/", (req, res) => {
     message: "working!",
     ip: ip,
   });
+});
+
+app.post("/", async (req, res) => {
+  try {
+    console.log(req.body);
+    const order = await Order.findOne({
+      where: { orderId: req?.body?.order_id },
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: "order Not Found" });
+    }
+    order.awbcode = req?.body?.awb;
+    order.shippingMethod = req?.body?.courier_name;
+    if (req?.body?.shipment_status === "PICKED UP") {
+      order.status = constantutils.PROCESSING;
+    }
+    if (req?.body?.shipment_status === "Delivered") {
+      order.status = constantutils.DELIVERED;
+    }
+    if (req?.body?.shipment_status === "Canceled") {
+      order.status = constantutils.CANCELED;
+    }
+
+    order.etd = req?.body?.etd;
+    await order.save();
+    return res.status(200).json({ message: "ok" });
+  } catch (error) {
+    res.status(200).json({ message: "okk" });
+  }
+
+  res.status(200).json({ message: "okk" });
 });
 
 app.use("*", (req, res) => {
