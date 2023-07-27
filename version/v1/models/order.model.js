@@ -105,6 +105,10 @@ const Order = db.define(
       field: "awbcode",
       type: Sequelize.DataTypes.STRING,
     },
+    etd: {
+      field: "etd",
+      type: Sequelize.DataTypes.STRING,
+    },
   },
   {
     timestamps: false,
