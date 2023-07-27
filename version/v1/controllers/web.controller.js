@@ -437,6 +437,14 @@ controller.PaymentVerification = handler(async (req, res) => {
     order.hasPaid = constantUtils.PAID;
     order.status = constantUtils.ACTIVEORDERS;
     let user_id = order.userId;
+
+    if (order.shipprocketOrderId === null) {
+      let shipingdata = await shiprocket.CreateOrder(order);
+      order.shipprocketOrderId = shipingdata?.order_id;
+      await order.save();
+    }
+    await order.save();
+
     let cart = await Cart.findAll({
       where: { userId: user_id, status: "active" },
     });
@@ -446,7 +454,7 @@ controller.PaymentVerification = handler(async (req, res) => {
     });
 
     await order.save();
-    await shiprocket.CreateOrder(order);
+
     return res.status(200).json({ message: "ok" });
   }
 });

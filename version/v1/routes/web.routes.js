@@ -28,7 +28,10 @@ router.post("/makepayment", validateUser, ShippingPrice, webController.makepayme
 router.post("/servicecheck", validateUser, webController.servicecheck);
 router.post("/verifyPayement", controller.PaymentVerification);
 router.post("/failedpayments", controller.failedPayment);
+<<<<<<< HEAD
 router.post("/oderitem", controller.orderItems);
 router.post("/getUserOderHistory", validateUser, webController.getUserOrderHistory);
+=======
+>>>>>>> main
 
 module.exports = router;

@@ -145,4 +145,33 @@ utils.compareDiscountStructure = (data) => ({
   amount: data?.amount ?? 0,
 });
 
+<<<<<<< HEAD
+=======
+utils.AdminOrderItem = (data) => {
+  const orderItem = [];
+  data.map((e) => {
+    orderItem.push({
+      name: e?.product?.name,
+      price: e?.product?.price,
+      quantity: e?.quantity,
+      amount: e?.product?.price * e?.quantity,
+    });
+  });
+  return orderItem;
+};
+
+utils.AdminOrder = (data) => {
+  let Orders = [];
+  data.map((e) => {
+    Orders.push({
+      orderId: e?.orderId,
+      User: e?.user?.userName,
+      amount: e?.amount,
+      Item: utils.AdminOrderItem(e?.orderItems),
+    });
+  });
+  return Orders;
+};
+
+>>>>>>> main
 module.exports = utils;

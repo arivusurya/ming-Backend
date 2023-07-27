@@ -12,7 +12,6 @@ router.post("/registerUser", validateBody(userValidation.registerUser), userCont
 router.post("/loginUser", validateBody(userValidation.loginUser), userController.loginUser);
 router.post("/googleAuth", userController.googleAuth);
 router.post("/getSingleUser", validateBody(userValidation.getSingleUser), userController?.getSingleUser);
-
 router.post("/addUserAddress", validateUser, validateBody(userValidation.addUserAddress), userController.addUserAddress);
 router.post("/getAllAddress", validateUser, userController.getAllAddress);
 router.post("/editUserDeatils", validateUser, userController.editUserDeatils);
@@ -23,7 +22,6 @@ router.post("/verifyEmailAddresss", userController.verifyEmailAddresss);
 router.post("/resetPassword", validateBody(userValidation?.resetPassword), userController.resetPassword);
 router.post("/getUserAddressById", userController.getUserAddressById);
 router.post("/getUserById", validateUser, userController.getUserById);
-
 router.post("/verifyUserEmail", userController.verifyUserEmail);
 
 module.exports = router;

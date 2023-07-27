@@ -12,9 +12,11 @@ router.post("/addCategory", validateAdmin, validateBody(adminValidation?.addCate
 router.post("/addProduct", validateAdmin, validateBody(adminValidation?.addProduct), panelController?.addproduct);
 router.post("/addDiscountCode", validateAdmin, panelController?.addDiscountCode);
 router.post("/getAllDiscountCode", validateAdmin, panelController.getAllDiscountCode);
-router.post("/getAllProducts",validateAdmin, panelController.getAllProducts)
-router.post("/adminLogin", panelController.adminLogin)
-router.post("/toggleProductStatus",validateAdmin, panelController.toggleProductStatus)
-router.post("/getAllCount",validateAdmin, panelController.getAllCount)
+router.post("/getAllProducts", validateAdmin, panelController.getAllProducts);
+router.post("/adminLogin", panelController.adminLogin);
+router.post("/toggleProductStatus", validateAdmin, panelController.toggleProductStatus);
+router.post("/getAllCount", validateAdmin, panelController.getAllCount);
+router.get("/getOders", panelController.getOders);
+router.get("/popularproducts", panelController.TopsellingProducts);
 
 module.exports = router;
