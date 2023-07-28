@@ -502,46 +502,16 @@ controller.getUserOrderHistory = handler(async (req, res) => {
     where: condition,
     limit: req?.body?.limit ?? 5,
     skip: req?.body?.skip ?? 0,
-  });
-
-  const orderId = await order?.map((each) => each?.orderId);
-
-  const orderItems = await OrderItem.findAll({
-    where: {
-      orderId: orderId,
-    },
     include: [
       {
-        model: Order,
-        attributes: [
-          "orderId",
-          "userId",
-          "amount",
-          "dateTime",
-          "status",
-          "hasPaid",
-          "isFreeShipping",
-        ],
-        required: true,
-      },
-      {
-        model: Product,
-        attributes: ["productId", "name", "image"],
+        model: OrderItem,
+        include: [{ model: Product }],
         required: true,
       },
     ],
   });
 
-  const groupedData = orderItems.reduce((acc, item) => {
-    const orderId = item.orderId;
-    if (!acc[orderId]) {
-      acc[orderId] = [];
-    }
-    acc[orderId].push(item);
-    return acc;
-  }, {});
-
-  return res.json(groupedData);
+  return res.json(order);
 });
 
 module.exports = controller;

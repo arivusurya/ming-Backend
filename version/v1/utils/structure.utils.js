@@ -145,8 +145,6 @@ utils.compareDiscountStructure = (data) => ({
   amount: data?.amount ?? 0,
 });
 
-<<<<<<< HEAD
-=======
 utils.AdminOrderItem = (data) => {
   const orderItem = [];
   data.map((e) => {
@@ -173,5 +171,4 @@ utils.AdminOrder = (data) => {
   return Orders;
 };
 
->>>>>>> main
 module.exports = utils;
