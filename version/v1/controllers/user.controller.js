@@ -331,7 +331,7 @@ controller.updateUserAddress = handler(async (req, res) => {
     },
   });
 
-  if (numUpdated < 1) throw "400|Somthing_Went_Wrong!";
+  if (numUpdated < 1) throw "400|No_changes!";
 
   return res.json({
     message: "success",

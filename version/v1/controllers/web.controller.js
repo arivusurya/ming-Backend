@@ -401,6 +401,10 @@ controller.servicecheck = handler(async (req, res) => {
     ],
   });
 
+  if(cartitems.length ===0){
+    return res.status(400).json({message:"Please Add the product to proceed"})
+  }
+
   let weightinkg = helperUtils.findWeight(cartitems);
 
   console.log(weightinkg);
@@ -418,8 +422,11 @@ controller.servicecheck = handler(async (req, res) => {
       },
     }
   );
+  if(!service?.data?.data?.available_courier_companies){
+    return res.status(400).json({message:"please give valid Pincode"})
+  }
 
-  if (service.data.data.available_courier_companies.length === 0)
+  if (service?.data?.data?.available_courier_companies.length === 0)
     throw "400|No_Service_Avalialbe_On_This_Pincode";
   let courier = service?.data?.data?.available_courier_companies[0];
 
