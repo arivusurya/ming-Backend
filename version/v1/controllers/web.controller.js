@@ -6,7 +6,6 @@ const User = require("../models/user.model");
 const Admin = require("../models/admin.model");
 const Category = require("../models/category.model");
 const ProductPurchase = require("../models/cart.model");
-const asyncLock = require("async-lock");
 
 const { v4 } = require("uuid");
 
@@ -118,8 +117,6 @@ controller.addReview = handler(async (req, res) => {
     message: "success!",
   });
 });
-
-
 
 controller.a2c = handler(async (req, res) => {
   const userId = req?.user?.userId;
@@ -479,6 +476,42 @@ controller.failedPayment = handler(async (req, res) => {
   }
 
   return res.status(200).json({ message: "ok" });
+});
+
+controller.orderItems = async (req, res) => {
+  req.body?.orderId;
+  const order_items = await OrderItem.findAll({
+    where: {
+      orderId: req?.body?.orderId,
+    },
+    include: [{ model: Product }],
+  });
+
+  console.log(order_items);
+  return res.json(order_items);
+};
+
+controller.getUserOrderHistory = handler(async (req, res) => {
+  const condition = {
+    userId: req?.user?.userId,
+  };
+
+  if (req?.body?.status) condition["status"] = req?.body?.status;
+
+  const order = await Order.findAll({
+    where: condition,
+    limit: req?.body?.limit ?? 5,
+    skip: req?.body?.skip ?? 0,
+    include: [
+      {
+        model: OrderItem,
+        include: [{ model: Product }],
+        required: true,
+      },
+    ],
+  });
+
+  return res.json(order);
 });
 
 module.exports = controller;
