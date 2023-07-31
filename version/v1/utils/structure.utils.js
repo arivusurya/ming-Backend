@@ -86,7 +86,7 @@ utils.ShiprocketOrder = (order, item, weight) => {
     second: "2-digit",
   })),
     (Body.pickup_location = "Primary");
-  Body.channel_id = "3989284";
+  Body.channel_id = "4003873";
   Body.comment = "MingMorshels Cookies";
   Body.billing_customer_name = order?.addresss?.firstName;
   Body.billing_last_name = order?.addresss?.lastName;

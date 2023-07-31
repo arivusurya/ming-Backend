@@ -32,6 +32,10 @@ utils.ShippingPrice = async (req, res, next) => {
       ],
     });
 
+    if(cartitems.length ===0){
+      return res.status(400).json({message:"please Add the product to proceed"})
+    }
+
     let weightinkg = helperUtils.findWeight(cartitems);
 
     console.log(weightinkg);
@@ -49,8 +53,11 @@ utils.ShippingPrice = async (req, res, next) => {
         },
       }
     );
+      if(!service?.data?.data?.available_courier_companies){
+        return res.status(400).json({message:"Please provide Valid PinCode"})
+      }
 
-    if (service.data.data.available_courier_companies.length === 0)
+    if (service?.data?.data?.available_courier_companies.length === 0)
       return res.status(400).json({ message: "No Service Available" });
     let courier = service.data.data.available_courier_companies[0];
     req.courier = structureUtils.courier(courier);

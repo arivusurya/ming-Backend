@@ -6,7 +6,6 @@ const User = require("../models/user.model");
 const Admin = require("../models/admin.model");
 const Category = require("../models/category.model");
 const ProductPurchase = require("../models/cart.model");
-const asyncLock = require("async-lock");
 
 const { v4 } = require("uuid");
 
@@ -400,6 +399,10 @@ controller.servicecheck = handler(async (req, res) => {
     ],
   });
 
+  if(cartitems.length ===0){
+    return res.status(400).json({message:"Please Add the product to proceed"})
+  }
+
   let weightinkg = helperUtils.findWeight(cartitems);
 
   console.log(weightinkg);
@@ -417,8 +420,11 @@ controller.servicecheck = handler(async (req, res) => {
       },
     }
   );
+  if(!service?.data?.data?.available_courier_companies){
+    return res.status(400).json({message:"please give valid Pincode"})
+  }
 
-  if (service.data.data.available_courier_companies.length === 0)
+  if (service?.data?.data?.available_courier_companies.length === 0)
     throw "400|No_Service_Avalialbe_On_This_Pincode";
   let courier = service?.data?.data?.available_courier_companies[0];
 
@@ -502,6 +508,42 @@ controller.failedPayment = handler(async (req, res) => {
   }
 
   return res.status(200).json({ message: "ok" });
+});
+
+controller.orderItems = async (req, res) => {
+  req.body?.orderId;
+  const order_items = await OrderItem.findAll({
+    where: {
+      orderId: req?.body?.orderId,
+    },
+    include: [{ model: Product }],
+  });
+
+  console.log(order_items);
+  return res.json(order_items);
+};
+
+controller.getUserOrderHistory = handler(async (req, res) => {
+  const condition = {
+    userId: req?.user?.userId,
+  };
+
+  if (req?.body?.status) condition["status"] = req?.body?.status;
+
+  const order = await Order.findAll({
+    where: condition,
+    limit: req?.body?.limit ?? 5,
+    skip: req?.body?.skip ?? 0,
+    include: [
+      {
+        model: OrderItem,
+        include: [{ model: Product }],
+        required: true,
+      },
+    ],
+  });
+
+  return res.json(order);
 });
 
 module.exports = controller;
