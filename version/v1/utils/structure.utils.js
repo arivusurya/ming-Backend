@@ -158,17 +158,46 @@ utils.AdminOrderItem = (data) => {
   return orderItem;
 };
 
-utils.AdminOrder = (data) => {
+utils.AdminActiveOrder = (data) => {
   let Orders = [];
+
   data.map((e) => {
     Orders.push({
       orderId: e?.orderId,
       User: e?.user?.userName,
       amount: e?.amount,
       Item: utils.AdminOrderItem(e?.orderItems),
+      payId: e?.paymentId,
+      status: e?.status,
+      isFreeShip: e?.isFreeShipping,
+      address: `${e?.addresss?.firstName}${e?.addresss?.lastName}, ${e?.addresss?.address},${e?.addresss?.apartment},${e?.addresss?.city},${e?.addresss?.state},${e?.addresss?.pinCode}`,
+      // billingPhone:
+      //   e?.addresss?.phoneNumber === null || e?.addresss?.phoneNumber === ""
+      //     ? ""
+      //     : helperUtils.decrypt(e?.phoneNumber),
+      status: e?.status,
+      shppingmethod: e?.shippingMethod,
+      shippingPrice: e?.shippingCost,
     });
   });
   return Orders;
+};
+
+utils.AdminUser = (data) => {
+  let user = [];
+  data.map((e) => {
+    user.push({
+      userid: e?.userId,
+      userName: e?.userName,
+      email: e?.email,
+      Phone:
+        e?.phoneNumber === null || e?.phoneNumber === ""
+          ? ""
+          : helperUtils.decrypt(e?.phoneNumber),
+      status: e?.status,
+    });
+  });
+  return user;
 };
 
 module.exports = utils;

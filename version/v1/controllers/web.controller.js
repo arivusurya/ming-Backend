@@ -28,6 +28,7 @@ const shiprocket = require("../utils/shiprocket.utils");
 const Discount = require("../models/discount.model");
 const DiscountUser = require("../models/discountUser.model");
 const { Sequelize } = require("sequelize");
+const { PaymentVerifed } = require("../utils/email.utils");
 
 controller = {};
 
@@ -431,38 +432,62 @@ controller.servicecheck = handler(async (req, res) => {
 });
 
 controller.PaymentVerification = handler(async (req, res) => {
-  const body = req?.body?.payload;
-  const signature = req?.headers["x-razorpay-signature"];
-  const check = crypto.createHmac("sha256", process.env.PAYMENT_VERIFY_SECRET);
-  check.update(JSON.stringify(req?.body));
-  const mysign = check.digest("hex");
-  if (mysign === signature) {
-    const order = await Order.findOne({
-      where: { orderId: body.payment.entity.order_id },
-    });
-    order.paymentId = body.payment.entity.id;
-    order.hasPaid = constantUtils.PAID;
-    order.status = constantUtils.ACTIVEORDERS;
-    let user_id = order.userId;
+  try {
+    const body = req?.body?.payload;
+    const signature = req?.headers["x-razorpay-signature"];
+    const check = crypto.createHmac(
+      "sha256",
+      process.env.PAYMENT_VERIFY_SECRET
+    );
+    check.update(JSON.stringify(req?.body));
+    const mysign = check.digest("hex");
+    if (mysign === signature) {
+      const order = await Order.findOne({
+        where: { orderId: body.payment.entity.order_id },
+      });
+      order.paymentId = body.payment.entity.id;
+      order.hasPaid = constantUtils.PAID;
+      order.status = constantUtils.ACTIVEORDERS;
+      let user_id = order.userId;
 
-    if (order.shipprocketOrderId === null) {
-      let shipingdata = await shiprocket.CreateOrder(order);
-      order.shipprocketOrderId = shipingdata?.order_id;
+      if (order.shipprocketOrderId === null) {
+        let shipingdata = await shiprocket.CreateOrder(order);
+        order.shipprocketOrderId = shipingdata?.order_id;
+        await order.save();
+      }
       await order.save();
+      const user = await User.findOne({ where: { userId: user_id } });
+      const orderItem = await OrderItem.findAll({
+        where: {
+          orderId: order?.orderId,
+        },
+        include: [
+          {
+            model: Product,
+          },
+        ],
+      });
+
+      await PaymentVerifed(
+        user?.email,
+        order,
+        structureUtils.AdminOrderItem(orderItem)
+      );
+
+      let cart = await Cart.findAll({
+        where: { userId: user_id, status: "active" },
+      });
+
+      cart.map(async (e) => {
+        await e.destroy();
+      });
+
+      await order.save();
+
+      return res.status(200).json({ message: "ok" });
     }
-    await order.save();
-
-    let cart = await Cart.findAll({
-      where: { userId: user_id, status: "active" },
-    });
-
-    cart.map(async (e) => {
-      await e.destroy();
-    });
-
-    await order.save();
-
-    return res.status(200).json({ message: "ok" });
+  } catch (error) {
+    res.status(200).json({ message: "ok" });
   }
 });
 

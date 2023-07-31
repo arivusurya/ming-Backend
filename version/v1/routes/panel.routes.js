@@ -18,5 +18,7 @@ router.post("/toggleProductStatus", validateAdmin, panelController.toggleProduct
 router.post("/getAllCount", validateAdmin, panelController.getAllCount);
 router.get("/getOders", panelController.getOders);
 router.get("/popularproducts", panelController.TopsellingProducts);
+router.get("/getalluser", panelController.getuser);
+router.delete("/deleteuser/:id", panelController.DeleteAccount);
 
 module.exports = router;

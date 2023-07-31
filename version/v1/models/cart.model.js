@@ -1,6 +1,7 @@
 const Sequelize = require("sequelize");
 const Product = require("../models/product.model");
 const db = require("./index");
+const User = require("./user.model");
 
 const Cart = db.define(
   "cart",
@@ -51,6 +52,11 @@ const Cart = db.define(
     tableName: "carts",
   }
 );
+
+User.hasMany(Cart, {
+  foreignKey: "userId", // This refers to the "orderId" column in the "OrderItem" model
+  sourceKey: "userId",
+});
 
 Cart.belongsTo(Product, {
   foreignKey: "productId",

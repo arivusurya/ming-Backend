@@ -76,7 +76,8 @@ const Order = db.define(
         constantUtils.ACTIVEORDERS,
         constantUtils.PROCESSING,
         constantUtils.DELIVERED,
-        utils.INACTIVEORDERS,
+        constantUtils.INACTIVEORDERS,
+        constantUtils.CANCELED,
       ],
       defaultValue: constantUtils.INACTIVEORDERS,
     },
@@ -127,10 +128,20 @@ OrderItem.belongsTo(Order, {
   constraints: false,
 });
 
+User.hasMany(Order, {
+  foreignKey: "userId", // This refers to the "orderId" column in the "OrderItem" model
+  sourceKey: "userId",
+});
+
 Order.belongsTo(User, {
   foreignKey: "userId",
   targetKey: "userId",
   constraints: false,
+});
+
+User.hasMany(OrderItem, {
+  foreignKey: "orderId",
+  targetKey: "orderId",
 });
 
 Order.belongsTo(Address, {

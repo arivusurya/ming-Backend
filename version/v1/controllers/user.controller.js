@@ -378,8 +378,9 @@ controller.deleteUserAddress = handler(async (req, res) => {
     },
   });
   if (!address) throw "400|Address_Not_Found!";
-
-  await address.destroy();
+  address.status = constantUtils.INACTIVE;
+  await address.save();
+  // await address.destroy();
 
   return res.json({
     message: "success",
@@ -450,6 +451,7 @@ controller.getUserAddressById = handler(async (req, res) => {
   return res.json(structureUtils.addressStructure(address));
   // return res.json(address);
 });
+
 
 
 // controller.resetPassword = handler(async (req, res) => {
@@ -535,6 +537,5 @@ controller.getUserAddressById = handler(async (req, res) => {
 //     message: "An Email Sent To Your Email And Please Verify...",
 //   });
 // });
-
 
 module.exports = controller;

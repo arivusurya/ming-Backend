@@ -16,6 +16,7 @@ const sequelize = require("../models");
 const OrderItem = require("../models/orderItem.model");
 const { date } = require("joi");
 const { Sequelize } = require("sequelize");
+const Cart = require("../models/cart.model");
 
 controller = {};
 
@@ -198,9 +199,13 @@ controller.getAllCount = handler(async (req, res) => {
   });
 });
 controller.getOders = handler(async (req, res) => {
-  const order = await Order.findAll({
+  const { status, page } = req?.query;
+  const ItemperPage = 15;
+  const PageNum = parseInt(page, 10) || 1;
+
+  const order = await Order.findAndCountAll({
     where: {
-      status: constantUtils.ACTIVEORDERS,
+      status: status,
     },
     include: [
       {
@@ -210,10 +215,19 @@ controller.getOders = handler(async (req, res) => {
         model: OrderItem,
         include: Product,
       },
+      {
+        model: Address,
+      },
     ],
+    offset: (PageNum - 1) * ItemperPage,
+    limit: ItemperPage,
   });
+  const totalpage = Math.ceil(order.count / ItemperPage);
 
-  return res.json(structureUtils.AdminOrder(order));
+  return res.json({
+    orders: structureUtils.AdminActiveOrder(order.rows),
+    totalpage: totalpage,
+  });
 });
 
 controller.TopsellingProducts = handler(async (req, res) => {
@@ -242,6 +256,37 @@ controller.TopsellingProducts = handler(async (req, res) => {
     console.log(error);
     res.status(400).json({ message: "something went wrong" });
   }
+});
+
+controller.getuser = handler(async (req, res) => {
+  const user = await User.findAll({
+    where: {
+      status: constantUtils.ACTIVE,
+    },
+  });
+  res.status(200).json(structureUtils.AdminUser(user));
+});
+
+controller.DeleteAccount = handler(async (req, res) => {
+  console.log(req?.params?.id);
+  const user = await User.findOne({
+    where: { userId: req?.params?.id },
+    include: [
+      {
+        model: Address,
+      },
+      {
+        model: Order,
+        include: OrderItem,
+      },
+      {
+        model: Cart,
+      },
+    ],
+  });
+  console.log(user);
+  await user.destroy();
+  res.status(200).json({ message: "User Data cleared" });
 });
 
 module.exports = controller;
