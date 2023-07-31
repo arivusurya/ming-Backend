@@ -450,9 +450,9 @@ controller.PaymentVerification = handler(async (req, res) => {
       order.status = constantUtils.ACTIVEORDERS;
       let user_id = order.userId;
 
-      if (order.shipprocketOrderId === null) {
+      // if (order.shipprocketOrderId === null) {
         let shipingdata = await shiprocket.CreateOrder(order);
-        order.shipprocketOrderId = shipingdata?.order_id;
+        // order.shipprocketOrderId = shipingdata?.order_id;
         await order.save();
       }
       await order.save();
