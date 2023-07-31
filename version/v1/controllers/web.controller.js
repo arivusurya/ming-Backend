@@ -454,7 +454,7 @@ controller.PaymentVerification = handler(async (req, res) => {
         let shipingdata = await shiprocket.CreateOrder(order);
         // order.shipprocketOrderId = shipingdata?.order_id;
         await order.save();
-      }
+      // }
       await order.save();
       const user = await User.findOne({ where: { userId: user_id } });
       const orderItem = await OrderItem.findAll({
