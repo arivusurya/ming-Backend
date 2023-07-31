@@ -338,15 +338,15 @@ utils.PaymentVerifed = async (email, order, order_items) => {
               <li><strong>Order Date:</strong> ${order?.date}</li>
           </ul>
       
-          <h2>Product Details:</h2>
-          <ul>${order_items?.map((e) => (
-             "<li key=${e?.id}>
-              <strong>${e?.name}:</strong> ${e?.quantity} x ${e?.amount}
-            </li>"
-          ))}
+          // <h2>Product Details:</h2>
+          // <ul>${order_items?.map((e) => (
+          //    "<li key=${e?.id}>
+          //     <strong>${e?.name}:</strong> ${e?.quantity} x ${e?.amount}
+          //   </li>"
+          // ))}
               
               
-          </ul>
+          // </ul>
       
           <p><strong>Order Total:</strong> ${order?.date}</p>
           <h2>Thank You:</h2>
