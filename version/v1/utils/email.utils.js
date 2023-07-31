@@ -336,7 +336,7 @@ utils.PaymentVerifed = async (email, order, order_items) => {
           <ul>
               <li><strong>Order Id:</strong> ${order?.orderId}</li>
               <li><strong>Order Date:</strong> ${order?.date}</li>
-          </ul>
+          </ul>`
       
           // <h2>Product Details:</h2>
           // <ul>${order_items?.map((e) => (
@@ -348,7 +348,7 @@ utils.PaymentVerifed = async (email, order, order_items) => {
               
           // </ul>
       
-          <p><strong>Order Total:</strong> ${order?.date}</p>
+          `<p><strong>Order Total:</strong> ${order?.date}</p>
           <h2>Thank You:</h2>
           <p>We value your trust in our products and services. Our team is working diligently to ensure your order is carefully packed and delivered to you as soon as possible. We will notify you once your order is dispatched.</p>
       
