@@ -331,7 +331,7 @@ controller.updateUserAddress = handler(async (req, res) => {
     },
   });
 
-  if (numUpdated < 1) throw "400|Somthing_Went_Wrong!";
+  if (numUpdated < 1) throw "400|No_changes!";
 
   return res.json({
     message: "success",
@@ -451,5 +451,91 @@ controller.getUserAddressById = handler(async (req, res) => {
   return res.json(structureUtils.addressStructure(address));
   // return res.json(address);
 });
+
+
+
+// controller.resetPassword = handler(async (req, res) => {
+//   if (!req?.body?.password) throw "400|Pasword_Required!";
+//   if (!req?.body?.confirmPassword) throw "400|Confirm_Password_Required!";
+//   if (!req?.body?.userId) throw "400|User_Id_Required!";
+//   if (!req?.body?.token) throw "400|Token_Required!";
+
+//   const user = await User.findOne({
+//     where: {
+//       userId: req?.body?.userId,
+//     },
+//   });
+
+//   if (!user) throw "400|Invalid_Token!";
+
+//   const token = await Token.findOne({
+//     where: {
+//       token: req?.body?.token,
+//     },
+//   });
+
+//   if (!token) throw "400|Invalid_Token!";
+
+//   const salt = await bcrypt.genSalt(10);
+//   const password = await bcrypt.hash(req?.body?.password, salt);
+//   const confirmPassword = await bcrypt.hash(req?.body?.confirmPassword, salt);
+
+//   const updateUser = await User.update(
+//     { password: password, confirmPassword: confirmPassword },
+//     {
+//       where: {
+//         userId: user?.userId,
+//       },
+//     }
+//   );
+
+//   if (!updateUser) throw "400|Somthing_Went_Wrong!";
+
+//   await token.destroy();
+
+//   return res.json({
+//     message: "Password Reset Successfully!",
+//   });
+// });
+
+// controller.verifyPassEmail = handler(async (req, res) => {
+//   if (!req?.body?.email) throw "400|Email_Required!";
+
+//   const ifEmailExist = await User.findOne({
+//     where: {
+//       email: req?.body?.email,
+//     },
+//   });
+//   if (!ifEmailExist) throw "400|User_Not_Found!";
+
+//   const id = nanoid();
+
+//   console.log(id);
+
+//   const expiresAt = new Date();
+//   expiresAt.setMinutes(expiresAt?.getMinutes() + 5);
+
+//   const token = await Token.create({
+//     userId: ifEmailExist?.userId,
+//     token: id,
+//     expiresAt: expiresAt,
+//   });
+
+//   console.log(JSON.stringify(token, null, 4));
+
+//   const url = `${process.env.BASE_PASS_URL}?${ifEmailExist?.userId}&${token?.token}`;
+
+//   console.log(url);
+
+//   await emailUtils?.resetPassword(
+//     ifEmailExist?.email,
+//     "Reset Your Password Through The Below Link",
+//     url
+//   );
+
+//   return res.json({
+//     message: "An Email Sent To Your Email And Please Verify...",
+//   });
+// });
 
 module.exports = controller;
