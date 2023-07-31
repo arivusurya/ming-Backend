@@ -83,9 +83,14 @@ const User = db.define(
   }
 );
 
-User.belongsTo(Address, {
-  foreignKey: "addressId",
-  targetKey: "addressId",
+User.hasMany(Address, {
+  foreignKey: "userId",
+  sourceKey: "userId",
+});
+
+Address.belongsTo(User, {
+  foreignKey: "userId",
+  targetKey: "userId",
   constraints: false,
 });
 

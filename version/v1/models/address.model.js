@@ -2,6 +2,7 @@ const Sequelize = require("sequelize");
 const db = require("./index");
 
 const constantUtils = require("../utils/constant.utils");
+const User = require("./user.model");
 
 const Address = db.define(
   "addresss",
@@ -17,11 +18,13 @@ const Address = db.define(
       field: "addressId",
       type: Sequelize.DataTypes.INTEGER,
       required: true,
+      allowNull: false,
     },
     userId: {
       field: "userId",
       type: Sequelize.DataTypes.INTEGER,
       required: true,
+      allowNull: false,
     },
     contact: {
       field: "contact",
