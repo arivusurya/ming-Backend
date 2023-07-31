@@ -30,6 +30,7 @@ const Discount = require("../models/discount.model");
 const DiscountUser = require("../models/discountUser.model");
 const { Sequelize } = require("sequelize");
 const { PaymentVerifed } = require("../utils/email.utils");
+const { processedPaymentIds } = require("../Scheduler/ScheduleTask");
 
 controller = {};
 
@@ -434,21 +435,28 @@ controller.PaymentVerification = handler(async (req, res) => {
       process.env.PAYMENT_VERIFY_SECRET
     );
     check.update(JSON.stringify(req?.body));
-    const mysign = check.digest("hex");
+    const mysign = check?.digest("hex");
     if (mysign === signature) {
+      // Check if the payment ID has already been processed
+      if (processedPaymentIds.has(body?.payment?.entity?.id)) {
+        return res.status(200).json({ message: "Payment already processed" });
+      }
+
       const order = await Order.findOne({
-        where: { orderId: body.payment.entity.order_id },
+        where: { orderId: body?.payment?.entity?.order_id },
       });
-      order.paymentId = body.payment.entity.id;
-      order.hasPaid = constantUtils.PAID;
-      order.status = constantUtils.ACTIVEORDERS;
-      let user_id = order.userId;
+      order.paymentId = body?.payment?.entity?.id;
+      order.hasPaid = constantUtils?.PAID;
+      order.status = constantUtils?.ACTIVEORDERS;
+      let user_id = order?.userId;
 
       if (order.shipprocketOrderId === null) {
         let shipingdata = await shiprocket.CreateOrder(order);
-        order.shipprocketOrderId = shipingdata?.order_id;
-        await order.save();
       }
+
+      // Save the processed payment ID in the Set
+      processedPaymentIds.add(body?.payment?.entity?.id);
+
       await order.save();
       const user = await User.findOne({ where: { userId: user_id } });
       const orderItem = await OrderItem.findAll({
@@ -464,6 +472,7 @@ controller.PaymentVerification = handler(async (req, res) => {
 
       await PaymentVerifed(
         user?.email,
+        user?.userName,
         order,
         structureUtils.AdminOrderItem(orderItem)
       );
@@ -478,11 +487,71 @@ controller.PaymentVerification = handler(async (req, res) => {
 
       await order.save();
 
-      return res.status(200).json({ message: "ok" });
+      return res
+        .status(200)
+        .json({ message: "Payment processed successfully" });
     }
   } catch (error) {
-    res.status(200).json({ message: "ok" });
+    console.log(error);
+    res.status(204).json({ message: "Error processing payment" });
   }
+  // try {
+  //   const body = req?.body?.payload;
+  //   const signature = req?.headers["x-razorpay-signature"];
+  //   const check = crypto.createHmac(
+  //     "sha256",
+  //     process.env.PAYMENT_VERIFY_SECRET
+  //   );
+  //   check.update(JSON.stringify(req?.body));
+  //   const mysign = check.digest("hex");
+  //   if (mysign === signature) {
+  //     const order = await Order.findOne({
+  //       where: { orderId: body.payment.entity.order_id },
+  //     });
+  //     order.paymentId = body.payment.entity.id;
+  //     order.hasPaid = constantUtils.PAID;
+  //     order.status = constantUtils.ACTIVEORDERS;
+  //     let user_id = order.userId;
+
+  //     if (order.shipprocketOrderId === null) {
+  //       let shipingdata = await shiprocket.CreateOrder(order);
+  //     }
+  //     await order.save();
+  //     const user = await User.findOne({ where: { userId: user_id } });
+  //     const orderItem = await OrderItem.findAll({
+  //       where: {
+  //         orderId: order?.orderId,
+  //       },
+  //       include: [
+  //         {
+  //           model: Product,
+  //         },
+  //       ],
+  //     });
+
+  //     await PaymentVerifed(
+  //       user?.email,
+  //       user?.userName,
+  //       order,
+  //       structureUtils.AdminOrderItem(orderItem)
+  //     );
+
+  //     let cart = await Cart.findAll({
+  //       where: { userId: user_id, status: "active" },
+  //     });
+
+  //     cart.map(async (e) => {
+  //       await e.destroy();
+  //     });
+
+  //     await order.save();
+
+  //     return res.status(200).json({ message: "ok" });
+  //   }
+  // } catch (error) {
+  //   console.log(error);
+  //   res.status(200).json({ message: "ok" });
+  // }
 });
 
 controller.failedPayment = handler(async (req, res) => {

@@ -9,6 +9,7 @@ const constantutils = require("./version/v1/utils/constant.utils");
 const {
   IntiateToken,
   TokenCollector,
+  ClearPaymentId,
 } = require("./version/v1/Scheduler/ScheduleTask");
 const cron = require("node-cron");
 
@@ -29,7 +30,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors("*"));
 app.use(morgan("dev"));
 // IntiateToken();
-// cron.schedule("0 0 * * 1", TokenCollector);
+cron.schedule("0 0 * * *", TokenCollector);
+cron.schedule("0 0 * * *", ClearPaymentId);
 
 app.use("/api/v1", require("./version/v1/router"));
 
