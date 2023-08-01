@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
-const { errorHandler } = require("../v1/middleware/error.middleware");
+const { errorHandler } = require("./middleware/error.middleware");
 
 const userRoute = require("./routes/User.routes");
-const panelRoute = require("../v1/routes/panel.routes");
-const webRoute = require("../v1/routes/web.routes");
+const panelRoute = require("./routes/panel.routes");
+const webRoute = require("./routes/web.routes");
 
 router.use("/user", userRoute);
 router.use("/panel", panelRoute);
