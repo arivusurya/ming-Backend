@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 const db = require("./index");
 const Product = require("./product.model");
-const utils = require("../utils/constant.utils");
+const constantUtils = require("../utils/constant.utils");
 
 const Review = db.define(
   "reviews",
@@ -56,8 +56,8 @@ const Review = db.define(
     status: {
       field: "status",
       type: Sequelize.DataTypes.STRING,
-      default: utils.ACTIVE,
-      enum: [utils.ACTIVE, utils.INACTIVE],
+      defaultValue: constantUtils.ACTIVE,
+      enum: [constantUtils.ACTIVE, constantUtils.INACTIVE],
     },
   },
   {

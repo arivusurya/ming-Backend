@@ -15,7 +15,7 @@ const Discount = require("../models/discount.model");
 const sequelize = require("../models");
 const OrderItem = require("../models/orderItem.model");
 const { date } = require("joi");
-const { Sequelize } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 const Cart = require("../models/cart.model");
 const Review = require("../models/review.model");
 const { Console } = require("winston/lib/winston/transports");
@@ -343,5 +343,165 @@ controller.dlreview = async (req, res) => {
   await review.save();
   res.status(204).json({ message: "Oke" });
 };
+
+controller.getAbandonedCartRate = async (req, res) => {
+  try {
+    const abandonedCartQuery = `
+      SELECT COUNT(*) as abandonedCarts
+      FROM carts
+      LEFT JOIN orderItems ON carts.productId = orderItems.productId
+      WHERE carts.status = 'active' AND orderItems.id IS NULL
+    `;
+
+    const [result] = await sequelize.query(abandonedCartQuery, {
+      type: Sequelize.QueryTypes.SELECT,
+    });
+    const totalCarts = await Cart.count({ where: { status: "active" } });
+
+    const abandonedCartRate =
+      totalCarts > 0 ? result.abandonedCarts / totalCarts : 0;
+
+    res.status(200).json(abandonedCartRate);
+  } catch (error) {
+    console.error("Error calculating abandoned cart rate:", error);
+    return 0;
+  }
+};
+
+controller.averageOrderValue = async (req, res) => {
+  const { timePeriod } = req.query;
+  const { startDate, endDate } = helperUtils.getStartAndEndDate(timePeriod);
+
+  try {
+    const totalSales = await Order.sum("amount", {
+      where: {
+        date: {
+          [Op.between]: [startDate, endDate],
+        },
+      },
+    });
+
+    const orderCount = await Order.count({
+      where: {
+        date: {
+          [Op.between]: [startDate, endDate],
+        },
+      },
+    });
+
+    const averageOrderValue = totalSales / orderCount;
+
+    const salesData = await Order.findAll({
+      attributes: [
+        [
+          sequelize.fn("date_format", sequelize.col("date"), "%Y-%m-%d"),
+          "date",
+        ],
+        [sequelize.fn("sum", sequelize.col("amount")), "sales"],
+      ],
+      where: {
+        date: {
+          [Op.between]: [startDate, endDate],
+        },
+      },
+      group: [sequelize.fn("date_format", sequelize.col("date"), "%Y-%m-%d")],
+    });
+
+    res.json({ totalSales, averageOrderValue, salesData });
+  } catch (error) {
+    console.error("Error fetching sales data:", error);
+    res.status(500).json({ error: "Unable to fetch sales data." });
+  }
+};
+
+controller.orderStatusDistribution = handler(async (req, res) => {
+  try {
+    const statusDistribution = await Order.findAll({
+      attributes: [
+        "status",
+        [sequelize.fn("count", sequelize.col("status")), "count"],
+      ],
+      group: ["status"],
+    });
+    res.json(statusDistribution);
+  } catch (error) {
+    console.error("Error fetching order status distribution:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+controller.getOrderFrequency = async (req, res) => {
+  try {
+    const { timePeriod } = req.query;
+    const startDate = new Date();
+    const endDate = new Date();
+
+    if (timePeriod === "weekly") {
+      startDate.setDate(startDate.getDate() - 7);
+    } else if (timePeriod === "monthly") {
+      startDate.setMonth(startDate.getMonth() - 1);
+    } else if (timePeriod === "yearly") {
+      startDate.setFullYear(startDate.getFullYear() - 1);
+    }
+
+    const orderFrequency = await Order.findAll({
+      attributes: [
+        [Sequelize.col("userName"), "userName"], // Include the username from the User model
+        [Sequelize.fn("count", Sequelize.col("userName")), "frequency"],
+      ],
+      where: {
+        date: {
+          [Op.between]: [startDate, endDate],
+        },
+      },
+      include: [
+        {
+          model: User,
+          attributes: [], // Specify the attributes you want to include from the User model, e.g., ["username"]
+        },
+      ],
+      group: [Sequelize.col("userName")], // Group by the username instead of userId
+    });
+
+    res.json(orderFrequency);
+  } catch (error) {
+    console.error("Error fetching order frequency:", error);
+    res.status(500).json({ error: "Failed to fetch order frequency." });
+  }
+};
+
+controller.userSegment = handler(async (req, res) => {
+  try {
+    const { minOrderAmount, maxOrderAmount } = req.query;
+
+    // Find customers with orders within the specified amount range
+    const customers = await User.findAll({
+      include: [
+        {
+          model: Order,
+          where: {
+            amount: {
+              [Sequelize.Op.between]: [minOrderAmount, maxOrderAmount],
+            },
+          },
+          attributes: ["userId"],
+          group: ["userId"],
+          as: "orders",
+        },
+      ],
+    });
+
+    // Map the customers to create the segmentedCustomers array
+    const segmentedCustomers = customers?.map((customer) => ({
+      customerId: customer?.userId,
+      username: customer?.userName,
+    }));
+
+    res.status(200).json({ segmentedCustomers });
+  } catch (error) {
+    console.error("Error performing customer segmentation:", error);
+    res.status(400).json({ error: "Internal server error" });
+  }
+});
 
 module.exports = controller;
