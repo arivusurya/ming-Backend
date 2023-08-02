@@ -17,6 +17,8 @@ const OrderItem = require("../models/orderItem.model");
 const { date } = require("joi");
 const { Sequelize } = require("sequelize");
 const Cart = require("../models/cart.model");
+const Review = require("../models/review.model");
+const { Console } = require("winston/lib/winston/transports");
 
 controller = {};
 
@@ -323,5 +325,23 @@ controller.DeleteAccount = handler(async (req, res) => {
   await user.destroy();
   res.status(200).json({ message: "User Data cleared" });
 });
+
+controller.getAllReviews = handler(async (req, res) => {
+  try {
+    const review = await Review.findAll({
+      where: { status: constantUtils.ACTIVE },
+      include: [{ model: Product }],
+    });
+
+    res.status(200).json({ review });
+  } catch (error) {}
+});
+
+controller.dlreview = async (req, res) => {
+  const review = await Review.findOne({ where: { id: req?.params?.id } });
+  review.status = constantUtils.INACTIVE;
+  await review.save();
+  res.status(204).json({ message: "Oke" });
+};
 
 module.exports = controller;

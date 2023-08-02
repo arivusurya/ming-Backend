@@ -1,5 +1,7 @@
 const Sequelize = require("sequelize");
 const db = require("./index");
+const Product = require("./product.model");
+const utils = require("../utils/constant.utils");
 
 const Review = db.define(
   "reviews",
@@ -51,11 +53,23 @@ const Review = db.define(
       allowNull: false,
       defaultValue: Sequelize.NOW,
     },
+    status: {
+      field: "status",
+      type: Sequelize.DataTypes.STRING,
+      default: utils.ACTIVE,
+      enum: [utils.ACTIVE, utils.INACTIVE],
+    },
   },
   {
     timestamps: false,
     tableName: "reviews",
   }
 );
+
+Review.belongsTo(Product, {
+  foreignKey: "productId",
+  targetKey: "productId",
+  constraints: false,
+});
 
 module.exports = Review;

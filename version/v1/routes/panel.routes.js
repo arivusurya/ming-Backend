@@ -20,5 +20,7 @@ router.get("/getOders", panelController.getOders);
 router.get("/popularproducts", panelController.TopsellingProducts);
 router.get("/getalluser", panelController.getuser);
 router.delete("/deleteuser/:id", panelController.DeleteAccount);
+router.get("/allreview", panelController.getAllReviews);
+router.get("deletereview/:id", panelController.dlreview);
 
 module.exports = router;
