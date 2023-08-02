@@ -41,7 +41,7 @@ const Product = db.define(
     },
     images: {
       field: "images",
-      type: Sequelize.DataTypes.STRING(1000),
+      type: Sequelize.DataTypes.JSON,
     },
     weight: {
       field: "weight",
@@ -53,9 +53,9 @@ const Product = db.define(
       type: Sequelize.DataTypes.STRING,
       required: true,
     },
-    categoryType : {
-      field : "categoryType",
-      type : Sequelize.DataTypes.STRING
+    categoryType: {
+      field: "categoryType",
+      type: Sequelize.DataTypes.STRING,
     },
     price: {
       field: "price",
@@ -64,7 +64,7 @@ const Product = db.define(
     },
     addedBy: {
       field: "addedBy",
-      type: Sequelize.DataTypes.NUMBER,
+      type: Sequelize.DataTypes.INTEGER,
     },
     dateTime: {
       field: "dateTime",

@@ -55,27 +55,46 @@ controller.addProductCategory = handler(async (req, res) => {
 });
 
 controller.addproduct = handler(async (req, res) => {
-  const productId = parseInt(helperUtils?.generateRandomNumber(8));
+  try {
+    const productData = req.body;
+    console.log(req?.body);
+    const productId = parseInt(helperUtils?.generateRandomNumber(8));
 
-  const product = await Product.create({
-    productId: productId,
-    categoryId: req?.body?.categoryId,
-    name: req?.body?.name,
-    description: req?.body?.description,
-    image: req?.body?.image,
-    images: req?.body?.images,
-    categoryType: req?.body?.categoryType,
-    weight: req?.body?.weight,
-    type: req?.body?.type,
-    price: req?.body?.price,
-    addedBy: req?.admin?.adminId,
-  });
+    // // Check if the category exists in the database
+    const category = await Category.findOne({
+      where: { name: productData?.type },
+    });
+    if (!category) {
+      // Handle the case when the category does not exist
+      return res.status(400).json({ error: "Category not found." });
+    }
 
-  if (!product) throw "400|Somthing_Went_Wrong!";
+    // // If the category exists, create the product
+    const product = await Product.create({
+      productId: productId,
+      categoryId: category?.categoryId,
+      name: productData.name,
+      description: productData.description,
+      price: productData.price,
+      categoryType: category?.name,
+      weight: productData.weight,
+      image: productData?.mainImage,
+      images: productData?.additionalImages || [],
+    });
 
-  return res.json({
-    message: "success!",
-  });
+    if (!product) {
+      // Handle the case when the product creation fails
+      return res
+        .status(400)
+        .json({ error: "Something went wrong while creating the product." });
+    }
+
+    return res.json({ message: "Product created successfully!" });
+  } catch (error) {
+    console.log(error);
+    // Handle other potential errors, such as validation errors or database issues
+    return res.status(400).json({ error: "Something went wrong!" });
+  }
 });
 
 controller.addDiscountCode = handler(async (req, res) => {
@@ -259,12 +278,28 @@ controller.TopsellingProducts = handler(async (req, res) => {
 });
 
 controller.getuser = handler(async (req, res) => {
-  const user = await User.findAll({
-    where: {
-      status: constantUtils.ACTIVE,
-    },
+  const { page = 1, status } = req.query;
+  const limit = 15; // Number of records per page
+  const offset = (page - 1) * limit;
+
+  let whereClause = {};
+  if (status) {
+    whereClause.status = status;
+  }
+
+  const users = await User.findAll({
+    where: whereClause,
+    limit,
+    offset,
   });
-  res.status(200).json(structureUtils.AdminUser(user));
+
+  const totalUsers = await User.count({ where: whereClause });
+
+  res.status(200).json({
+    users: structureUtils.AdminUser(users),
+    totalUsers,
+    totalPages: Math.ceil(totalUsers / limit),
+  });
 });
 
 controller.DeleteAccount = handler(async (req, res) => {

@@ -6,13 +6,13 @@ const rateLimit = require("express-rate-limit");
 const Order = require("./version/v1/models/order.model");
 const constantutils = require("./version/v1/utils/constant.utils");
 
-
 const {
   IntiateToken,
   TokenCollector,
   ClearPaymentId,
 } = require("./version/v1/Scheduler/ScheduleTask");
 const cron = require("node-cron");
+const Product = require("./version/v1/models/product.model");
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
