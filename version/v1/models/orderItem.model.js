@@ -28,12 +28,6 @@ const OrderItem = db.define(
       type: Sequelize.DataTypes.INTEGER,
       allowNull: false,
     },
-
-    date: {
-      field: "date",
-      type: Sequelize.DataTypes.DATEONLY,
-      defaultValue: Sequelize.NOW,
-    },
   },
   {
     timestamps: false,

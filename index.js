@@ -6,15 +6,12 @@ const rateLimit = require("express-rate-limit");
 const Order = require("./version/v1/models/order.model");
 const constantutils = require("./version/v1/utils/constant.utils");
 
+
 const {
   IntiateToken,
   TokenCollector,
-  ClearPaymentId,
 } = require("./version/v1/Scheduler/ScheduleTask");
 const cron = require("node-cron");
-const Product = require("./version/v1/models/product.model");
-const Review = require("./version/v1/models/review.model");
-const OrderItem = require("./version/v1/models/orderItem.model");
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -33,8 +30,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors("*"));
 app.use(morgan("dev"));
 // IntiateToken();
-cron.schedule("0 0 * * *", TokenCollector);
-cron.schedule("0 0 * * *", ClearPaymentId);
+// cron.schedule("0 0 * * 1", TokenCollector);
 
 app.use("/api/v1", require("./version/v1/router"));
 

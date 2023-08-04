@@ -6,7 +6,6 @@ const User = require("../models/user.model");
 const Admin = require("../models/admin.model");
 const Category = require("../models/category.model");
 const ProductPurchase = require("../models/cart.model");
-const asyncLock = require("async-lock");
 
 const { v4 } = require("uuid");
 
@@ -30,7 +29,6 @@ const Discount = require("../models/discount.model");
 const DiscountUser = require("../models/discountUser.model");
 const { Sequelize } = require("sequelize");
 const { PaymentVerifed } = require("../utils/email.utils");
-const { processedPaymentIds } = require("../Scheduler/ScheduleTask");
 
 controller = {};
 
@@ -401,6 +399,10 @@ controller.servicecheck = handler(async (req, res) => {
     ],
   });
 
+  if(cartitems.length ===0){
+    return res.status(400).json({message:"Please Add the product to proceed"})
+  }
+
   let weightinkg = helperUtils.findWeight(cartitems);
 
   console.log(weightinkg);
@@ -418,8 +420,11 @@ controller.servicecheck = handler(async (req, res) => {
       },
     }
   );
+  if(!service?.data?.data?.available_courier_companies){
+    return res.status(400).json({message:"please give valid Pincode"})
+  }
 
-  if (service.data.data.available_courier_companies.length === 0)
+  if (service?.data?.data?.available_courier_companies.length === 0)
     throw "400|No_Service_Avalialbe_On_This_Pincode";
   let courier = service?.data?.data?.available_courier_companies[0];
 
@@ -435,28 +440,21 @@ controller.PaymentVerification = handler(async (req, res) => {
       process.env.PAYMENT_VERIFY_SECRET
     );
     check.update(JSON.stringify(req?.body));
-    const mysign = check?.digest("hex");
+    const mysign = check.digest("hex");
     if (mysign === signature) {
-      // Check if the payment ID has already been processed
-      if (processedPaymentIds.has(body?.payment?.entity?.id)) {
-        return res.status(200).json({ message: "Payment already processed" });
-      }
-
       const order = await Order.findOne({
-        where: { orderId: body?.payment?.entity?.order_id },
+        where: { orderId: body.payment.entity.order_id },
       });
-      order.paymentId = body?.payment?.entity?.id;
-      order.hasPaid = constantUtils?.PAID;
-      order.status = constantUtils?.ACTIVEORDERS;
-      let user_id = order?.userId;
+      order.paymentId = body.payment.entity.id;
+      order.hasPaid = constantUtils.PAID;
+      order.status = constantUtils.ACTIVEORDERS;
+      let user_id = order.userId;
 
-      if (order.shipprocketOrderId === null) {
+      // if (order.shipprocketOrderId === null) {
         let shipingdata = await shiprocket.CreateOrder(order);
-      }
-
-      // Save the processed payment ID in the Set
-      processedPaymentIds.add(body?.payment?.entity?.id);
-
+        // order.shipprocketOrderId = shipingdata?.order_id;
+        await order.save();
+      // }
       await order.save();
       const user = await User.findOne({ where: { userId: user_id } });
       const orderItem = await OrderItem.findAll({
@@ -472,7 +470,6 @@ controller.PaymentVerification = handler(async (req, res) => {
 
       await PaymentVerifed(
         user?.email,
-        user?.userName,
         order,
         structureUtils.AdminOrderItem(orderItem)
       );
@@ -487,71 +484,11 @@ controller.PaymentVerification = handler(async (req, res) => {
 
       await order.save();
 
-      return res
-        .status(200)
-        .json({ message: "Payment processed successfully" });
+      return res.status(200).json({ message: "ok" });
     }
   } catch (error) {
-    console.log(error);
-    res.status(204).json({ message: "Error processing payment" });
+    res.status(200).json({ message: "ok" });
   }
-  // try {
-  //   const body = req?.body?.payload;
-  //   const signature = req?.headers["x-razorpay-signature"];
-  //   const check = crypto.createHmac(
-  //     "sha256",
-  //     process.env.PAYMENT_VERIFY_SECRET
-  //   );
-  //   check.update(JSON.stringify(req?.body));
-  //   const mysign = check.digest("hex");
-  //   if (mysign === signature) {
-  //     const order = await Order.findOne({
-  //       where: { orderId: body.payment.entity.order_id },
-  //     });
-  //     order.paymentId = body.payment.entity.id;
-  //     order.hasPaid = constantUtils.PAID;
-  //     order.status = constantUtils.ACTIVEORDERS;
-  //     let user_id = order.userId;
-
-  //     if (order.shipprocketOrderId === null) {
-  //       let shipingdata = await shiprocket.CreateOrder(order);
-  //     }
-  //     await order.save();
-  //     const user = await User.findOne({ where: { userId: user_id } });
-  //     const orderItem = await OrderItem.findAll({
-  //       where: {
-  //         orderId: order?.orderId,
-  //       },
-  //       include: [
-  //         {
-  //           model: Product,
-  //         },
-  //       ],
-  //     });
-
-  //     await PaymentVerifed(
-  //       user?.email,
-  //       user?.userName,
-  //       order,
-  //       structureUtils.AdminOrderItem(orderItem)
-  //     );
-
-  //     let cart = await Cart.findAll({
-  //       where: { userId: user_id, status: "active" },
-  //     });
-
-  //     cart.map(async (e) => {
-  //       await e.destroy();
-  //     });
-
-  //     await order.save();
-
-  //     return res.status(200).json({ message: "ok" });
-  //   }
-  // } catch (error) {
-  //   console.log(error);
-  //   res.status(200).json({ message: "ok" });
-  // }
 });
 
 controller.failedPayment = handler(async (req, res) => {
@@ -571,6 +508,42 @@ controller.failedPayment = handler(async (req, res) => {
   }
 
   return res.status(200).json({ message: "ok" });
+});
+
+controller.orderItems = async (req, res) => {
+  req.body?.orderId;
+  const order_items = await OrderItem.findAll({
+    where: {
+      orderId: req?.body?.orderId,
+    },
+    include: [{ model: Product }],
+  });
+
+  console.log(order_items);
+  return res.json(order_items);
+};
+
+controller.getUserOrderHistory = handler(async (req, res) => {
+  const condition = {
+    userId: req?.user?.userId,
+  };
+
+  if (req?.body?.status) condition["status"] = req?.body?.status;
+
+  const order = await Order.findAll({
+    where: condition,
+    limit: req?.body?.limit ?? 5,
+    skip: req?.body?.skip ?? 0,
+    include: [
+      {
+        model: OrderItem,
+        include: [{ model: Product }],
+        required: true,
+      },
+    ],
+  });
+
+  return res.json(order);
 });
 
 module.exports = controller;

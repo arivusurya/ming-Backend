@@ -94,33 +94,4 @@ utils.orderitemArray = (orderitem) => {
   return item;
 };
 
-utils.getStartAndEndDate = (timePeriod) => {
-  const now = new Date();
-  let startDate, endDate;
-
-  switch (timePeriod) {
-    case "weekly":
-      startDate = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() - 7
-      );
-      endDate = now;
-      break;
-    case "monthly":
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      endDate = now;
-      break;
-    case "yearly":
-      startDate = new Date(now.getFullYear(), 0, 1);
-      endDate = now;
-      break;
-    default:
-      startDate = new Date();
-      endDate = new Date();
-  }
-
-  return { startDate, endDate };
-};
-
 module.exports = utils;

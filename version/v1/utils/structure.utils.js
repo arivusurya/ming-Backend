@@ -178,39 +178,9 @@ utils.AdminActiveOrder = (data) => {
       status: e?.status,
       shppingmethod: e?.shippingMethod,
       shippingPrice: e?.shippingCost,
-      Date: e?.date,
     });
   });
   return Orders;
-};
-
-utils.structureOrderData = (orders) => {
-  const structuredOrders = orders.map((order) => {
-    const structuredOrder = {
-      orderId: order.orderId,
-      userEmail: order.user.email,
-      address: order?.address?.address,
-      phoneNumber: order?.address?.phoneNumber,
-      isFreeShipping: order.isFreeShipping,
-      amount: order.amount,
-      shippingPrice: order.shippingCost,
-      status: order.status,
-      date: order.date, // Include the date property
-      orderItems: order.orderItems.map((item) => ({
-        productName: item?.product?.name,
-        quantity: item?.quantity,
-        amount: item?.product?.price * item?.quantity,
-      })),
-    };
-
-    if (order.awbcode) {
-      structuredOrder.awbcode = order.awbcode;
-    }
-
-    return structuredOrder;
-  });
-
-  return structuredOrders;
 };
 
 utils.AdminUser = (data) => {

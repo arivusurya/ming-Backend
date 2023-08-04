@@ -2,8 +2,6 @@ require("dotenv").config();
 const axios = require("axios");
 const ShipToken = require("../models/shiprocket.model");
 
-const processedPaymentIds = new Set();
-
 const IntiateToken = async () => {
   try{
   console.log("token is going to be requested");
@@ -54,14 +52,4 @@ const TokenCollector = async () => {
   await token.save();
 };
 
-function ClearPaymentId() {
-  processedPaymentIds.clear();
-  console.log("cleared Payment Id");
-}
-
-module.exports = {
-  TokenCollector,
-  IntiateToken,
-  processedPaymentIds,
-  ClearPaymentId,
-};
+module.exports = { TokenCollector, IntiateToken };
