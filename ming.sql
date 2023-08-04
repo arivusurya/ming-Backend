@@ -342,3 +342,20 @@ CREATE TABLE `mingbackend`.`discountusers` (
 ALTER TABLE `mingbackend`.`discounts`
 ADD COLUMN `offer_type` varchar(255) NULL AFTER `added_by`;
 
+-- Aug-3 5:13AM
+ALTER TABLE `orders`
+ADD COLUMN `shipprocketOrderId` varchar(255) DEFAULT NULL,
+ADD COLUMN `ShippingId` varchar(255) DEFAULT NULL,
+ADD COLUMN `awbcode` varchar(255) DEFAULT NULL,
+ADD COLUMN `etd` varchar(255) DEFAULT NULL;
+
+-- Aug-3 5:13AM
+ALTER TABLE `products`
+MODIFY COLUMN `images` json DEFAULT NULL;
+
+-- Aug-3 5:13AM
+ALTER TABLE `reviews` 
+ADD COLUMN `status` varchar(255) DEFAULT `ACTIVE`
+
+
+
