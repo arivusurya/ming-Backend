@@ -221,6 +221,7 @@ controller.getAllCount = handler(async (req, res) => {
 });
 controller.getOders = handler(async (req, res) => {
   try {
+    console.log(req?.query)
     const { status, page } = req?.query;
     const ItemperPage = 15;
     const PageNum = parseInt(page, 10) || 1;
