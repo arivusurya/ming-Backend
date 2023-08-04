@@ -220,36 +220,41 @@ controller.getAllCount = handler(async (req, res) => {
   });
 });
 controller.getOders = handler(async (req, res) => {
-  const { status, page } = req?.query;
-  const ItemperPage = 15;
-  const PageNum = parseInt(page, 10) || 1;
+  try {
+    const { status, page } = req?.query;
+    const ItemperPage = 15;
+    const PageNum = parseInt(page, 10) || 1;
 
-  const order = await Order.findAndCountAll({
-    where: {
-      status: status,
-    },
-    include: [
-      {
-        model: User,
+    const order = await Order.findAndCountAll({
+      where: {
+        status: status,
       },
-      {
-        model: OrderItem,
-        include: Product,
-      },
-      {
-        model: Address,
-      },
-    ],
-    offset: (PageNum - 1) * ItemperPage,
-    limit: ItemperPage,
-    order: [["date", "DESC"]],
-  });
-  const totalpage = Math.ceil(order.count / ItemperPage);
+      include: [
+        {
+          model: User,
+        },
+        {
+          model: OrderItem,
+          include: Product,
+        },
+        {
+          model: Address,
+        },
+      ],
+      offset: (PageNum - 1) * ItemperPage,
+      limit: ItemperPage,
+      order: [["date", "DESC"]],
+    });
+    const totalpage = Math.ceil(order.count / ItemperPage);
 
-  return res.json({
-    orders: structureUtils.AdminActiveOrder(order.rows),
-    totalpage: totalpage,
-  });
+    return res.json({
+      orders: structureUtils.AdminActiveOrder(order.rows),
+      totalpage: totalpage,
+    });
+  } catch (error) {
+    console.log(error)
+    res.status(400).json({ message: "something went wrong" });
+  }
 });
 
 controller.UserOrder = handler(async (req, res) => {
