@@ -220,9 +220,38 @@ controller.getAllCount = handler(async (req, res) => {
   });
 });
 controller.getOders = handler(async (req, res) => {
-  const { status, page } = req?.query;
+  const { status, page, email } = req?.query;
   const ItemperPage = 15;
   const PageNum = parseInt(page, 10) || 1;
+
+  if (email) {
+    const user = await User.findOne({ where: { email: email } });
+    if (!user) {
+      return res.status(400).json({ message: "Not Found" });
+    }
+    const order = await Order.findAll({
+      where: { userId: user.userId },
+      include: [
+        {
+          model: User,
+        },
+        {
+          model: OrderItem,
+          include: Product,
+        },
+        {
+          model: Address,
+        },
+      ],
+      offset: (PageNum - 1) * ItemperPage,
+      limit: ItemperPage,
+      order: [["date", "DESC"]],
+    });
+
+    return res
+      .status(200)
+      .json({ orders: structureUtils.AdminActiveOrder(order) });
+  }
 
   const order = await Order.findAndCountAll({
     where: {
@@ -242,6 +271,7 @@ controller.getOders = handler(async (req, res) => {
     ],
     offset: (PageNum - 1) * ItemperPage,
     limit: ItemperPage,
+    order: [["date", "DESC"]],
   });
   const totalpage = Math.ceil(order.count / ItemperPage);
 
@@ -414,6 +444,35 @@ controller.averageOrderValue = async (req, res) => {
   }
 };
 
+controller.ordersAnalytis = async (req, res) => {
+  const { timePeriod } = req.query;
+  const { startDate, endDate } = helperUtils.getStartAndEndDate(timePeriod);
+
+  try {
+    const ordersData = await Order.findAll({
+      attributes: [
+        [
+          sequelize.fn("date_format", sequelize.col("date"), "%Y-%m-%d"),
+          "date",
+        ],
+        [sequelize.fn("sum", sequelize.col("amount")), "totalAmount"],
+        [sequelize.fn("count", sequelize.col("id")), "orderCount"],
+      ],
+      where: {
+        date: {
+          [Op.between]: [startDate, endDate],
+        },
+      },
+      group: [sequelize.fn("date_format", sequelize.col("date"), "%Y-%m-%d")],
+    });
+
+    res.json({ ordersData });
+  } catch (error) {
+    console.error("Error fetching orders data:", error);
+    res.status(500).json({ error: "Unable to fetch orders data." });
+  }
+};
+
 controller.orderStatusDistribution = handler(async (req, res) => {
   try {
     const statusDistribution = await Order.findAll({
@@ -501,6 +560,35 @@ controller.userSegment = handler(async (req, res) => {
   } catch (error) {
     console.error("Error performing customer segmentation:", error);
     res.status(400).json({ error: "Internal server error" });
+  }
+});
+
+controller.ordersondate = handler(async (req, res) => {
+  try {
+    const { date } = req?.query;
+    const order = await Order.findAll({
+      where: {
+        date: new Date(date),
+      },
+      include: [
+        {
+          model: User,
+        },
+        {
+          model: OrderItem,
+          include: Product,
+        },
+        {
+          model: Address,
+        },
+      ],
+    });
+    return res.json({
+      orders: structureUtils.AdminActiveOrder(order),
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: "somthing went wrong" });
   }
 });
 

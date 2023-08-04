@@ -14,6 +14,7 @@ const {
 const cron = require("node-cron");
 const Product = require("./version/v1/models/product.model");
 const Review = require("./version/v1/models/review.model");
+const OrderItem = require("./version/v1/models/orderItem.model");
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
