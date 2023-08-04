@@ -220,38 +220,9 @@ controller.getAllCount = handler(async (req, res) => {
   });
 });
 controller.getOders = handler(async (req, res) => {
-  const { status, page, email } = req?.query;
+  const { status, page } = req?.query;
   const ItemperPage = 15;
   const PageNum = parseInt(page, 10) || 1;
-
-  if (email) {
-    const user = await User.findOne({ where: { email: email } });
-    if (!user) {
-      return res.status(400).json({ message: "Not Found" });
-    }
-    const order = await Order.findAll({
-      where: { userId: user.userId },
-      include: [
-        {
-          model: User,
-        },
-        {
-          model: OrderItem,
-          include: Product,
-        },
-        {
-          model: Address,
-        },
-      ],
-      offset: (PageNum - 1) * ItemperPage,
-      limit: ItemperPage,
-      order: [["date", "DESC"]],
-    });
-
-    return res
-      .status(200)
-      .json({ orders: structureUtils.AdminActiveOrder(order) });
-  }
 
   const order = await Order.findAndCountAll({
     where: {
@@ -279,6 +250,40 @@ controller.getOders = handler(async (req, res) => {
     orders: structureUtils.AdminActiveOrder(order.rows),
     totalpage: totalpage,
   });
+});
+
+controller.UserOrder = handler(async (req, res) => {
+  const { email } = req?.query;
+  try {
+    if (email) {
+      const user = await User.findOne({ where: { email: email } });
+      if (!user) {
+        return res.status(400).json({ message: "Not Found" });
+      }
+      const order = await Order.findAll({
+        where: { userId: user?.userId },
+        include: [
+          {
+            model: User,
+          },
+          {
+            model: OrderItem,
+            include: Product,
+          },
+          {
+            model: Address,
+          },
+        ],
+        offset: (PageNum - 1) * ItemperPage,
+        limit: ItemperPage,
+        order: [["date", "DESC"]],
+      });
+
+      return res
+        .status(200)
+        .json({ orders: structureUtils.AdminActiveOrder(order) });
+    }
+  } catch (error) {}
 });
 
 controller.TopsellingProducts = handler(async (req, res) => {
