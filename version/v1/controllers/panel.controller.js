@@ -253,7 +253,7 @@ controller.getOders = handler(async (req, res) => {
       totalpage: totalpage,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(400).json({ message: "something went wrong" });
   }
 });
@@ -280,8 +280,8 @@ controller.UserOrder = handler(async (req, res) => {
             model: Address,
           },
         ],
-        offset: (PageNum - 1) * ItemperPage,
-        limit: ItemperPage,
+
+        limit: 15,
         order: [["date", "DESC"]],
       });
 
@@ -289,7 +289,9 @@ controller.UserOrder = handler(async (req, res) => {
         .status(200)
         .json({ orders: structureUtils.AdminActiveOrder(order) });
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 controller.TopsellingProducts = handler(async (req, res) => {
@@ -600,6 +602,60 @@ controller.ordersondate = handler(async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).json({ message: "somthing went wrong" });
+  }
+});
+
+controller.productanalysis = handler(async (req, res) => {
+  const productId = req?.query?.id;
+  try {
+    const product = await Product.findOne({
+      where: {
+        productId: productId,
+      },
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    const totalUnitsSold = await OrderItem.sum("quantity", {
+      where: {
+        productId,
+      },
+    });
+    console.log(product);
+    console.log(totalUnitsSold);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const currentDate = new Date();
+
+    const dateWiseSales = await OrderItem.findAll({
+      attributes: [
+        "date",
+        [Sequelize.fn("sum", Sequelize.col("quantity")), "totalSold"],
+      ],
+      where: {
+        productId,
+        date: {
+          [Op.between]: [
+            thirtyDaysAgo.toISOString().split("T")[0], // Format to "YYYY-MM-DD"
+            currentDate.toISOString().split("T")[0], // Format to "YYYY-MM-DD"
+          ],
+        },
+      },
+      group: "date",
+      raw: true,
+    });
+    console.log(dateWiseSales);
+    res.json({
+      product,
+      totalUnitsSold,
+      dateWiseSales,
+    });
+  } catch (error) {
+    console.error("Error fetching product details:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

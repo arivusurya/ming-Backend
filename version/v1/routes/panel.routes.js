@@ -38,5 +38,7 @@ router.get("/orderfrequency", panelController.getOrderFrequency);
 router.get("/customer-segmentation", panelController.userSegment);
 router.get("/orderAnalytis", panelController.ordersAnalytis);
 router.get("/orderondate", panelController.ordersondate);
+router.get("/getuserOrder", panelController.UserOrder);
+router.get("/productanalysis", panelController.productanalysis);
 
 module.exports = router;
