@@ -154,6 +154,34 @@ controller.getAllProducts = handler(async (req, res) => {
   );
 });
 
+controller.updateProduct = handler(async (req, res) => {
+  if (!req?.body?.productId) throw "400|Product_Id_Required!";
+  if (!req?.body?.name) throw "400|Name_Required!";
+  if (!req?.body?.description) throw "400|Name_Required!";
+  if (!req?.body?.price) throw "400|Name_Required!";
+  if (!req?.body?.weight) throw "400|Name_Required!";
+
+  const [updateProduct, product] = await Product.update(
+    {
+      name: req?.body?.name,
+      description: req?.bdoy?.description,
+      price: req?.body.price,
+      weight: req?.body?.weight,
+    },
+    {
+      where: {
+        productId: req?.body?.productId,
+      },
+    }
+  );
+
+  if (updateProduct < 1) throw "400|Somthing_Went_Wrong!";
+
+  return res.json({
+    message: "success!",
+  });
+});
+
 controller.adminLogin = handler(async (req, res) => {
   if (!req?.body?.email) throw "400|Email_Required!";
   if (!req?.body?.password) throw "400|Password_Required!";
@@ -221,14 +249,14 @@ controller.getAllCount = handler(async (req, res) => {
 });
 controller.getOders = handler(async (req, res) => {
   try {
-    console.log(req?.query)
+    console.log(req?.query);
     const { status, page } = req?.query;
     const ItemperPage = 15;
     const PageNum = parseInt(page, 10) || 1;
 
     const order = await Order.findAndCountAll({
       where: {
-        status: status,
+        status: constantUtils.ACTIVE,
       },
       include: [
         {
