@@ -41,4 +41,6 @@ router.get("/orderondate", panelController.ordersondate);
 router.get("/getuserOrder", panelController.UserOrder);
 router.get("/productanalysis", panelController.productanalysis);
 
+router.post("/updateProduct", validateAdmin, panelController.updateProduct);
+
 module.exports = router;
